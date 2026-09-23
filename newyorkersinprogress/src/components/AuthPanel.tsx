@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,8 +44,9 @@ export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOu
 
   async function google() {
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (result.error) setMessage(result.error.message);
+    // Google sign-in through the app's own Supabase project (Lovable's /~oauth broker only exists on Lovable hosting).
+    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+    if (error) setMessage(error.message);
     setBusy(false);
   }
 

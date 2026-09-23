@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,7 @@ export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOu
         </form>
         {mode === "signin" && <Button type="button" variant="link" className="mt-3 h-auto p-0 text-xs" onClick={resetPassword}>Forgot password?</Button>}
         {message && <p role="status" className="mt-4 text-sm text-muted-foreground">{message}</p>}
+        <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">How we handle your data: <Link to="/privacy" className="underline">Privacy Policy</Link></p>
        </div>
       </div>
     </section>

@@ -1,0 +1,8 @@
+# Original Lovable export (the unzipped source is in newyorkersinprogress/)
+newyorkersinprogress.zip
+
+# Supabase connection settings stay local; Lovable manages its own copy
+newyorkersinprogress/.env
+
+# Created by `npm install` on this PC; the Lovable project uses bun.lock
+newyorkersinprogress/package-lock.json

@@ -1,0 +1,21 @@
+# Roadmap
+
+- [x] Redesign the app as a spacious Park & Brick Transit Atlas with NYC map and retained photography
+- [x] Add sign-in/sign-up, profile management, password recovery, and session-aware navigation
+- [x] Persist private user preferences, XP, streak, lesson progress, slang credit, and saved places
+- [x] Add privacy-friendly aggregate daily visit counts
+- [x] Restyle Things to Do and Slang consistently without changing their features
+- [x] Verify guest and authenticated flows across desktop and mobile
+- [x] Restore the uploaded screenshot's original bright color system and friendly fonts
+- [x] Make sign-in/sign-up the only signed-out screen and hide all app tabs until authentication
+- [x] Verify the signed-out layout on desktop and mobile
+- [x] Verify the signed-in layout with a real authenticated account
+- [x] Replace Account with a click-to-open Profile menu and remove Profile from the main navigation
+- [x] Redraw the learning map with Manhattan, Brooklyn, Queens, the Bronx, and Staten Island
+- [x] Verify the Profile menu and five-borough map in an authenticated desktop and mobile session
+- [x] Consolidate every archived project plan into one comprehensive current plan
+- [x] Remove all selectable themes except Taxi Yellow
+- [x] Verify the Taxi-only interface and completed Profile/map work
+- [x] Clear label collisions and stray decorations on the five-borough map
+- [x] Make sure lesson, XP, streak, and saved-place writes actually reach the database
+- [x] Verify the saved data survives a reload and that sign-up creates a real account

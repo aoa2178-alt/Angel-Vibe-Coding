@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "public",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
+  "functions": {
+    "api/rewrite.js": { "maxDuration": 300, "supportsCancellation": true },
+    "api/feedback.js": { "maxDuration": 120 }
+  }
+}

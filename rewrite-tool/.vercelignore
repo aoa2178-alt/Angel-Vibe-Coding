@@ -1,0 +1,3 @@
+data/
+dev-server.mjs
+.env*.local

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Draft Rewriter</title>
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --surface-2: #faf9f6;
+    --border: #e2dfd6;
+    --text: #1f1e1b;
+    --muted: #6b675e;
+    --accent: #b8542f;
+    --accent-hover: #9d4524;
+    --accent-text: #ffffff;
+    --accent-soft: #f7e6de;
+    --focus: rgba(184, 84, 47, 0.25);
+    --warn-bg: #fdf3e2;
+    --warn-border: #efd7a8;
+    --warn-text: #7a5413;
+    --err-bg: #fbeaea;
+    --err-border: #efc2c2;
+    --err-text: #8a2323;
+    --ok-bg: #e9f4ec;
+    --ok-border: #bcdcc5;
+    --ok-text: #1f5c33;
+    --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #181715; --surface: #22211e; --surface-2: #1d1c1a; --border: #38362f;
+      --text: #ecebe6; --muted: #a29e93; --accent: #e07a52; --accent-hover: #ea906c;
+      --accent-text: #1a1512; --accent-soft: #3a2a22; --focus: rgba(224, 122, 82, 0.3);
+      --warn-bg: #2d2517; --warn-border: #54441f; --warn-text: #e8c98a;
+      --err-bg: #2e1b1b; --err-border: #5a2c2c; --err-text: #f0a9a9;
+      --ok-bg: #1b2a20; --ok-border: #2f5139; --ok-text: #9fd4ae;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #181715; --surface: #22211e; --surface-2: #1d1c1a; --border: #38362f;
+    --text: #ecebe6; --muted: #a29e93; --accent: #e07a52; --accent-hover: #ea906c;
+    --accent-text: #1a1512; --accent-soft: #3a2a22; --focus: rgba(224, 122, 82, 0.3);
+    --warn-bg: #2d2517; --warn-border: #54441f; --warn-text: #e8c98a;
+    --err-bg: #2e1b1b; --err-border: #5a2c2c; --err-text: #f0a9a9;
+    --ok-bg: #1b2a20; --ok-border: #2f5139; --ok-text: #9fd4ae;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px 48px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 20px; }
+  h1 { font-size: 22px; margin: 0 0 2px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); margin: 0; font-size: 14px; }
+
+  .samples { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+  .chip {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 999px; padding: 4px 11px; font: inherit; cursor: pointer;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+
+  .keybar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 12px 14px; margin-bottom: 16px; }
+  .keybar label.lbl { font-weight: 600; font-size: 13px; }
+  .keyfield { flex: 1 1 280px; display: flex; gap: 6px; min-width: 0; }
+  .keyfield input { flex: 1; min-width: 0; font-family: var(--mono); font-size: 13px; }
+  .keymeta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 13px; color: var(--muted); }
+  .status-pill { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--warn-border); background: var(--warn-bg); color: var(--warn-text); white-space: nowrap; }
+  .status-pill.live { border-color: var(--border); background: var(--surface-2); color: var(--text); }
+
+  input[type="password"], input[type="text"], textarea {
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font: inherit;
+  }
+  input:focus, textarea:focus, button:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field { display: flex; flex-direction: column; padding: 12px 14px 14px; min-width: 0; }
+  .field-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin-bottom: 6px; }
+  .field-head label, .field-head .title { font-weight: 600; font-size: 14px; }
+  .hint { color: var(--muted); font-size: 12.5px; }
+  .count { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  textarea { width: 100%; resize: vertical; min-height: 150px; line-height: 1.5; font-size: 14px; }
+  #guidelines { min-height: 220px; }
+  #examples { min-height: 220px; }
+  #draft { min-height: 200px; }
+  .span-2 { grid-column: 1 / -1; }
+  textarea.flash { animation: flash 1.6s ease-out; }
+  @keyframes flash { 0% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 3px transparent; } }
+
+  .field-tools { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; margin-top: 8px; font-size: 13px; }
+  .linkbtn { background: none; border: none; padding: 0; font: inherit; font-size: 13px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+  .linkbtn:disabled { color: var(--muted); cursor: not-allowed; text-decoration: none; }
+  .dot { color: var(--border); }
+
+  details.history { margin-top: 8px; font-size: 13px; }
+  details.history summary { cursor: pointer; color: var(--muted); }
+  details.history ol { list-style: none; margin: 8px 0 0; padding: 0; max-height: 220px; overflow: auto; border-top: 1px solid var(--border); }
+  details.history li { padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .h-when { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .h-what { margin-top: 1px; }
+  .h-from { color: var(--muted); font-size: 12.5px; font-style: italic; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 16px 0; }
+  .btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    border-radius: 8px; padding: 8px 14px; font: inherit; font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; padding: 10px 22px; }
+  .btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn.small { padding: 5px 10px; font-size: 13px; }
+  kbd { font-family: var(--mono); font-size: 11.5px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--surface-2); }
+  .shortcut { color: var(--muted); font-size: 13px; }
+
+  .output { padding: 12px 14px 16px; }
+  .output .field-head { margin-bottom: 10px; }
+  .output-tools { display: flex; gap: 6px; align-items: center; }
+  .notice { font-size: 13px; border-radius: 8px; padding: 8px 11px; margin-bottom: 12px; border: 1px solid var(--warn-border); background: var(--warn-bg); color: var(--warn-text); }
+  .notice.error { border-color: var(--err-border); background: var(--err-bg); color: var(--err-text); }
+  .notice.ok { border-color: var(--ok-border); background: var(--ok-bg); color: var(--ok-text); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compare > div { min-width: 0; }
+  .pane-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .textpane {
+    white-space: pre-wrap; word-wrap: break-word; min-height: 140px; height: calc(100% - 26px);
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 14.5px; line-height: 1.6;
+  }
+  .textpane.empty { color: var(--muted); font-style: italic; }
+  mark.flag { background: var(--err-bg); color: inherit; border-bottom: 2px solid var(--err-text); border-radius: 2px; padding: 0 1px; cursor: help; }
+  mark.flag.active { outline: 2px solid var(--err-text); outline-offset: 1px; }
+  mark.flag sup, .num { font-size: 10.5px; font-weight: 700; color: var(--err-text); }
+  mark.flag sup { margin-left: 2px; }
+
+  .section { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; }
+  .section h2 { font-size: 14px; margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px; }
+  .analysis { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+  .analysis > div { min-width: 0; }
+  ol.items { list-style: none; margin: 0; padding: 0; }
+  ol.items li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  ol.items li:last-child { border-bottom: none; }
+  .issue { display: flex; gap: 8px; }
+  .num { flex: none; display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 4px; border-radius: 999px; background: var(--err-bg); border: 1px solid var(--err-border); margin-top: 1px; }
+  .quote { font-style: italic; }
+  .issue .rule { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .change-edit { overflow-wrap: anywhere; }
+  .change-edit .before { text-decoration: line-through; color: var(--muted); }
+  .change-edit .arrow { color: var(--muted); margin: 0 4px; }
+  .change-edit .after { font-weight: 600; }
+  .reason { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .placeholder { color: var(--muted); font-style: italic; font-size: 13px; }
+
+  .variants { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .variant { border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); padding: 10px 12px; display: flex; flex-direction: column; min-width: 0; }
+  .variant-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .variant-head strong { font-size: 13.5px; }
+  .variant .body { white-space: pre-wrap; word-wrap: break-word; font-size: 14px; line-height: 1.55; flex: 1; margin: 6px 0 10px; }
+  .variant .row { display: flex; gap: 6px; }
+  .cursor::after { content: "▍"; color: var(--accent); animation: blink 1s steps(2) infinite; margin-left: 1px; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .meta { color: var(--muted); font-size: 12px; margin-top: 8px; min-height: 18px; }
+
+  /* Feedback */
+  .feedback { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; }
+  .rate-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 10px; }
+  .rate-row .title { font-weight: 600; font-size: 14px; margin-right: 4px; }
+  .rate[aria-pressed="true"].up { background: var(--ok-bg); border-color: var(--ok-border); color: var(--ok-text); }
+  .rate[aria-pressed="true"].down { background: var(--err-bg); border-color: var(--err-border); color: var(--err-text); }
+  .rate svg { width: 15px; height: 15px; }
+  .rate.down svg { transform: rotate(180deg); }
+  .rate-saved { font-size: 12.5px; color: var(--muted); }
+  #fbComment { min-height: 76px; }
+  .fb-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+
+  .fb-result { margin-top: 12px; }
+  .fb-result:empty { display: none; }
+  .panel { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface-2); }
+  .panel.ok { background: var(--ok-bg); border-color: var(--ok-border); }
+  .panel.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .panel h3 { font-size: 14px; margin: 0 0 6px; }
+  .panel p { margin: 0 0 8px; font-size: 13.5px; }
+  .panel ul.rules { margin: 4px 0 10px; padding-left: 18px; font-size: 14px; }
+  .panel .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: -2px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .conflict { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+  .conflict .why { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .choice { display: flex; gap: 9px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px; margin-top: 6px; cursor: pointer; font-size: 14px; }
+  .choice:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .choice input { margin-top: 4px; accent-color: var(--accent); }
+  .choice .tag { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+
+  .profilebar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 12px 14px; margin-bottom: 12px; }
+  .profilebar label.lbl { font-weight: 600; font-size: 13px; }
+  select {
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 8px;
+    padding: 7px 30px 7px 10px; font: inherit; font-size: 14px; font-weight: 600; min-width: 200px; max-width: 100%;
+    appearance: none; cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 15px) 55%, calc(100% - 10px) 55%; background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus); }
+  .profile-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .profilebar .spacer { flex: 1; }
+  .save-status { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .save-status.error { color: var(--err-text); }
+
+  .banner { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 12px; }
+  .banner .notice { margin: 0; flex: 1 1 320px; }
+
+  .gate { position: fixed; inset: 0; background: var(--bg); display: grid; place-items: center; padding: 16px; z-index: 10; }
+  .gate .card { width: min(420px, 100%); padding: 22px; }
+  .gate h2 { font-size: 18px; margin: 0 0 6px; }
+  .gate p { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+  .gate form { display: flex; gap: 8px; }
+  .gate input { flex: 1; min-width: 0; }
+  .gate .notice { margin: 12px 0 0; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 760px) {
+    .grid, .compare, .analysis, .variants { grid-template-columns: 1fr; }
+    .textpane { height: auto; }
+    .wrap { padding-top: 18px; }
+    .btn.primary { flex: 1 1 100%; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cursor::after, .spinner, textarea.flash { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Draft Rewriter</h1>
+      <p class="sub">Claude rewrites your draft in the team's house voice. Rate each rewrite and tell it what to fix, and the profile's guidelines improve over time.</p>
+    </div>
+    <div class="samples" id="samples">
+      <span>Sample drafts:</span>
+    </div>
+  </header>
+
+  <section class="card profilebar" aria-label="Voice profile">
+    <label class="lbl" for="profileSelect">Voice profile</label>
+    <select id="profileSelect" disabled><option>Loading…</option></select>
+    <div class="profile-actions">
+      <button class="btn small" id="newProfileBtn" type="button">New</button>
+      <button class="btn small" id="renameProfileBtn" type="button">Rename</button>
+      <button class="btn small" id="deleteProfileBtn" type="button">Delete</button>
+    </div>
+    <span class="spacer"></span>
+    <span class="status-pill" id="modePill">Connecting…</span>
+  </section>
+
+  <div class="banner hidden" id="conflictBanner">
+    <div class="notice error" id="conflictText"></div>
+    <button class="btn small" id="loadLatestBtn" type="button">Load latest</button>
+    <button class="btn small" id="keepMineBtn" type="button">Keep mine</button>
+  </div>
+
+  <section class="card keybar hidden" id="keybar" aria-label="API key">
+    <label class="lbl" for="apiKey">Anthropic API key</label>
+    <div class="keyfield">
+      <input id="apiKey" type="password" placeholder="sk-ant-… (leave empty for demo mode)" autocomplete="off" spellcheck="false">
+      <button class="btn small" id="toggleKey" type="button" aria-label="Show key">Show</button>
+    </div>
+    <div class="keymeta">
+      <label><input type="checkbox" id="rememberKey"> Remember on this device</label>
+      <span class="hint">No server key is set, so Claude uses the key you paste here.</span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div class="card field">
+      <div class="field-head">
+        <label for="guidelines">Guidelines</label>
+        <span class="count" data-count-for="guidelines"></span>
+      </div>
+      <textarea id="guidelines" placeholder="Your team's writing rules. Type them in, or build them up from feedback on each rewrite."></textarea>
+      <div class="field-tools">
+        <span class="save-status" id="saveStatus"></span>
+        <span class="dot">·</span>
+        <button class="linkbtn" id="undoBtn" type="button" disabled>Undo last change</button>
+        <span class="dot">·</span>
+        <button class="linkbtn" id="downloadBtn" type="button">Download</button>
+        <span class="dot seed-only">·</span>
+        <button class="linkbtn seed-only" id="seedBtn" type="button" title="The 11 shared principles from the Vercel, Ramp and Shopify research">Start from research principles</button>
+      </div>
+      <details class="history" id="history">
+        <summary>Change history (<span id="historyCount">0</span>)</summary>
+        <ol id="historyList"></ol>
+      </details>
+    </div>
+    <div class="card field">
+      <div class="field-head">
+        <label for="examples">Reference examples</label>
+        <span class="count" data-count-for="examples"></span>
+      </div>
+      <textarea id="examples" placeholder="Paste one or more pieces written the way you want. Separate them with a line of --- if you have several."></textarea>
+    </div>
+    <div class="card field span-2">
+      <div class="field-head">
+        <label for="draft">Draft</label>
+        <span class="count" data-count-for="draft"></span>
+      </div>
+      <textarea id="draft" placeholder="Paste the draft you want rewritten."></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="rewriteBtn" type="button">Rewrite</button>
+    <button class="btn hidden" id="stopBtn" type="button">Stop</button>
+    <button class="btn" id="clearBtn" type="button" title="Clears the draft and results. The profile's guidelines and examples stay.">Clear draft</button>
+    <span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to rewrite</span>
+  </div>
+
+  <section class="card output">
+    <div class="field-head">
+      <span class="title">Original vs rewrite</span>
+      <div class="output-tools">
+        <button class="btn small" id="useBtn" type="button" disabled title="Replace the draft with this rewrite so you can refine it again">Use as draft</button>
+        <button class="btn small" id="copyBtn" type="button" disabled>Copy rewrite</button>
+      </div>
+    </div>
+    <div class="notice hidden" id="notice"></div>
+    <div class="compare">
+      <div>
+        <div class="pane-label"><span>Original</span><span class="count" id="originalCount"></span></div>
+        <div id="original" class="textpane empty">Your draft will appear here.</div>
+      </div>
+      <div>
+        <div class="pane-label"><span>Rewrite</span><span class="count" id="resultCount"></span></div>
+        <div id="result" class="textpane empty" aria-live="polite">Your rewrite will appear here.</div>
+      </div>
+    </div>
+    <div class="meta" id="meta"></div>
+
+    <div class="section hidden" id="analysis">
+      <div class="analysis">
+        <div>
+          <h2>Broken guidelines <span class="count" id="issuesCount"></span></h2>
+          <ol class="items" id="issuesList"></ol>
+        </div>
+        <div>
+          <h2>What changed and why <span class="count" id="changesCount"></span></h2>
+          <ol class="items" id="changesList"></ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="section hidden" id="variantsSection">
+      <h2>Variants</h2>
+      <div class="variants" id="variants"></div>
+    </div>
+
+    <div class="feedback hidden" id="feedback">
+      <div class="rate-row">
+        <span class="title">How was this rewrite?</span>
+        <button class="btn small rate up" id="rateUp" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H3V10h4zM7 10l4-8a3 3 0 0 1 3 3v4h6a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21H7"/></svg>
+          Great
+        </button>
+        <button class="btn small rate down" id="rateDown" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H3V10h4zM7 10l4-8a3 3 0 0 1 3 3v4h6a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.6 21H7"/></svg>
+          Not great
+        </button>
+        <span class="rate-saved" id="rateSaved"></span>
+      </div>
+      <label class="hint" for="fbComment">What should change? Claude turns this into a general rule, checks it against your guidelines, and asks you if anything conflicts.</label>
+      <textarea id="fbComment" placeholder="e.g. Too formal. We never say “utilize”, and the intro should get to the point in one sentence."></textarea>
+      <div class="fb-actions">
+        <button class="btn" id="fbSubmit" type="button" disabled>Add to guidelines</button>
+      </div>
+      <div class="fb-result" id="fbResult" aria-live="polite"></div>
+    </div>
+  </section>
+</div>
+
+<div class="gate hidden" id="gate">
+  <div class="card">
+    <h2>Draft Rewriter</h2>
+    <p>Enter the team access code to use the house voice.</p>
+    <form id="gateForm">
+      <input id="gateCode" type="password" autocomplete="current-password" placeholder="Access code" aria-label="Access code">
+      <button class="btn primary" type="submit">Continue</button>
+    </form>
+    <div class="notice error hidden" id="gateError"></div>
+  </div>
+</div>
+
+<script src="samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

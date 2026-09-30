@@ -1,16 +1,19 @@
-// Voice-profile storage. Upstash Redis (via the Vercel Marketplace) when its credentials are present,
-// a local JSON file during development. Every write is a compare-and-set on the profile's version,
+// Voice-profile storage. Vercel Blob (a private store connected to the project) on Vercel,
+// a local JSON file during development. Every write checks the profile's version first,
 // so two teammates editing the same profile can't silently overwrite each other.
+//
+// Blob's Hobby plan includes 2,000 writes a month, so this store avoids unnecessary writes:
+// profiles are listed from one small index file instead of Blob's (billed) list operation,
+// and the index is only rewritten when a profile is created, renamed or deleted.
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { BlobPreconditionFailedError, del, get, put } from "@vercel/blob";
 import { SEED_PROFILES } from "./seed.js";
 
 const LIMITS = { name: 80, guidelines: 50_000, examples: 100_000, history: 200, undo: 30 };
 
-const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-
-export const storageKind = redisUrl && redisToken ? "redis" : process.env.VERCEL ? "none" : "file";
+const blobConfigured = !!(process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN);
+export const storageKind = blobConfigured ? "blob" : process.env.VERCEL ? "none" : "file";
 
 // Keeps only known fields, trimmed to sane sizes.
 export function cleanProfile(input, base = {}) {
@@ -31,62 +34,81 @@ export function cleanProfile(input, base = {}) {
 export const summary = (p) => ({ id: p.id, name: p.name, createdAt: p.createdAt || p.updatedAt, updatedAt: p.updatedAt });
 export const byCreation = (a, b) => a.createdAt.localeCompare(b.createdAt) || a.name.localeCompare(b.name);
 
-// ---------- Upstash Redis (REST) ----------
-const PROFILES = "draft-rewriter:profiles";
-const VERSIONS = "draft-rewriter:versions";
-const SEEDED = "draft-rewriter:seeded";
+// ---------- Vercel Blob (private store) ----------
+const INDEX = "profiles/index.json";
+const profilePath = (id) => `profiles/${id}.json`;
 
-async function redis(...command) {
-  const res = await fetch(redisUrl, {
-    method: "POST",
-    headers: { authorization: `Bearer ${redisToken}`, "content-type": "application/json" },
-    body: JSON.stringify(command)
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || data.error) throw new Error(`Storage error: ${data.error || res.status}`);
-  return data.result;
+// Reads bypass the CDN cache so everyone always sees the latest save.
+async function readJson(pathname) {
+  const res = await get(pathname, { access: "private", useCache: false });
+  if (!res || res.statusCode !== 200) return null;
+  // Compressed reads report a weak ETag (W/"…"); conditional writes need the plain value.
+  return { data: JSON.parse(await new Response(res.stream).text()), etag: res.blob.etag.replace(/^W\//, "") };
 }
 
-// Returns the new version, -1 if the stored version differs from the expected one, -2 if the profile is gone.
-const CAS_SCRIPT = `
-local v = tonumber(redis.call('HGET', KEYS[2], ARGV[1]) or '-2')
-if v == -2 then return -2 end
-if v ~= tonumber(ARGV[2]) then return -1 end
-redis.call('HSET', KEYS[1], ARGV[1], ARGV[3])
-redis.call('HSET', KEYS[2], ARGV[1], tostring(v + 1))
-return v + 1`;
+function writeJson(pathname, data, options = {}) {
+  return put(pathname, JSON.stringify(data), {
+    access: "private",
+    contentType: "application/json",
+    cacheControlMaxAge: 60,
+    ...options
+  });
+}
 
-const redisStore = {
-  async list() {
-    const flat = (await redis("HGETALL", PROFILES)) || [];
-    const out = [];
-    for (let i = 0; i < flat.length; i += 2) out.push(JSON.parse(flat[i + 1]));
-    return out;
-  },
-  async get(id) {
-    const raw = await redis("HGET", PROFILES, id);
-    return raw ? JSON.parse(raw) : null;
-  },
-  async create(doc) {
+// Applies a change to the index, retrying if another request changed it at the same moment.
+async function updateIndex(change) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const current = await readJson(INDEX);
+    const next = change(current?.data || []);
+    try {
+      await writeJson(INDEX, next, current ? { allowOverwrite: true, ifMatch: current.etag } : {});
+      return;
+    } catch (err) {
+      if (!(err instanceof BlobPreconditionFailedError) && !/already exists/i.test(err?.message || "")) throw err;
+    }
+  }
+  throw new Error("Couldn't update the profile list. Try again.");
+}
+
+const blobStore = {
+  async list() { return (await readJson(INDEX))?.data || []; },
+  async get(id) { return (await readJson(profilePath(id)))?.data || null; },
+  async create(doc, { skipIndex = false } = {}) {
     const created = { ...doc, version: 1 };
-    await redis("HSET", PROFILES, doc.id, JSON.stringify(created));
-    await redis("HSET", VERSIONS, doc.id, "1");
+    await writeJson(profilePath(doc.id), created);
+    if (!skipIndex) await updateIndex((list) => [...list.filter((p) => p.id !== doc.id), summary(created)]);
     return created;
   },
   async update(id, expected, doc) {
+    const current = await readJson(profilePath(id));
+    if (!current) return { status: "missing" };
+    if (current.data.version !== expected) return { status: "conflict", current: current.data };
     const next = { ...doc, id, version: expected + 1 };
-    const result = await redis("EVAL", CAS_SCRIPT, "2", PROFILES, VERSIONS, id, String(expected), JSON.stringify(next));
-    if (result === -2) return { status: "missing" };
-    if (result === -1) return { status: "conflict", current: await this.get(id) };
+    try {
+      await writeJson(profilePath(id), next, { allowOverwrite: true, ifMatch: current.etag });
+    } catch (err) {
+      if (err instanceof BlobPreconditionFailedError) return { status: "conflict", current: await this.get(id) };
+      throw err;
+    }
+    // The index only holds names, so it's rewritten only when the name changes.
+    if (next.name !== current.data.name) {
+      await updateIndex((list) => list.map((p) => (p.id === id ? summary(next) : p)));
+    }
     return { status: "ok", doc: next };
   },
   async remove(id) {
-    await redis("HDEL", PROFILES, id);
-    await redis("HDEL", VERSIONS, id);
+    await updateIndex((list) => list.filter((p) => p.id !== id));
+    await del(profilePath(id));
   },
   async seedOnce() {
-    if ((await redis("SET", SEEDED, "1", "NX")) !== "OK") return;
-    for (const p of SEED_PROFILES) await this.create(cleanProfile(p, { id: p.id }));
+    if (await readJson(INDEX)) return;
+    const created = [];
+    for (const p of SEED_PROFILES) {
+      try { created.push(await this.create(cleanProfile(p, { id: p.id }), { skipIndex: true })); }
+      catch (err) { if (!/already exists/i.test(err?.message || "")) throw err; }
+    }
+    try { await writeJson(INDEX, created.map(summary)); }
+    catch (err) { if (!/already exists/i.test(err?.message || "")) throw err; }
   }
 };
 
@@ -103,7 +125,7 @@ async function writeFileData(data) {
 }
 
 const fileStore = {
-  async list() { return Object.values((await readFileData())?.profiles || {}); },
+  async list() { return Object.values((await readFileData())?.profiles || {}).map(summary); },
   async get(id) { return (await readFileData())?.profiles?.[id] || null; },
   async create(doc) {
     const data = (await readFileData()) || { profiles: {} };
@@ -134,6 +156,6 @@ const fileStore = {
   }
 };
 
-export const store = storageKind === "redis" ? redisStore : storageKind === "file" ? fileStore : null;
+export const store = storageKind === "blob" ? blobStore : storageKind === "file" ? fileStore : null;
 
 export const newId = () => randomUUID();

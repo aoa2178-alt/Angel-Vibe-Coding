@@ -39,7 +39,7 @@
   const undoBtn = $("undoBtn"), downloadBtn = $("downloadBtn"), seedBtn = $("seedBtn");
   const historyList = $("historyList"), historyCount = $("historyCount");
 
-  let config = null;        // { model, claude: "server" | "byok", storage: "redis" | "file" | "none" }
+  let config = null;        // { model, claude: "server" | "byok", storage: "blob" | "file" | "none" }
   let profiles = [];        // [{ id, name, updatedAt }]
   let profile = null;       // the open profile, including unsaved local edits
   let activeSample = SAMPLES[0];
@@ -83,7 +83,7 @@
       : "Demo mode · sample answers";
     modePill.textContent = label;
     modePill.classList.toggle("live", hasClaude());
-    modePill.title = config.storage === "redis" ? "Profiles are shared with the team." : config.storage === "file" ? "Profiles are saved on this computer (local development)." : "";
+    modePill.title = config.storage === "blob" ? "Profiles are shared with the team." : config.storage === "file" ? "Profiles are saved on this computer (local development)." : "";
   }
 
   function setNotice(text, kind) {
@@ -211,6 +211,9 @@
   }
 
   // ---------- Saving (debounced, with conflict detection) ----------
+  // Storage writes are metered (Vercel Blob's free plan includes 2,000 a month), so typing is
+  // saved once it pauses for a few seconds, or as soon as the box loses focus.
+  const SAVE_DELAY = 4000;
   let dirty = 0, savedDirty = 0, saveTimer = null, saving = null, conflict = null;
 
   function markDirty({ now = false } = {}) {
@@ -220,7 +223,7 @@
     setSaveStatus("dirty");
     clearTimeout(saveTimer);
     if (now) saveNow();
-    else saveTimer = setTimeout(saveNow, 700);
+    else saveTimer = setTimeout(saveNow, SAVE_DELAY);
   }
 
   function saveNow() {
@@ -242,7 +245,7 @@
         savedDirty = target;
         setSaveStatus(dirty === savedDirty ? "saved" : "dirty");
         // Edits made while this save was in flight go out in the next one.
-        if (dirty !== savedDirty) saveTimer = setTimeout(saveNow, 700);
+        if (dirty !== savedDirty) saveTimer = setTimeout(saveNow, SAVE_DELAY);
       } catch (err) {
         if (err.status === 409 && err.data?.current) showConflict(err.data.current);
         else if (err.status === 404) setSaveStatus("error", "this profile was deleted");
@@ -922,6 +925,7 @@
     }
     editSnapshot = null;
   });
+  fields.examples.addEventListener("blur", () => { if (profile && dirty !== savedDirty) saveNow(); });
 
   undoBtn.addEventListener("click", undoGuidelines);
   seedBtn.addEventListener("click", () => {
@@ -982,7 +986,7 @@
     updateMode();
     if (config.storage === "none") {
       setSaveStatus("error", "no storage is connected");
-      setNotice("Profiles can't be saved: this deployment has no storage connected. Add Upstash Redis to the Vercel project (Storage → Marketplace → Upstash) and redeploy.", "error");
+      setNotice("Profiles can't be saved: this deployment has no storage connected. Add a private Vercel Blob store to the project (Storage → Create → Blob, then connect it to this project) and redeploy.", "error");
       return;
     }
     try {

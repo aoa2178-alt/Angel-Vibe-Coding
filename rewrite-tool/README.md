@@ -10,7 +10,7 @@ Rewrites drafts in the team's house voice with Claude. Each **voice profile** (f
   - `profiles.js`, `profile.js`: list, create, save and delete voice profiles.
   - `rewrite.js`: streams the rewrite, the guideline check and the variants.
   - `feedback.js`: turns feedback into guideline changes.
-- Storage: Upstash Redis on Vercel, and `data/profiles.json` when running locally. A save only goes through if nobody else saved since you loaded the profile, so teammates can't silently overwrite each other.
+- Storage: a private Vercel Blob store on Vercel, and `data/profiles.json` when running locally. Saves are batched (a few seconds after typing stops, or when a box loses focus) because Blob's Hobby plan includes 2,000 writes a month. A save only goes through if nobody else saved since you loaded the profile, so teammates can't silently overwrite each other.
 
 ## Run locally
 
@@ -29,7 +29,7 @@ Run these from this folder (`rewrite-tool/`):
 ```bash
 npx vercel login
 npx vercel link                                   # create the project
-npx vercel install upstash                        # shared storage for profiles
+npx vercel blob create-store draft-rewriter --access private   # shared storage, then connect it to the project
 npx vercel env add ANTHROPIC_API_KEY production   # paste the team's Claude key
 npx vercel env add TEAM_ACCESS_CODE production    # the code teammates will enter
 npx vercel --prod

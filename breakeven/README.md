@@ -1,0 +1,29 @@
+# Breakeven
+
+**Own, rent, or API? What AI really costs you.**
+
+Breakeven compares what one month of AI inference costs three ways: a pay-per-token API, rented cloud GPUs, or GPUs you own. Pick a preset or enter your monthly token volume, adjust the assumptions, and it shows each option's monthly cost and cost per million tokens, which one is cheapest, and the volumes where the answer changes.
+
+Live: https://breakeven-silk.vercel.app
+
+This is the first version (capstone thin slice). Coming next: a break-even chart, a power constraint, sourced methodology, ROI and vendor steps, and price trackers.
+
+## Run it
+
+```bash
+npm install
+npm run dev     # local dev server
+npm test        # cost-model tests
+npm run build   # type-check and build to dist/
+```
+
+## How it works
+
+- `src/lib/tco.ts`: the cost model (pure functions), defaults and presets. Tests are in `src/lib/tco.test.ts`.
+  - **API:** tokens × the blended input/output price.
+  - **Rent:** GPUs needed × 730 hours × $/GPU-hour.
+  - **Own:** GPUs bought in whole 8-GPU servers × (depreciation + power × PUE + space, staff and upkeep).
+  - GPUs needed = average tokens/sec ÷ (throughput per GPU × utilization).
+- `src/App.tsx`: the page.
+
+The defaults are illustrative (October 2026) and every one is editable in the app. "Rent" and "Own" mean running an open-weight model yourself; frontier models like Claude and GPT are API-only.

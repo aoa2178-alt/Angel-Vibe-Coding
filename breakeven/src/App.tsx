@@ -89,9 +89,9 @@ export default function App() {
   return (
     <div className="min-h-dvh">
       <header className="mx-auto max-w-6xl px-4 pt-5 sm:px-6">
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-[0_1px_0_var(--line),0_12px_32px_-18px_color-mix(in_oklab,var(--brand)_45%,transparent)] backdrop-blur sm:px-5">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-sm sm:px-5">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl shadow-[0_6px_16px_-6px_var(--brand)]" aria-hidden>
+            <span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl" aria-hidden>
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
                 <path d="M3 18 L21 6" />
                 <path d="M3 9 C9 9 13 13 21 14" />
@@ -119,7 +119,7 @@ export default function App() {
             <button
               type="button"
               onClick={copyLink}
-              className="brand-gradient inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-white shadow-[0_6px_16px_-8px_var(--brand)] transition hover:brightness-110"
+              className="brand-gradient inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-white transition hover:brightness-110"
               aria-label="Save estimate: copy a link to it"
             >
               {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
@@ -161,7 +161,7 @@ export default function App() {
                     aria-pressed={active}
                     onClick={() => setW({ tokensM: p.tokensM })}
                     className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "brand-gradient border-transparent text-white shadow-[0_8px_18px_-10px_var(--brand)]" : "border-line bg-bg hover:border-brand"
+                      active ? "brand-gradient border-transparent text-white" : "border-line bg-bg hover:border-brand"
                     }`}
                   >
                     <span className="block text-sm font-semibold leading-tight">{p.label}</span>
@@ -272,21 +272,21 @@ export default function App() {
           </section>
 
           {/* Results */}
-          <section aria-label="Results" aria-live="polite" className="grid gap-4">
-            <div className="panel-glow relative overflow-hidden rounded-2xl p-5 text-panel-ink shadow-[0_24px_48px_-28px_var(--brand)] sm:p-7">
+          <section aria-label="Results" aria-live="polite" className={`theme-${winner} grid gap-4`}>
+            <div className="win-panel relative overflow-hidden rounded-2xl p-5 text-white sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
                   Cheapest at {formatTokensM(workload.tokensM)} tokens / month
                 </p>
-                <span key={`pill-${winner}`} className="brand-gradient animate-pop rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                <span key={`pill-${winner}`} className="animate-pop rounded-full border border-white/40 bg-white/15 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
                   {OPTIONS[winner].short} wins
                 </span>
               </div>
               <p key={winner} className="mt-3 flex animate-rise items-center gap-3 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
-                <span className={`size-4 shrink-0 rounded-full ring-2 ring-panel-ink/30 ${OPTIONS[winner].swatch}`} aria-hidden />
+                <span className={`size-4 shrink-0 rounded-full ring-2 ring-white/80 ${OPTIONS[winner].swatch}`} aria-hidden />
                 {OPTIONS[winner].name}
               </p>
-              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-panel-line pt-4 font-mono">
+              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4 font-mono">
                 <Stat label="Per month">
                   <Odometer text={formatUsd(costs[winner].monthly)} />
                 </Stat>
@@ -303,7 +303,7 @@ export default function App() {
               {(["api", "rent", "own"] as const).map((id) => {
                 const c = costs[id];
                 return (
-                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "border-brand" : "border-line"}`}>
+                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "win-border" : "border-line"}`}>
                     <p className="flex items-center gap-2 text-sm font-semibold">
                       <span className={`size-2.5 rounded-full ${OPTIONS[id].swatch}`} aria-hidden />
                       {OPTIONS[id].name}
@@ -407,7 +407,7 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-[0.12em] text-panel-muted">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">{label}</p>
       <p className="mt-1.5 text-lg font-semibold sm:text-2xl">{children}</p>
     </div>
   );

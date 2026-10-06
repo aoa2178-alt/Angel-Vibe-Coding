@@ -62,6 +62,11 @@
   --series-api: #0e9f8e;
   --series-rent: #e8850f;
   --series-own: #8b3cf0;
+  /* Deep shades of each option, for panels with white text (all ≥ 7:1). */
+  --api-deep: #0b5e54;
+  --rent-deep: #8a4705;
+  --own-deep: #4b1e9c;
+  --tint: 10%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,16 +91,16 @@
     --series-api: #12998a;
     --series-rent: #c9750c;
     --series-own: #8f4ff0;
+    --api-deep: #0c4f47;
+    --rent-deep: #7a3f06;
+    --own-deep: #3f1a85;
+    --tint: 16%;
   }
 }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(900px 420px at 100% -8%, color-mix(in oklab, var(--brand) 12%, transparent), transparent 70%),
-    radial-gradient(700px 360px at -10% 30%, color-mix(in oklab, var(--brand-2) 7%, transparent), transparent 70%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -128,10 +133,29 @@ input[type="range"] {
   background-clip: text;
   color: transparent;
 }
-.panel-glow {
-  background:
-    radial-gradient(420px 220px at 100% 0%, color-mix(in oklab, var(--brand) 38%, transparent), transparent 70%),
-    linear-gradient(160deg, var(--panel) 40%, var(--panel-2));
+/*
+ * The winning option colors the results: theme-api / theme-rent / theme-own set --win and --win-deep,
+ * the verdict panel fills with the deep shade and the cost card takes a light tint. Colors fade on change.
+ */
+.theme-api { --win: var(--series-api); --win-deep: var(--api-deep); }
+.theme-rent { --win: var(--series-rent); --win-deep: var(--rent-deep); }
+.theme-own { --win: var(--series-own); --win-deep: var(--own-deep); }
+.win-panel {
+  background-color: var(--win-deep);
+  transition: background-color 0.6s ease;
+}
+.win-tint {
+  background-color: color-mix(in oklab, var(--win) var(--tint), var(--surface));
+  border-color: color-mix(in oklab, var(--win) 40%, var(--line));
+  transition: background-color 0.6s ease, border-color 0.6s ease;
+}
+.win-border {
+  border-color: var(--win);
+  transition: border-color 0.6s ease;
+}
+.win-pill {
+  background-color: var(--win-deep);
+  transition: background-color 0.6s ease;
 }
 
 /* Odometer: each digit is a column of 0–9 that slides to the right number. */

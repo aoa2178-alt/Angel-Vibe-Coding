@@ -30,7 +30,7 @@ export function ClosingBars({
   const winPct = pct(costs[winner].monthly);
 
   return (
-    <figure className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+    <figure className="win-tint rounded-2xl border p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
         <span className="text-sm font-semibold">Monthly cost</span>
         <span className="kicker">Closing the gap</span>
@@ -58,7 +58,7 @@ export function ClosingBars({
                   <span className={`size-2.5 rounded-full ${meta[id].swatch}`} aria-hidden />
                   {meta[id].short}
                   {isWinner && (
-                    <span key={winner} className="animate-pop rounded-full bg-brand px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                    <span key={winner} className="win-pill animate-pop rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
                       Cheapest
                     </span>
                   )}
@@ -69,7 +69,7 @@ export function ClosingBars({
               </div>
 
               {/* Track */}
-              <div className="relative h-6 rounded-r-[4px] bg-sunken">
+              <div className="relative h-6 rounded-r-[4px] bg-surface/80">
                 <div
                   className={`glide absolute inset-y-0 left-0 rounded-r-[4px] ${meta[id].swatch} ${hover && hover !== id ? "opacity-40" : ""}`}
                   style={{ width: `${barPct}%` }}

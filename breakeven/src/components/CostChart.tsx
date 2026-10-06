@@ -236,7 +236,7 @@ export function CostChart({
         {hoverV !== null && hoverCosts && (
           <div
             role="tooltip"
-            className="pointer-events-none absolute top-2 z-10 w-52 rounded-xl bg-panel px-3 py-2.5 text-xs text-panel-ink shadow-xl"
+            className="pointer-events-none absolute top-2 z-10 w-52 rounded-xl bg-panel px-3 py-2.5 text-xs text-panel-ink"
             style={{ left: Math.min(Math.max(lx(hoverV) + 12, 0), width - 212) }}
           >
             <p className="font-mono text-[10px] uppercase tracking-wider text-panel-muted">{formatTokensM(hoverV)} tokens / month</p>

@@ -88,10 +88,10 @@ export default function App() {
 
   return (
     <div className="min-h-dvh">
-      <header className="mx-auto max-w-6xl px-4 pt-5 sm:px-6">
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-sm sm:px-5">
+      <header className="border-b border-line bg-surface">
+        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl" aria-hidden>
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand" aria-hidden>
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
                 <path d="M3 18 L21 6" />
                 <path d="M3 9 C9 9 13 13 21 14" />
@@ -119,7 +119,7 @@ export default function App() {
             <button
               type="button"
               onClick={copyLink}
-              className="brand-gradient inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-white transition hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-brand-ink"
               aria-label="Save estimate: copy a link to it"
             >
               {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
@@ -132,23 +132,24 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pt-14">
-        <div className="max-w-3xl">
-          <p className="font-mono text-sm text-ink-2">
-            <span className="text-brand-ink">&gt;</span> what does AI really cost at my volume?
-            <span className="ml-1 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-brand" aria-hidden />
-          </p>
-          <h1 className="mt-4 text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] sm:text-7xl">
-            Own, rent, <span className="brand-gradient-text">or API?</span>
-          </h1>
-          <p className="mt-4 max-w-xl text-lg text-ink-2">
+      <main className="mx-auto max-w-[1360px] px-4 pb-16 pt-7 sm:px-6">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+          <div>
+            <p className="font-mono text-sm text-ink-2">
+              <span className="text-brand-ink">&gt;</span> what does AI really cost at my volume?
+            </p>
+            <h1 className="mt-2 text-4xl font-extrabold leading-none tracking-[-0.035em] sm:text-5xl">
+              Own, rent, <span className="text-brand">or API?</span>
+            </h1>
+          </div>
+          <p className="max-w-md text-base text-ink-2 lg:text-right">
             Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-          {/* Inputs */}
-          <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+        <div className="mt-7 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start">
+          {/* Inputs: stay in view on wide screens while the results scroll beside them */}
+          <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-6">
             <p className="kicker">01 · Your workload</p>
 
             <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
@@ -161,7 +162,7 @@ export default function App() {
                     aria-pressed={active}
                     onClick={() => setW({ tokensM: p.tokensM })}
                     className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "brand-gradient border-transparent text-white" : "border-line bg-bg hover:border-brand"
+                      active ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"
                     }`}
                   >
                     <span className="block text-sm font-semibold leading-tight">{p.label}</span>
@@ -272,7 +273,7 @@ export default function App() {
           </section>
 
           {/* Results */}
-          <section aria-label="Results" aria-live="polite" className={`theme-${winner} grid gap-4`}>
+          <section aria-label="Results" aria-live="polite" className={`theme-${winner} grid min-w-0 gap-4`}>
             <div className="win-panel relative overflow-hidden rounded-2xl p-5 text-white sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
@@ -299,60 +300,31 @@ export default function App() {
 
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              {(["api", "rent", "own"] as const).map((id) => {
-                const c = costs[id];
-                return (
-                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "win-border" : "border-line"}`}>
-                    <p className="flex items-center gap-2 text-sm font-semibold">
-                      <span className={`size-2.5 rounded-full ${OPTIONS[id].swatch}`} aria-hidden />
-                      {OPTIONS[id].name}
-                    </p>
-                    <dl className="mt-3 space-y-1 font-mono text-sm">
-                      <div className="flex justify-between gap-2">
-                        <dt className="text-muted">Per M tokens</dt>
-                        <dd>
-                          <Odometer text={formatUsd(c.perM, 2)} />
-                        </dd>
-                      </div>
-                      <div className="flex justify-between gap-2">
-                        <dt className="text-muted">GPUs</dt>
-                        <dd>{c.gpus === null ? "—" : <Odometer text={String(c.gpus)} />}</dd>
-                      </div>
-                    </dl>
-                    <p className="mt-3 text-xs leading-5 text-muted">{OPTIONS[id].note}</p>
-                  </article>
-                );
-              })}
+            <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
+
+            <div className="grid items-start gap-4 xl:grid-cols-2">
+              <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
+                  <Sparkles className="size-4" />
+                </span>
+                <div>
+                  <p className="kicker">Where the answer flips</p>
+                  <p className="mt-1 text-sm leading-6 text-ink">{describeCrossovers(cross)}</p>
+                </div>
+              </div>
+              <Calculations workload={workload} assumptions={assumptions} costs={costs} />
             </div>
 
+            <p className="text-xs leading-5 text-muted">
+              “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
+              GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
+              Every number here is an editable assumption, not a quote.
+            </p>
           </section>
         </div>
-
-        <section aria-label="Cost projection" className="mt-6 grid min-w-0 gap-4">
-          <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
-
-          <div className="flex gap-3 rounded-2xl border border-line bg-brand-soft/60 p-4 sm:p-5">
-            <span className="brand-gradient grid size-8 shrink-0 place-items-center rounded-lg text-white" aria-hidden>
-              <Sparkles className="size-4" />
-            </span>
-            <div>
-              <p className="kicker">Where the answer flips</p>
-              <p className="mt-1 text-sm leading-6 text-ink">{describeCrossovers(cross)}</p>
-            </div>
-          </div>
-
-          <Calculations workload={workload} assumptions={assumptions} costs={costs} />
-
-          <p className="text-xs leading-5 text-muted">
-            “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
-            GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
-            Every number here is an editable assumption, not a quote.
-          </p>
-        </section>
       </main>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
+      <footer className="mx-auto flex max-w-[1360px] flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
         <span>
           Illustrative estimate <span className="text-brand-ink">·</span> excludes taxes, egress and setup costs
         </span>

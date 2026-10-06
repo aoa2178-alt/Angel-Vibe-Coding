@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Design tokens: lavender-white paper, vivid purple brand with a fuchsia glow, deep aubergine panels, small
- * monospace labels. Series colors (one per option, validated light and dark, all pairs):
+ * Design tokens: flat lavender-white paper, solid purple brand, small monospace labels. No glows or gradients;
+ * the results take the winning option's color instead. Series colors (one per option, validated light and dark, all pairs):
  *   API = teal, Rent = amber, Own = violet. Text never uses a series color.
  */
 @theme {
@@ -17,7 +17,6 @@
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
   --color-brand: var(--brand);
-  --color-brand-2: var(--brand-2);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-panel: var(--panel);
@@ -51,11 +50,9 @@
   --ink-2: #463c5e;
   --muted: #716882;
   --brand: #8b2cf5;
-  --brand-2: #d13cc8;
   --brand-ink: #7419d6;
   --brand-soft: #f1e6ff;
   --panel: #1e1338;
-  --panel-2: #33195e;
   --panel-ink: #f6f1ff;
   --panel-muted: #b8aad6;
   --panel-line: #3a2c60;
@@ -80,11 +77,9 @@
     --ink-2: #cbc3e0;
     --muted: #9a90b5;
     --brand: #a259f7;
-    --brand-2: #e25bd8;
     --brand-ink: #c39bff;
     --brand-soft: #2c1d4d;
     --panel: #261848;
-    --panel-2: #3b1f6a;
     --panel-ink: #f6f1ff;
     --panel-muted: #b8aad6;
     --panel-line: #43356a;
@@ -124,15 +119,6 @@ input[type="range"] {
   color: var(--brand-ink);
 }
 
-.brand-gradient {
-  background-image: linear-gradient(100deg, var(--brand) 10%, var(--brand-2) 95%);
-}
-.brand-gradient-text {
-  background-image: linear-gradient(100deg, var(--brand) 10%, var(--brand-2) 95%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
 /*
  * The winning option colors the results: theme-api / theme-rent / theme-own set --win and --win-deep,
  * the verdict panel fills with the deep shade and the cost card takes a light tint. Colors fade on change.

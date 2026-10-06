@@ -8,6 +8,7 @@ export interface OptionMeta {
   name: string;
   short: string;
   swatch: string;
+  note?: string;
 }
 
 /**
@@ -93,20 +94,25 @@ export function ClosingBars({
                 />
               </div>
 
-              <p className="mt-1 h-4 font-mono text-[11px] text-muted">
-                {isWinner ? (
-                  "The line to beat"
-                ) : (
-                  <>
-                    <Odometer text={`+${formatUsd(extra)}`} /> a month more
-                  </>
-                )}
-              </p>
+              <div className="mt-1 flex h-4 items-center justify-between gap-3 font-mono text-[11px] text-muted">
+                <span>
+                  {isWinner ? (
+                    "The line to beat"
+                  ) : (
+                    <>
+                      <Odometer text={`+${formatUsd(extra)}`} /> a month more
+                    </>
+                  )}
+                </span>
+                <span className="whitespace-nowrap">
+                  <Odometer text={formatUsd(c.perM, 2)} /> / M tokens · {c.gpus === null ? "no GPUs" : <><Odometer text={String(c.gpus)} /> GPU{c.gpus === 1 ? "" : "s"}</>}
+                </span>
+              </div>
 
               {hover === id && (
-                <div role="tooltip" className="absolute -top-2 right-0 z-10 -translate-y-full rounded-lg bg-panel px-3 py-2 text-xs text-panel-ink shadow-lg">
-                  <span className="font-semibold">{meta[id].name}</span> · {formatUsd(c.perM, 2)} per M tokens
-                  {c.gpus !== null && ` · ${c.gpus} GPU${c.gpus === 1 ? "" : "s"}`}
+                <div role="tooltip" className="absolute -top-2 right-0 z-10 max-w-72 -translate-y-full rounded-lg bg-panel px-3 py-2 text-xs text-panel-ink">
+                  <span className="font-semibold">{meta[id].name}</span>
+                  {meta[id].note && <span className="block text-panel-muted">{meta[id].note}</span>}
                 </div>
               )}
             </div>

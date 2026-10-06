@@ -107,6 +107,22 @@ export function compare(w: Workload, a: Assumptions): Record<OptionId, OptionCos
   };
 }
 
+/** The intermediate numbers behind compare(), for showing the calculation step by step. */
+export function breakdown(w: Workload, a: Assumptions) {
+  const blendedPerM = (1 - w.outputShare) * a.apiInputPerM + w.outputShare * a.apiOutputPerM;
+  const avgTokensPerSec = (w.tokensM * 1e6) / SECONDS_PER_MONTH;
+  const servedPerGpu = a.gpuTokensPerSec * w.utilization;
+  return {
+    blendedPerM,
+    avgTokensPerSec,
+    servedPerGpu,
+    gpusExact: avgTokensPerSec / servedPerGpu,
+    ownDepreciation: a.hardwarePerGpu / (a.depreciationYears * 12),
+    ownPower: a.kwPerGpu * a.pue * HOURS_PER_MONTH * a.electricityPerKwh,
+    ownOps: a.opsPerGpuMonth,
+  };
+}
+
 /** The cheapest option; ties go API → rent → own (least commitment first). */
 export function cheapest(costs: Record<OptionId, OptionCost>): OptionId {
   return (["api", "rent", "own"] as const).reduce((best, id) => (costs[id].monthly < costs[best].monthly - 1e-6 ? id : best));

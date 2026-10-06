@@ -58,7 +58,7 @@ export function ClosingBars({
                   <span className={`size-2.5 rounded-full ${meta[id].swatch}`} aria-hidden />
                   {meta[id].short}
                   {isWinner && (
-                    <span key={winner} className="animate-pop rounded-full bg-coral px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                    <span key={winner} className="animate-pop rounded-full bg-brand px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
                       Cheapest
                     </span>
                   )}

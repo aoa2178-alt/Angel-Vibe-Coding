@@ -6,7 +6,7 @@ Breakeven compares what one month of AI inference costs three ways: a pay-per-to
 
 Live: https://breakeven-silk.vercel.app
 
-This is the first version (capstone thin slice). Coming next: a break-even chart, a power constraint, sourced methodology, ROI and vendor steps, and price trackers.
+Features: presets, editable assumptions, rolling-digit cost readouts, a closing-gap cost comparison, a cost projection chart (log scales) with both crossovers marked, "Show calculations", CSV export, and estimates saved in a shareable link. Coming next: a power constraint, sourced methodology, ROI and vendor steps, and price trackers.
 
 ## Run it
 
@@ -24,6 +24,8 @@ npm run build   # type-check and build to dist/
   - **Rent:** GPUs needed × 730 hours × $/GPU-hour.
   - **Own:** GPUs bought in whole 8-GPU servers × (depreciation + power × PUE + space, staff and upkeep).
   - GPUs needed = average tokens/sec ÷ (throughput per GPU × utilization).
+- `src/lib/share.ts`: shareable links (the estimate lives in the URL) and CSV export. Tests are in `src/lib/share.test.ts`.
+- `src/components/`: `CostChart` (projection chart), `ClosingBars`, `Odometer`.
 - `src/App.tsx`: the page.
 
 The defaults are illustrative (October 2026) and every one is editable in the app. "Rent" and "Own" mean running an open-weight model yourself; frontier models like Claude and GPT are API-only.

@@ -1,12 +1,15 @@
-import { useMemo, useState } from "react";
+import { Check, Download, Link2, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
+import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
+import { estimateCsv, estimateQuery, readEstimate } from "@/lib/share";
 import {
   DEFAULT_ASSUMPTIONS,
-  DEFAULT_WORKLOAD,
   PRESETS,
   VOLUME_MAX_M,
   VOLUME_MIN_M,
+  breakdown,
   cheapest,
   compare,
   crossovers,
@@ -45,21 +48,50 @@ const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; 
   { key: "opsPerGpuMonth", label: "Space, staff & upkeep", unit: "$ / GPU / month", step: 50 },
 ];
 
+// Read once on load: a shared link opens the estimate it was made from.
+const initial = typeof window === "undefined" ? readEstimate("") : readEstimate(window.location.search);
+
 export default function App() {
-  const [workload, setWorkload] = useState<Workload>(DEFAULT_WORKLOAD);
-  const [assumptions, setAssumptions] = useState<Assumptions>(DEFAULT_ASSUMPTIONS);
+  const [workload, setWorkload] = useState<Workload>(initial.workload);
+  const [assumptions, setAssumptions] = useState<Assumptions>(initial.assumptions);
+  const [copied, setCopied] = useState(false);
 
   const costs = useMemo(() => compare(workload, assumptions), [workload, assumptions]);
   const winner = cheapest(costs);
   const cross = useMemo(() => crossovers(workload, assumptions), [workload, assumptions]);
   const setW = (patch: Partial<Workload>) => setWorkload((w) => ({ ...w, ...patch }));
 
+  // Keep the address bar in sync, so the current estimate is always a shareable link.
+  useEffect(() => {
+    const url = `${window.location.pathname}${estimateQuery(workload, assumptions)}`;
+    window.history.replaceState(null, "", url);
+  }, [workload, assumptions]);
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      window.prompt("Copy this link to your estimate:", window.location.href);
+    }
+  }
+
+  function exportCsv() {
+    const blob = new Blob([estimateCsv(workload, assumptions, costs, winner, cross)], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `breakeven-estimate-${formatTokensM(workload.tokensM)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
   return (
     <div className="min-h-dvh">
       <header className="mx-auto max-w-6xl px-4 pt-5 sm:px-6">
-        <div className="flex items-center justify-between gap-4 rounded-2xl border-2 border-coral/70 bg-surface px-4 py-3 sm:px-5">
-          <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-xl bg-coral" aria-hidden>
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface/90 px-4 py-3 shadow-[0_1px_0_var(--line),0_12px_32px_-18px_color-mix(in_oklab,var(--brand)_45%,transparent)] backdrop-blur sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="brand-gradient grid size-10 shrink-0 place-items-center rounded-xl shadow-[0_6px_16px_-6px_var(--brand)]" aria-hidden>
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
                 <path d="M3 18 L21 6" />
                 <path d="M3 9 C9 9 13 13 21 14" />
@@ -71,20 +103,43 @@ export default function App() {
               <p className="kicker !text-[10px]">AI compute cost of ownership</p>
             </div>
           </div>
-          <p className="hidden font-mono text-xs text-muted sm:block">
-            <span className="text-coral-ink">✱</span> own · rent · api
-          </p>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="hidden rounded-full border border-line bg-brand-soft px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-brand-ink md:inline">
+              Illustrative estimate · USD
+            </span>
+            <button
+              type="button"
+              onClick={exportCsv}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-2 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
+              aria-label="Export CSV"
+            >
+              <Download className="size-3.5" aria-hidden />
+              <span className="hidden sm:inline">Export CSV</span>
+            </button>
+            <button
+              type="button"
+              onClick={copyLink}
+              className="brand-gradient inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-white shadow-[0_6px_16px_-8px_var(--brand)] transition hover:brightness-110"
+              aria-label="Save estimate: copy a link to it"
+            >
+              {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
+              <span className="hidden sm:inline">{copied ? "Link copied" : "Save estimate"}</span>
+            </button>
+            <span className="sr-only" aria-live="polite">
+              {copied ? "Link to this estimate copied" : ""}
+            </span>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pt-14">
         <div className="max-w-3xl">
           <p className="font-mono text-sm text-ink-2">
-            <span className="text-coral-ink">&gt;</span> what does AI really cost at my volume?
-            <span className="ml-1 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-coral" aria-hidden />
+            <span className="text-brand-ink">&gt;</span> what does AI really cost at my volume?
+            <span className="ml-1 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-brand" aria-hidden />
           </p>
           <h1 className="mt-4 text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] sm:text-7xl">
-            Own, rent, <span className="text-coral">or API?</span>
+            Own, rent, <span className="brand-gradient-text">or API?</span>
           </h1>
           <p className="mt-4 max-w-xl text-lg text-ink-2">
             Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.
@@ -106,11 +161,11 @@ export default function App() {
                     aria-pressed={active}
                     onClick={() => setW({ tokensM: p.tokensM })}
                     className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "border-panel bg-panel text-panel-ink" : "border-line bg-bg hover:border-coral"
+                      active ? "brand-gradient border-transparent text-white shadow-[0_8px_18px_-10px_var(--brand)]" : "border-line bg-bg hover:border-brand"
                     }`}
                   >
                     <span className="block text-sm font-semibold leading-tight">{p.label}</span>
-                    <span className={`mt-0.5 block font-mono text-xs ${active ? "text-panel-muted" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
+                    <span className={`mt-0.5 block font-mono text-xs ${active ? "text-white/80" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
                   </button>
                 );
               })}
@@ -119,7 +174,7 @@ export default function App() {
             <div className="mt-6">
               <div className="flex items-end justify-between gap-3">
                 <label htmlFor="volume" className="text-sm font-medium">
-                  Tokens per month <span className="font-mono text-coral-ink">= {formatTokensM(workload.tokensM)}</span>
+                  Tokens per month <span className="font-mono text-brand-ink">= {formatTokensM(workload.tokensM)}</span>
                 </label>
                 <div className="flex items-center gap-1.5">
                   <input
@@ -201,7 +256,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)}
-                    className="text-xs font-medium text-coral-ink underline underline-offset-2"
+                    className="text-xs font-medium text-brand-ink underline underline-offset-2"
                   >
                     Reset to defaults
                   </button>
@@ -218,12 +273,12 @@ export default function App() {
 
           {/* Results */}
           <section aria-label="Results" aria-live="polite" className="grid gap-4">
-            <div className="relative overflow-hidden rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
+            <div className="panel-glow relative overflow-hidden rounded-2xl p-5 text-panel-ink shadow-[0_24px_48px_-28px_var(--brand)] sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">
                   Cheapest at {formatTokensM(workload.tokensM)} tokens / month
                 </p>
-                <span key={`pill-${winner}`} className="animate-pop rounded-full bg-coral px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                <span key={`pill-${winner}`} className="brand-gradient animate-pop rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
                   {OPTIONS[winner].short} wins
                 </span>
               </div>
@@ -248,7 +303,7 @@ export default function App() {
               {(["api", "rent", "own"] as const).map((id) => {
                 const c = costs[id];
                 return (
-                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "border-coral" : "border-line"}`}>
+                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "border-brand" : "border-line"}`}>
                     <p className="flex items-center gap-2 text-sm font-semibold">
                       <span className={`size-2.5 rounded-full ${OPTIONS[id].swatch}`} aria-hidden />
                       {OPTIONS[id].name}
@@ -271,27 +326,81 @@ export default function App() {
               })}
             </div>
 
-            <div className="rounded-2xl border border-line bg-surface p-5">
-              <p className="kicker">Where the answer flips</p>
-              <p className="mt-2 text-sm leading-6 text-ink-2">{describeCrossovers(cross)}</p>
-            </div>
-
-            <p className="text-xs leading-5 text-muted">
-              “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
-              GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
-              Every number here is an editable assumption, not a quote.
-            </p>
           </section>
         </div>
+
+        <section aria-label="Cost projection" className="mt-6 grid min-w-0 gap-4">
+          <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
+
+          <div className="flex gap-3 rounded-2xl border border-line bg-brand-soft/60 p-4 sm:p-5">
+            <span className="brand-gradient grid size-8 shrink-0 place-items-center rounded-lg text-white" aria-hidden>
+              <Sparkles className="size-4" />
+            </span>
+            <div>
+              <p className="kicker">Where the answer flips</p>
+              <p className="mt-1 text-sm leading-6 text-ink">{describeCrossovers(cross)}</p>
+            </div>
+          </div>
+
+          <Calculations workload={workload} assumptions={assumptions} costs={costs} />
+
+          <p className="text-xs leading-5 text-muted">
+            “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
+            GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
+            Every number here is an editable assumption, not a quote.
+          </p>
+        </section>
       </main>
 
       <footer className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
         <span>
-          Every number is an assumption <span className="text-coral-ink">·</span> edit any of them
+          Illustrative estimate <span className="text-brand-ink">·</span> excludes taxes, egress and setup costs
         </span>
         <span>Breakeven · v1 · Angel Ade-Oduntan</span>
       </footer>
     </div>
+  );
+}
+
+/** The math behind the three numbers, written out with the current inputs. */
+function Calculations({ workload, assumptions, costs }: { workload: Workload; assumptions: Assumptions; costs: ReturnType<typeof compare> }) {
+  const b = breakdown(workload, assumptions);
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  const n = (x: number, d = 0) => x.toLocaleString("en-US", { maximumFractionDigits: d });
+  const gpus = (g: number | null) => `${g} GPU${g === 1 ? "" : "s"}`;
+  const lines: { label: string; text: string }[] = [
+    {
+      label: "Blended API price",
+      text: `${pct(1 - workload.outputShare)} input × ${formatUsd(assumptions.apiInputPerM, 2)} + ${pct(workload.outputShare)} output × ${formatUsd(assumptions.apiOutputPerM, 2)} = ${formatUsd(b.blendedPerM, 2)} per M tokens`,
+    },
+    { label: "API", text: `${n(workload.tokensM)}M tokens × ${formatUsd(b.blendedPerM, 2)} = ${formatUsd(costs.api.monthly)} / month` },
+    {
+      label: "GPUs needed",
+      text: `${n(b.avgTokensPerSec)} tokens/sec on average ÷ (${n(assumptions.gpuTokensPerSec)} tokens/sec × ${pct(workload.utilization)} utilization) = ${n(b.gpusExact, 2)} → ${gpus(costs.rent.gpus)}`,
+    },
+    { label: "Rent", text: `${gpus(costs.rent.gpus)} × 730 hours × ${formatUsd(assumptions.rentPerGpuHour, 2)} = ${formatUsd(costs.rent.monthly)} / month` },
+    {
+      label: "Own",
+      text: `${gpus(costs.own.gpus)} (whole ${n(assumptions.gpusPerServer)}-GPU servers) × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) = ${formatUsd(costs.own.monthly)} / month`,
+    },
+    { label: "Per M tokens", text: "monthly cost ÷ monthly volume in millions of tokens" },
+  ];
+  return (
+    <details className="group rounded-2xl border border-line bg-surface">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
+        <span className="kicker">Show calculations</span>
+        <span className="text-xs text-muted group-open:hidden">See the math with your numbers ▾</span>
+        <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
+      </summary>
+      <dl className="grid gap-2.5 border-t border-line px-5 py-4 text-sm">
+        {lines.map((l) => (
+          <div key={l.label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
+            <dt className="font-semibold text-ink">{l.label}</dt>
+            <dd className="font-mono text-[13px] leading-6 text-ink-2">{l.text}</dd>
+          </div>
+        ))}
+      </dl>
+    </details>
   );
 }
 
@@ -305,6 +414,9 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
 }
 
 function describeCrossovers(c: ReturnType<typeof crossovers>) {
+  if (c.apiUntilM !== null && c.ownFromM !== null && Math.abs(Math.log10(c.ownFromM / c.apiUntilM)) < 0.02) {
+    return `The API is cheapest below about ${formatTokensM(c.apiUntilM)} tokens a month. Above that, owning your GPUs is cheapest; with these assumptions renting never wins.`;
+  }
   const parts: string[] = [];
   if (c.apiUntilM !== null) parts.push(`The API is cheapest below about ${formatTokensM(c.apiUntilM)} tokens a month.`);
   else parts.push("With these assumptions the API is never the cheapest option in the 10M–100B range.");
@@ -341,7 +453,7 @@ function PercentSlider({
         <label htmlFor={id} className="text-sm font-medium">
           {label}
         </label>
-        <span className="font-mono text-sm text-coral-ink">{Math.round(value * 100)}%</span>
+        <span className="font-mono text-sm text-brand-ink">{Math.round(value * 100)}%</span>
       </div>
       <input
         id={id}

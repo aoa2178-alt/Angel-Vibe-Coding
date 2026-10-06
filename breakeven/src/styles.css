@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Light "consulting deliverable" look by default, with a selected dark mode.
- * Series colors are the validated categorical slots 1–3 (blue, orange, aqua), one per option:
- * API = blue, Rent = orange, Own = aqua. Text never uses a series color.
+ * Design tokens: warm cream paper, coral accent, deep navy panels, small monospace labels.
+ * Series colors (one per option, validated light and dark, all pairs):
+ *   API = blue, Rent = coral, Own = teal. Navy is reserved for chrome (panels, ink), never a series.
+ * Text never uses a series color.
  */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 
   --color-bg: var(--bg);
@@ -17,44 +17,71 @@
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
+  --color-coral: var(--coral);
+  --color-coral-ink: var(--coral-ink);
+  --color-coral-soft: var(--coral-soft);
+  --color-panel: var(--panel);
+  --color-panel-ink: var(--panel-ink);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-line: var(--panel-line);
   --color-api: var(--series-api);
   --color-rent: var(--series-rent);
   --color-own: var(--series-own);
+
+  --animate-rise: rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.55s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(0.45em); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: scale(1); }
+  }
 }
 
 :root {
   color-scheme: light;
-  --bg: #f7f6f2;
-  --surface: #fcfcfb;
-  --sunken: #efede6;
-  --line: #e1ded4;
-  --ink: #141414;
-  --ink-2: #3d3c38;
-  --muted: #6b6a63;
-  --accent: #141414;
-  --accent-ink: #fcfcfb;
-  --series-api: #2a78d6;
-  --series-rent: #eb6834;
-  --series-own: #1baf7a;
+  --bg: #f3efe6;
+  --surface: #fbf8f2;
+  --sunken: #ece6da;
+  --line: #e2dacb;
+  --ink: #141c2e;
+  --ink-2: #3c4458;
+  --muted: #6e6a60;
+  --coral: #dd6b44;
+  --coral-ink: #b3502c;
+  --coral-soft: #f6dccf;
+  --panel: #151d30;
+  --panel-ink: #f6f2ea;
+  --panel-muted: #a3abbd;
+  --panel-line: #2a3450;
+  --series-api: #3a7bd5;
+  --series-rent: #e0704a;
+  --series-own: #13a08f;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --bg: #121211;
-    --surface: #1a1a19;
-    --sunken: #222220;
-    --line: #34332f;
-    --ink: #f5f4ef;
-    --ink-2: #c3c2b7;
-    --muted: #9a998f;
-    --accent: #f5f4ef;
-    --accent-ink: #141414;
-    --series-api: #3987e5;
-    --series-rent: #d95926;
-    --series-own: #199e70;
+    --bg: #0f1524;
+    --surface: #151d30;
+    --sunken: #1b2439;
+    --line: #29324a;
+    --ink: #f6f2ea;
+    --ink-2: #c9cdd8;
+    --muted: #949bad;
+    --coral: #e57a55;
+    --coral-ink: #f09a7a;
+    --coral-soft: #3a2620;
+    --panel: #1d2740;
+    --panel-ink: #f6f2ea;
+    --panel-muted: #a3abbd;
+    --panel-line: #33405f;
+    --series-api: #4683d6;
+    --series-rent: #d9673f;
+    --series-own: #159787;
   }
 }
 
@@ -67,16 +94,55 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
+  outline: 2px solid var(--coral);
   outline-offset: 2px;
 }
 
 input[type="range"] {
-  accent-color: var(--ink);
+  accent-color: var(--coral);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--coral-ink);
+}
+
+/* Odometer: each digit is a column of 0–9 that slides to the right number. */
+.odo {
+  display: inline-flex;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.odo-digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+}
+.odo-reel {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.odo-reel > span {
+  height: 1em;
+}
+
+/* Closing bars: widths and markers glide to their new positions. */
+.glide {
+  transition-property: width, left, opacity;
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
 }

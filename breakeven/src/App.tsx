@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
+import { Odometer } from "@/components/Odometer";
 import {
   DEFAULT_ASSUMPTIONS,
   DEFAULT_WORKLOAD,
@@ -15,9 +17,9 @@ import {
   type Workload,
 } from "@/lib/tco";
 
-const OPTIONS: Record<OptionId, { name: string; short: string; swatch: string; note: string }> = {
+const OPTIONS: Record<OptionId, OptionMeta & { note: string }> = {
   api: { name: "Pay per token (API)", short: "API", swatch: "bg-api", note: "No hardware. You pay for every token." },
-  rent: { name: "Rent cloud GPUs", short: "Rent", swatch: "bg-rent", note: "Pay by the GPU-hour, whether busy or idle." },
+  rent: { name: "Rent cloud GPUs", short: "Rent", swatch: "bg-rent", note: "Pay by the GPU-hour, busy or idle." },
   own: { name: "Own GPUs", short: "Own", swatch: "bg-own", note: "Buy whole 8-GPU servers; pay power and upkeep." },
 };
 
@@ -30,17 +32,17 @@ const fromSlider = (s: number) => {
   return Math.round(m / p) * p;
 };
 
-const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; step: number; group: string }[] = [
-  { key: "apiInputPerM", label: "API price, input", unit: "$ / M tokens", step: 0.1, group: "API" },
-  { key: "apiOutputPerM", label: "API price, output", unit: "$ / M tokens", step: 0.5, group: "API" },
-  { key: "rentPerGpuHour", label: "Cloud GPU rental", unit: "$ / GPU-hour", step: 0.1, group: "Rent" },
-  { key: "gpuTokensPerSec", label: "GPU throughput", unit: "tokens / sec / GPU", step: 100, group: "Rent & own" },
-  { key: "hardwarePerGpu", label: "Hardware cost", unit: "$ per GPU, all-in", step: 1000, group: "Own" },
-  { key: "depreciationYears", label: "Depreciation", unit: "years", step: 1, group: "Own" },
-  { key: "kwPerGpu", label: "Power draw", unit: "kW per GPU", step: 0.1, group: "Own" },
-  { key: "pue", label: "Data center PUE", unit: "facility ÷ IT power", step: 0.05, group: "Own" },
-  { key: "electricityPerKwh", label: "Electricity", unit: "$ / kWh", step: 0.01, group: "Own" },
-  { key: "opsPerGpuMonth", label: "Space, staff & upkeep", unit: "$ / GPU / month", step: 50, group: "Own" },
+const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; step: number }[] = [
+  { key: "apiInputPerM", label: "API price, input", unit: "$ / M tokens", step: 0.1 },
+  { key: "apiOutputPerM", label: "API price, output", unit: "$ / M tokens", step: 0.5 },
+  { key: "rentPerGpuHour", label: "Cloud GPU rental", unit: "$ / GPU-hour", step: 0.1 },
+  { key: "gpuTokensPerSec", label: "GPU throughput", unit: "tokens / sec / GPU", step: 100 },
+  { key: "hardwarePerGpu", label: "Hardware cost", unit: "$ per GPU, all-in", step: 1000 },
+  { key: "depreciationYears", label: "Depreciation", unit: "years", step: 1 },
+  { key: "kwPerGpu", label: "Power draw", unit: "kW per GPU", step: 0.1 },
+  { key: "pue", label: "Data center PUE", unit: "facility ÷ IT power", step: 0.05 },
+  { key: "electricityPerKwh", label: "Electricity", unit: "$ / kWh", step: 0.01 },
+  { key: "opsPerGpuMonth", label: "Space, staff & upkeep", unit: "$ / GPU / month", step: 50 },
 ];
 
 export default function App() {
@@ -54,31 +56,45 @@ export default function App() {
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
-          <svg viewBox="0 0 32 32" className="size-8 shrink-0" aria-hidden>
-            <rect width="32" height="32" rx="7" className="fill-ink" />
-            <path d="M6 22 L13 15 L18 19 L26 9" fill="none" className="stroke-own" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <div className="leading-tight">
-            <p className="font-semibold tracking-tight">Breakeven</p>
-            <p className="text-xs text-muted">AI compute cost of ownership</p>
+      <header className="mx-auto max-w-6xl px-4 pt-5 sm:px-6">
+        <div className="flex items-center justify-between gap-4 rounded-2xl border-2 border-coral/70 bg-surface px-4 py-3 sm:px-5">
+          <div className="flex items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-xl bg-coral" aria-hidden>
+              <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
+                <path d="M3 18 L21 6" />
+                <path d="M3 9 C9 9 13 13 21 14" />
+                <circle cx="12.1" cy="11.9" r="2" fill="white" stroke="none" />
+              </svg>
+            </span>
+            <div className="leading-tight">
+              <p className="text-lg font-extrabold tracking-tight">Breakeven</p>
+              <p className="kicker !text-[10px]">AI compute cost of ownership</p>
+            </div>
           </div>
+          <p className="hidden font-mono text-xs text-muted sm:block">
+            <span className="text-coral-ink">✱</span> own · rent · api
+          </p>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+      <main className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:px-6 sm:pt-14">
         <div className="max-w-3xl">
-          <h1 className="font-serif text-5xl leading-[1.02] tracking-tight sm:text-6xl">Own, rent, or API?</h1>
-          <p className="mt-3 text-lg text-ink-2">
-            What it really costs to run AI at your volume, and where the cheapest option changes.
+          <p className="font-mono text-sm text-ink-2">
+            <span className="text-coral-ink">&gt;</span> what does AI really cost at my volume?
+            <span className="ml-1 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-coral" aria-hidden />
+          </p>
+          <h1 className="mt-4 text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] sm:text-7xl">
+            Own, rent, <span className="text-coral">or API?</span>
+          </h1>
+          <p className="mt-4 max-w-xl text-lg text-ink-2">
+            Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+        <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
           {/* Inputs */}
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-            <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Your workload</h2>
+            <p className="kicker">01 · Your workload</p>
 
             <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
               {PRESETS.map((p) => {
@@ -90,11 +106,11 @@ export default function App() {
                     aria-pressed={active}
                     onClick={() => setW({ tokensM: p.tokensM })}
                     className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "border-ink bg-ink text-accent-ink" : "border-line bg-bg hover:border-ink-2"
+                      active ? "border-panel bg-panel text-panel-ink" : "border-line bg-bg hover:border-coral"
                     }`}
                   >
                     <span className="block text-sm font-semibold leading-tight">{p.label}</span>
-                    <span className={`mt-0.5 block font-mono text-xs ${active ? "opacity-80" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
+                    <span className={`mt-0.5 block font-mono text-xs ${active ? "text-panel-muted" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
                   </button>
                 );
               })}
@@ -103,7 +119,7 @@ export default function App() {
             <div className="mt-6">
               <div className="flex items-end justify-between gap-3">
                 <label htmlFor="volume" className="text-sm font-medium">
-                  Tokens per month <span className="font-mono text-muted">= {formatTokensM(workload.tokensM)}</span>
+                  Tokens per month <span className="font-mono text-coral-ink">= {formatTokensM(workload.tokensM)}</span>
                 </label>
                 <div className="flex items-center gap-1.5">
                   <input
@@ -118,7 +134,7 @@ export default function App() {
                     }}
                     className="w-28 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
                   />
-                  <span className="text-sm text-muted">M</span>
+                  <span className="font-mono text-sm text-muted">M</span>
                 </div>
               </div>
               <input
@@ -150,7 +166,7 @@ export default function App() {
             <PercentSlider
               id="utilization"
               label="GPU utilization you can sustain"
-              hint="Traffic peaks mean GPUs sit partly idle. Lower means more GPUs."
+              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -158,9 +174,9 @@ export default function App() {
             />
 
             <details className="group mt-6 rounded-xl border border-line bg-bg">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium">
-                Assumptions
-                <span className="text-xs text-muted group-open:hidden">Edit prices, power and throughput ▾</span>
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
+                <span className="kicker">02 · Assumptions</span>
+                <span className="text-xs text-muted group-open:hidden">Edit prices, power, throughput ▾</span>
                 <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
               </summary>
               <div className="grid gap-3 border-t border-line px-4 py-4 sm:grid-cols-2">
@@ -178,14 +194,14 @@ export default function App() {
                       }}
                       className="mt-1 w-full rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-sm"
                     />
-                    <span className="mt-0.5 block text-[11px] text-muted">{f.unit}</span>
+                    <span className="mt-0.5 block font-mono text-[10px] text-muted">{f.unit}</span>
                   </label>
                 ))}
                 <div className="flex items-end sm:col-span-2">
                   <button
                     type="button"
                     onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)}
-                    className="text-xs font-medium text-ink-2 underline underline-offset-2 hover:text-ink"
+                    className="text-xs font-medium text-coral-ink underline underline-offset-2"
                   >
                     Reset to defaults
                   </button>
@@ -202,58 +218,62 @@ export default function App() {
 
           {/* Results */}
           <section aria-label="Results" aria-live="polite" className="grid gap-4">
-            <div className="rounded-2xl border border-ink bg-ink p-5 text-accent-ink sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] opacity-70">
-                Cheapest for you at {formatTokensM(workload.tokensM)} tokens/month
-              </p>
-              <p className="mt-2 flex items-center gap-3 font-serif text-4xl leading-tight sm:text-5xl">
-                <span className={`size-4 shrink-0 rounded-full ${OPTIONS[winner].swatch}`} aria-hidden />
+            <div className="relative overflow-hidden rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">
+                  Cheapest at {formatTokensM(workload.tokensM)} tokens / month
+                </p>
+                <span key={`pill-${winner}`} className="animate-pop rounded-full bg-coral px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
+                  {OPTIONS[winner].short} wins
+                </span>
+              </div>
+              <p key={winner} className="mt-3 flex animate-rise items-center gap-3 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+                <span className={`size-4 shrink-0 rounded-full ring-2 ring-panel-ink/30 ${OPTIONS[winner].swatch}`} aria-hidden />
                 {OPTIONS[winner].name}
               </p>
-              <p className="mt-2 text-sm opacity-80">
-                {formatUsd(costs[winner].monthly)} a month · {formatUsd(costs[winner].perM, 2)} per million tokens
-                {costs[winner].gpus !== null && ` · ${costs[winner].gpus} GPU${costs[winner].gpus === 1 ? "" : "s"}`}
-              </p>
+              <div className="mt-5 grid grid-cols-3 gap-3 border-t border-panel-line pt-4 font-mono">
+                <Stat label="Per month">
+                  <Odometer text={formatUsd(costs[winner].monthly)} />
+                </Stat>
+                <Stat label="Per M tokens">
+                  <Odometer text={formatUsd(costs[winner].perM, 2)} />
+                </Stat>
+                <Stat label="GPUs">{costs[winner].gpus === null ? "None" : <Odometer text={String(costs[winner].gpus)} />}</Stat>
+              </div>
             </div>
+
+            <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
             <div className="grid gap-3 sm:grid-cols-3">
               {(["api", "rent", "own"] as const).map((id) => {
                 const c = costs[id];
-                const ratio = c.monthly / costs[winner].monthly;
                 return (
-                  <article
-                    key={id}
-                    className={`rounded-2xl border bg-surface p-4 ${id === winner ? "border-ink ring-1 ring-ink" : "border-line"}`}
-                  >
+                  <article key={id} className={`rounded-2xl border bg-surface p-4 ${id === winner ? "border-coral" : "border-line"}`}>
                     <p className="flex items-center gap-2 text-sm font-semibold">
                       <span className={`size-2.5 rounded-full ${OPTIONS[id].swatch}`} aria-hidden />
                       {OPTIONS[id].name}
                     </p>
-                    <p className="mt-3 font-mono text-2xl font-semibold tracking-tight">{formatUsd(c.monthly)}</p>
-                    <p className="text-xs text-muted">per month</p>
-                    <dl className="mt-3 space-y-1 border-t border-line pt-3 text-sm">
+                    <dl className="mt-3 space-y-1 font-mono text-sm">
                       <div className="flex justify-between gap-2">
                         <dt className="text-muted">Per M tokens</dt>
-                        <dd className="font-mono">{formatUsd(c.perM, 2)}</dd>
+                        <dd>
+                          <Odometer text={formatUsd(c.perM, 2)} />
+                        </dd>
                       </div>
                       <div className="flex justify-between gap-2">
                         <dt className="text-muted">GPUs</dt>
-                        <dd className="font-mono">{c.gpus ?? "—"}</dd>
+                        <dd>{c.gpus === null ? "—" : <Odometer text={String(c.gpus)} />}</dd>
                       </div>
                     </dl>
-                    <p className="mt-3 text-xs text-muted">
-                      {id === winner ? "Cheapest" : `${ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)}× the cheapest`} · {OPTIONS[id].note}
-                    </p>
+                    <p className="mt-3 text-xs leading-5 text-muted">{OPTIONS[id].note}</p>
                   </article>
                 );
               })}
             </div>
 
-            <CostBars costs={costs} winner={winner} />
-
             <div className="rounded-2xl border border-line bg-surface p-5">
-              <h3 className="text-sm font-semibold">Where the answer changes</h3>
-              <p className="mt-1.5 text-sm leading-6 text-ink-2">{describeCrossovers(cross)}</p>
+              <p className="kicker">Where the answer flips</p>
+              <p className="mt-2 text-sm leading-6 text-ink-2">{describeCrossovers(cross)}</p>
             </div>
 
             <p className="text-xs leading-5 text-muted">
@@ -265,11 +285,21 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-6 text-xs text-muted sm:px-6">
-          Breakeven · first version · built by Angel Ade-Oduntan
-        </div>
+      <footer className="mx-auto flex max-w-6xl flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
+        <span>
+          Every number is an assumption <span className="text-coral-ink">·</span> edit any of them
+        </span>
+        <span>Breakeven · v1 · Angel Ade-Oduntan</span>
       </footer>
+    </div>
+  );
+}
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-[0.12em] text-panel-muted">{label}</p>
+      <p className="mt-1.5 text-lg font-semibold sm:text-2xl">{children}</p>
     </div>
   );
 }
@@ -311,7 +341,7 @@ function PercentSlider({
         <label htmlFor={id} className="text-sm font-medium">
           {label}
         </label>
-        <span className="font-mono text-sm">{Math.round(value * 100)}%</span>
+        <span className="font-mono text-sm text-coral-ink">{Math.round(value * 100)}%</span>
       </div>
       <input
         id={id}
@@ -324,53 +354,5 @@ function PercentSlider({
       />
       <p className="mt-1 text-xs text-muted">{hint}</p>
     </div>
-  );
-}
-
-/** Monthly cost per option as horizontal bars, directly labeled, with a hover/focus tooltip. */
-function CostBars({ costs, winner }: { costs: ReturnType<typeof compare>; winner: OptionId }) {
-  const [hover, setHover] = useState<OptionId | null>(null);
-  const max = Math.max(...(["api", "rent", "own"] as const).map((id) => costs[id].monthly));
-  return (
-    <figure className="rounded-2xl border border-line bg-surface p-5">
-      <figcaption className="text-sm font-semibold">Monthly cost</figcaption>
-      <div className="mt-4 space-y-3">
-        {(["api", "rent", "own"] as const).map((id) => {
-          const c = costs[id];
-          const pct = max > 0 ? Math.max(1.5, (c.monthly / max) * 100) : 0;
-          return (
-            <div
-              key={id}
-              tabIndex={0}
-              onMouseEnter={() => setHover(id)}
-              onMouseLeave={() => setHover(null)}
-              onFocus={() => setHover(id)}
-              onBlur={() => setHover(null)}
-              className="relative grid grid-cols-[4.5rem_1fr] items-center gap-3 rounded-md py-1 outline-offset-4"
-              aria-label={`${OPTIONS[id].name}: ${formatUsd(c.monthly)} a month, ${formatUsd(c.perM, 2)} per million tokens`}
-            >
-              <span className="text-sm text-ink-2">{OPTIONS[id].short}</span>
-              <div className="flex items-center gap-2">
-                <div className="h-5 flex-1">
-                  <div
-                    className={`h-full rounded-r-[4px] transition-[width] duration-300 ${OPTIONS[id].swatch} ${hover && hover !== id ? "opacity-40" : ""}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-                <span className={`w-24 text-right font-mono text-sm ${id === winner ? "font-semibold text-ink" : "text-ink-2"}`}>
-                  {formatUsd(c.monthly)}
-                </span>
-              </div>
-              {hover === id && (
-                <div role="tooltip" className="absolute -top-9 left-20 z-10 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-xs shadow-lg">
-                  <span className="font-semibold">{OPTIONS[id].name}</span> · {formatUsd(c.perM, 2)} per M tokens
-                  {c.gpus !== null && ` · ${c.gpus} GPU${c.gpus === 1 ? "" : "s"}`}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </figure>
   );
 }

@@ -6,11 +6,13 @@ import { PriceHistory } from "@/components/PriceHistory";
 import { stepHref } from "@/lib/plan";
 import { BRIDGE_FORMULAS, BRIDGE_METHODOLOGY } from "@/lib/bridgeMethodology";
 import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED, type Confidence, type Source } from "@/lib/methodology";
+import { OPS_FORMULAS, OPS_METHODOLOGY, OPS_SOURCES } from "@/lib/opsMethodology";
 
 const SECTIONS = [
   { href: "#model", label: "The model" },
   { href: "#defaults", label: "Defaults & sources" },
   { href: "#price-history", label: "Price history" },
+  { href: "#running", label: "Running it well" },
   { href: "#speed-to-power", label: "Speed-to-Power" },
   { href: "#limits", label: "What's not included" },
 ];
@@ -88,6 +90,47 @@ export function Methodology() {
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               {METHODOLOGY.map((m) => (
                 <SourceCard {...m} key={m.key} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="running" className="scroll-mt-24 border-b border-line py-16 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
+              <div>
+                <p className="kicker">Running it well · product mode</p>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Operations models, not guesses</h2>
+                <p className="mt-4 text-lg leading-8 text-ink-2">
+                  How hot to run, how much to own, when to retire, and what a freemium product costs each come from a standard operations
+                  model: queueing (Kingman, Little's Law), the newsvendor critical ratio, sunk-cost reasoning and freemium unit economics.
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                  {OPS_SOURCES.map((s) => (
+                    <li key={s.url}>
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-0.5 font-medium text-brand-ink underline underline-offset-2">
+                        {s.label}
+                        <ArrowUpRight className="size-3.5" aria-hidden />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <a href={`${stepHref("run-it", plan)}#running`} onClick={linkClick(`${stepHref("run-it", plan)}#running`)} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand-ink">
+                  Open Running it well <ArrowRight className="size-4" aria-hidden />
+                </a>
+              </div>
+              <dl className="divide-y divide-line rounded-2xl border border-line bg-bg">
+                {OPS_FORMULAS.map((f) => (
+                  <div key={f.label} className="grid gap-1 px-5 py-4 sm:grid-cols-[10rem_1fr] sm:gap-6">
+                    <dt className="font-semibold">{f.label}</dt>
+                    <dd className="font-mono text-[13px] leading-6 text-ink-2">{f.formula}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {OPS_METHODOLOGY.map((m) => (
+                <SourceCard key={m.label} {...m} />
               ))}
             </div>
           </div>
@@ -194,6 +237,9 @@ function SourceCard({ label, confidence, value, range, why, sources }: { label: 
           <dd className="text-ink-2">{why}</dd>
         </div>
       </dl>
+      {sources.length === 0 ? (
+        <p className="mt-auto border-t border-line pt-4 text-sm text-muted">A modelling choice: change it to your own number.</p>
+      ) : (
       <ul className="mt-auto space-y-1.5 border-t border-line pt-4 text-sm">
         {sources.map((s) => (
           <li key={s.url}>
@@ -210,6 +256,7 @@ function SourceCard({ label, confidence, value, range, why, sources }: { label: 
           </li>
         ))}
       </ul>
+      )}
     </article>
   );
 }

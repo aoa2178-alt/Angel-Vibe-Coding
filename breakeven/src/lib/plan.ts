@@ -2,6 +2,9 @@
 // priorities (step 2's "beyond cost"), and power (step 3). It lives in the URL, so every step link carries it.
 // Volume has one source of truth, tokens a month (v); step 1's "tokens per task" is derived from it.
 import { readCase, readCaseParams, writeCaseParams } from "./businessCaseShare";
+import { PRODUCT_TEMPLATE, freemium, productTokensM, type ProductInputs } from "./freemium";
+import type { OpsSettings } from "./operate";
+import { readMode, readOps, readProduct, writeOps, writeProduct, type Mode } from "./opsShare";
 import { roi, templateById, type RoiInputs, type TemplateId } from "./roi";
 import type { Scores, Weights } from "./scorecard";
 import { estimateQuery, readEstimate } from "./share";
@@ -30,6 +33,11 @@ export interface Plan {
   /** A "what if you grow" cluster size for step 3; null means the GPUs you'd own at your volume */
   clusterGpus: number | null;
   bridge: BridgeAssumptions;
+  /** Step 2's "Running it well" settings */
+  ops: OpsSettings;
+  /** Step 1: work the company does today ("work"), or an AI product it sells ("product") */
+  mode: Mode;
+  product: ProductInputs;
 }
 
 export function readPlan(search: string): Plan {
@@ -45,6 +53,9 @@ export function readPlan(search: string): Plan {
     scores: c.scores,
     clusterGpus: readClusterGpus(params),
     bridge: readBridge(params),
+    ops: readOps(params),
+    mode: readMode(params),
+    product: readProduct(params),
   };
 }
 
@@ -53,6 +64,8 @@ export function planQuery(plan: Plan) {
   writeCaseParams(params, { templateId: plan.templateId, inputs: plan.roi, weights: plan.weights, scores: plan.scores }, ["tokensPerTask", "outputShare"]);
   if (plan.clusterGpus !== null) params.set("g", String(plan.clusterGpus));
   writeBridge(params, plan.bridge);
+  writeOps(params, plan.ops);
+  writeProduct(params, plan.mode, plan.product);
   const q = params.toString();
   return q ? `?${q}` : "";
 }
@@ -84,7 +97,22 @@ export function applyTemplate(plan: Plan, id: TemplateId): Plan {
 }
 
 /** Step 1 starts from the Customer support template if it hasn't been used yet. */
-export const startPlan = (plan: Plan) => (plan.templateId ? plan : applyTemplate(plan, "support"));
+export const startPlan = (plan: Plan) =>
+  plan.mode === "product" ? updateProduct(plan, {}) : plan.templateId ? plan : applyTemplate(plan, "support");
+
+/** Switching step 1 to "a product we sell" sets the volume from its users; back to "work" restores the task template's. */
+export function setMode(plan: Plan, mode: Mode): Plan {
+  if (mode === "product") return updateProduct({ ...plan, mode }, {});
+  return applyTemplate({ ...plan, mode, product: { ...PRODUCT_TEMPLATE } }, plan.templateId ?? "support");
+}
+
+/** Edits to the product inputs move the volume. */
+export function updateProduct(plan: Plan, patch: Partial<ProductInputs>): Plan {
+  const product = { ...plan.product, ...patch };
+  return { ...plan, product, workload: { ...plan.workload, tokensM: clampVolume(productTokensM(product)) } };
+}
+
+export const planFreemium = (plan: Plan) => freemium(plan.product, plan.assumptions, plan.workload);
 
 /** Edits from step 1. Tasks and tokens per task move the volume; output share is the workload's. */
 export function updateRoi(plan: Plan, patch: Partial<RoiInputs>): Plan {

@@ -8,9 +8,12 @@ import {
   planRoi,
   readPlan,
   roiInputsOf,
+  setMode,
   startPlan,
+  updateProduct,
   updateRoi,
 } from "./plan";
+import { DEFAULT_OPS } from "./operate";
 import { DEFAULT_WEIGHTS } from "./scorecard";
 import { DEFAULT_BRIDGE } from "./speedToPower";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD } from "./tco";
@@ -41,6 +44,20 @@ describe("one plan", () => {
     // Changing the volume in step 2 shows up as tokens per task in step 1
     const moved = { ...p, workload: { ...p.workload, tokensM: 600 } };
     expect(roiInputsOf(moved).tokensPerTask).toBeCloseTo(30_000);
+  });
+
+  it("round-trips the operations settings and product mode, and switching modes moves the volume", () => {
+    const p = setMode({ ...empty, ops: { ...DEFAULT_OPS, requestTokens: 4_000, peakHours: 12, waitTargetSec: 2 } }, "product");
+    expect(p.workload.tokensM).toBeCloseTo(44_000);
+    const q = updateProduct(p, { users: 20_000 });
+    expect(q.workload.tokensM).toBeCloseTo(8_800);
+    const back = readPlan(planQuery(q));
+    expect(back.mode).toBe("product");
+    expect(back.product).toEqual(q.product);
+    expect(back.ops).toEqual(q.ops);
+    expect(back.workload.tokensM).toBeCloseTo(8_800);
+    expect(setMode(q, "work").workload.tokensM).toBeCloseTo(120);
+    expect(readPlan(planQuery(setMode(q, "work"))).mode).toBe("work");
   });
 
   it("round-trips a full plan through the URL", () => {

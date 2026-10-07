@@ -4,6 +4,7 @@ import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
+import { RunningItWell } from "@/components/Operate";
 import { OPTIONS } from "@/components/options";
 import { Ownership } from "@/components/Ownership";
 import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
@@ -69,7 +70,7 @@ export function RunIt() {
 
   // "See where the answer flips" on the landing page links to #projection. Runs before the URL sync below drops the hash.
   useEffect(() => {
-    if (window.location.hash === "#projection") document.getElementById("projection")?.scrollIntoView({ block: "start" });
+    if (window.location.hash === "#projection" || window.location.hash === "#running") document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" });
   }, []);
 
   function exportCsv() {
@@ -180,7 +181,7 @@ export function RunIt() {
             <PercentSlider
               id="utilization"
               label="GPU utilization you can sustain"
-              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs."
+              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs; higher means slower answers (see Running it well)."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -316,6 +317,8 @@ export function RunIt() {
             </p>
           </section>
         </div>
+
+        <RunningItWell plan={plan} setPlan={setPlan} />
 
         <section id="beyond-cost" className="mt-14 scroll-mt-24">
           <div className="mb-6 max-w-2xl">

@@ -5,11 +5,12 @@ import { linkClick } from "@/components/Brand";
 import { OPTIONS } from "@/components/options";
 import { CopyLinkButton, PlanFrame, formatKw, usePlan } from "@/components/PlanFrame";
 import { SummaryStat, joinLabels, months, percent } from "@/components/ui";
-import { clusterGpusOf, ownedClusterGpus, planRoi, roiInputsOf, stepHref, type Plan } from "@/lib/plan";
+import { hybrid, maxUtilizationFor, responseTime, retirement } from "@/lib/operate";
+import { clusterGpusOf, ownedClusterGpus, planFreemium, planRoi, roiInputsOf, stepHref, type Plan } from "@/lib/plan";
 import { templateById, type RoiInputs, type RoiResult } from "@/lib/roi";
 import { OPTION_IDS, advantages, scorecard } from "@/lib/scorecard";
 import { bestStrategy, facilityKw, formatMoney, strategies, totalOver } from "@/lib/speedToPower";
-import { cheapest, compare, facilityKwPerGpu, formatTokensM, formatUsd, maxOwnedGpus, sensitivity, type OptionId } from "@/lib/tco";
+import { cheapest, compare, crossovers, facilityKwPerGpu, formatTokensM, formatUsd, maxOwnedGpus, sensitivity, type OptionId } from "@/lib/tco";
 
 /** The result: all three answers on one printable page, from the same plan the steps share. */
 export function Result() {
@@ -19,7 +20,8 @@ export function Result() {
   const winner = cheapest(costs);
   const card = useMemo(() => scorecard(costs, weights, plan.scores), [costs, weights, plan.scores]);
   const recommended: OptionId = card.winner ?? winner;
-  const r = plan.templateId ? planRoi(plan) : null;
+  const product = plan.mode === "product" ? planFreemium(plan) : null;
+  const r = plan.templateId && !product ? planRoi(plan) : null;
   const inputs = roiInputsOf(plan);
   const owned = ownedClusterGpus(plan);
   const ownedKw = owned * facilityKwPerGpu(assumptions);
@@ -28,7 +30,13 @@ export function Result() {
   const bestBridge = bestStrategy(bridges, bridge.delayMonths);
   const risks = planRisks(plan, r, winner);
   const step1 = stepHref("worth-it", plan);
-  const title = plan.templateId ? `AI for ${templateById(plan.templateId).label.toLowerCase()}` : "How to run your AI";
+  const title = product ? "Your AI product" : plan.templateId ? `AI for ${templateById(plan.templateId).label.toLowerCase()}` : "How to run your AI";
+  const cross = crossovers(workload, assumptions);
+  const q = responseTime(workload, assumptions, plan.ops);
+  const hottest = maxUtilizationFor(workload, assumptions, plan.ops);
+  const split = hybrid(workload, assumptions, plan.ops);
+  const retire = retirement(assumptions, plan.ops);
+  const ownsGpus = recommended === "own" || split.best === "split";
 
   return (
     <PlanFrame
@@ -62,19 +70,36 @@ export function Result() {
         <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
           <SummaryStat label="Run it on" value={OPTIONS[recommended].short} />
           <SummaryStat label="AI cost / month" value={formatUsd(costs[recommended].monthly)} />
-          <SummaryStat label="Savings / month" value={r ? (r.savings > 0 ? formatUsd(r.savings) : `−${formatUsd(-r.savings)}`) : "Step 1 skipped"} />
+          {product ? (
+            <SummaryStat label="Margin / month" value={product.margin >= 0 ? formatUsd(product.margin) : `−${formatUsd(-product.margin)}`} />
+          ) : (
+            <SummaryStat label="Savings / month" value={r ? (r.savings > 0 ? formatUsd(r.savings) : `−${formatUsd(-r.savings)}`) : "Step 1 skipped"} />
+          )}
           <SummaryStat label="Power if owned" value={formatKw(ownedKw)} />
         </dl>
 
         <Section n={1} title="Is it worth it?">
-          {r ? (
+          {product ? (
+            <p>
+              {plan.product.users.toLocaleString("en-US")} users a month, {percent(plan.product.paidShare)} paying {formatUsd(plan.product.price)}, bring in{" "}
+              {formatUsd(product.revenue)}. Compute for everyone costs {formatUsd(product.compute)}: {formatUsd(product.costPerFree, 2)} per free user and{" "}
+              {formatUsd(product.costPerPaid, 2)} per paying user.{" "}
+              {product.margin >= 0
+                ? `That leaves ${formatUsd(product.margin)} a month${product.marginPct !== null ? ` (${percent(product.marginPct)} gross margin)` : ""}, and it breaks even once ${
+                    product.breakEvenShare === null ? "a paying user covers their own compute" : `${(product.breakEvenShare * 100).toFixed(product.breakEvenShare < 0.01 ? 2 : 1)}% of users pay`
+                  }.`
+                : `That loses ${formatUsd(-product.margin)} a month: free users cost more than paying users bring in.`}
+            </p>
+          ) : r ? (
             <p>
               Today {inputs.tasksPerMonth.toLocaleString("en-US")} tasks a month cost {formatUsd(r.humanCost)} in people's time. With AI solving{" "}
               {percent(inputs.aiSuccess)} of them and people reviewing its work and handling the rest, the same work costs {formatUsd(r.aiCost)},
               including {formatUsd(r.computeCost)} of compute.{" "}
               {r.savings > 0
                 ? `That saves ${formatUsd(r.savings)} a month and pays back the ${formatUsd(inputs.setupCost)} setup in ${months(r.paybackMonths!)}.`
-                : `That costs ${formatUsd(-r.savings)} a month more than today, so the case doesn't hold at these numbers.`}
+                : `That costs ${formatUsd(-r.savings)} a month more than today, so the case doesn't hold at these numbers.`}{" "}
+              {r.savings > 0 &&
+                `In operating terms, the budget moves from people to tokens: ${formatUsd(r.escalationCost + r.reviewCost)} on people and ${formatUsd(r.computeCost)} on compute.`}
             </p>
           ) : (
             <p>
@@ -86,7 +111,7 @@ export function Result() {
           )}
         </Section>
 
-        <Section n={2} title="How should we run it?">
+        <Section n={2} title="How should we run it? Make or buy">
           <div className={`theme-${recommended} win-border rounded-2xl border-2 p-5`}>
             <p className="flex items-center gap-2.5 text-2xl font-extrabold tracking-tight text-ink">
               <span className={`size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
@@ -108,6 +133,26 @@ export function Result() {
               ))}
             </ul>
           </div>
+          <p className="mt-4">
+            {makeOrBuy(recommended)} {switchPoint(recommended, cross)}
+            {split.best === "split" &&
+              ` Splitting it beats both: own ${split.base.gpus} GPUs for the always-busy base and ${
+                split.peak.choice === "on-demand" ? `rent ${split.peak.gpus} by the hour at peak` : split.peak.choice === "rent" ? `rent ${split.peak.gpus} reserved` : `own ${split.peak.gpus} more`
+              }, for ${formatUsd(split.hybrid)} a month (${formatUsd(split.flexibilityValue)} less than the cheaper pure option).`}
+          </p>
+          <p className="mt-3">
+            <span className="font-semibold text-ink">Running it.</span> At {percent(q.busy)} busy on {q.gpus.toLocaleString("en-US")} GPU{q.gpus === 1 ? "" : "s"}, answers take
+            about {q.responseSec < 10 ? q.responseSec.toFixed(1) : Math.round(q.responseSec)} s, {q.waitSec < 10 ? q.waitSec.toFixed(1) : Math.round(q.waitSec)} s of it
+            waiting in line
+            {hottest === null
+              ? ". No utilization setting meets the wait target."
+              : q.waitSec <= plan.ops.waitTargetSec
+                ? `: within the ${plan.ops.waitTargetSec} s wait target, which holds up to a ${percent(hottest)} utilization setting.`
+                : `: over the ${plan.ops.waitTargetSec} s wait target. Size for ${percent(hottest)} busy instead.`}
+            {ownsGpus &&
+              retire.retireAfterMonths !== null &&
+              ` Owned GPUs ${retire.retireAfterMonths === 0 ? "should be retired now: renting already costs less than running them" : `become cheaper to replace with rented ones after about ${(retire.retireAfterMonths / 12).toFixed(1)} years${retire.beforeWriteOff ? ", before they're written off" : ""}`}.`}
+          </p>
         </Section>
 
         <Section n={3} title="Can we power it?">
@@ -147,6 +192,21 @@ export function Result() {
       </article>
     </PlanFrame>
   );
+}
+
+/** API, rent and own as a make-or-buy decision (vertical integration). */
+function makeOrBuy(id: OptionId) {
+  if (id === "api") return "In make-or-buy terms you're buying the finished product: someone else owns the model, the GPUs and the data center, and you pay per use.";
+  if (id === "rent") return "In make-or-buy terms you're outsourcing the factory: you run the model yourself on someone else's GPUs, with more control but no hardware to own.";
+  return "In make-or-buy terms you're making it: owning the GPUs is vertical integration, cheapest at steady volume but a commitment that has to be powered and kept busy.";
+}
+
+/** Where the make-or-buy answer changes, from the volume crossovers. */
+function switchPoint(id: OptionId, c: ReturnType<typeof crossovers>) {
+  if (id === "api" && c.apiUntilM !== null) return `Above about ${formatTokensM(c.apiUntilM)} tokens a month, running it yourself starts to pay.`;
+  if (id !== "own" && c.ownFromM !== null) return `From about ${formatTokensM(c.ownFromM)} tokens a month, owning (making) wins on cost for good.`;
+  if (id === "own" && c.ownFromM !== null) return `Owning stays cheapest from about ${formatTokensM(c.ownFromM)} tokens a month up.`;
+  return "";
 }
 
 function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {

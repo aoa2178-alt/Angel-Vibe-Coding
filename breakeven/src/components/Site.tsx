@@ -24,14 +24,30 @@ function NavLink({ item, className, onNavigate }: { item: NavItem; className: st
   );
 }
 
-/** The floating pill bar every page shares. `actions` replaces the default "Open calculator" button. */
-export function PillBar({ nav = [], actions, logoTagline = false }: { nav?: NavItem[]; actions?: ReactNode; logoTagline?: boolean }) {
+/**
+ * The floating pill bar every page shares. `actions` replaces the default "Open calculator" button; `center` replaces
+ * the section links (the step pages put their tracker there), and `below` adds a row under the bar on small screens.
+ */
+export function PillBar({
+  nav = [],
+  actions,
+  logoTagline = false,
+  center,
+  below,
+}: {
+  nav?: NavItem[];
+  actions?: ReactNode;
+  logoTagline?: boolean;
+  center?: ReactNode;
+  below?: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-30 px-3 pt-3 print:hidden">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-3 pr-2 sm:pl-4">
         <Logo tagline={logoTagline} />
-        {nav.length > 0 && (
+        {center}
+        {!center && nav.length > 0 && (
           <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
             {nav.map((n) => (
               <NavLink
@@ -45,8 +61,8 @@ export function PillBar({ nav = [], actions, logoTagline = false }: { nav?: NavI
         <div className="flex shrink-0 items-center gap-2">
           {actions ?? (
             <a
-              href="/calculator"
-              onClick={linkClick("/calculator")}
+              href="/run-it"
+              onClick={linkClick("/run-it")}
               className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-3.5 py-2.5 text-sm sm:px-4 font-semibold text-white transition hover:bg-brand-ink"
             >
               <span className="sm:hidden">Calculator</span>
@@ -67,6 +83,7 @@ export function PillBar({ nav = [], actions, logoTagline = false }: { nav?: NavI
           )}
         </div>
       </div>
+      {below}
       {open && (
         <nav id="site-menu" aria-label="Sections" className="mx-auto mt-2 max-w-[1200px] rounded-3xl border border-line bg-surface p-2 lg:hidden">
           {nav.map((n) => (
@@ -88,11 +105,11 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
 }
 
 const FOOTER_LINKS: NavItem[] = [
-  { href: "/calculator", label: "Calculator" },
-  { href: "/calculator#projection", label: "Cost projection" },
-  { href: "/business-case", label: "Build a business case" },
-  { href: "/speed-to-power", label: "Speed-to-Power" },
-  { href: "/methodology", label: "Methodology & sources" },
+  { href: "/worth-it", label: "1 · Is it worth it?" },
+  { href: "/run-it", label: "2 · How to run it" },
+  { href: "/power-it", label: "3 · Can we power it?" },
+  { href: "/result", label: "Your result" },
+  { href: "/sources", label: "Sources" },
 ];
 
 export function SiteFooter() {

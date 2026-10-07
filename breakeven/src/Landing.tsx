@@ -1,54 +1,49 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
-import { OPTIONS } from "@/Calculator";
+import { OPTIONS } from "@/components/options";
 import { linkClick } from "@/components/Brand";
 import { Decode } from "@/components/Decode";
 import { FlipStory, FlipStoryLink } from "@/components/FlipStory";
 import { IsoHero, IsoIcon, type IsoKind } from "@/components/Iso";
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { PillBar, SiteFooter } from "@/components/Site";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, cheapest, compare, crossovers, formatTokensM, formatUsd } from "@/lib/tco";
 
 const NAV = [
-  { href: "#flip", label: "The flip" },
-  { href: "#compares", label: "What it compares" },
   { href: "#how", label: "How it works" },
+  { href: "#flip", label: "The flip" },
   { href: "#faq", label: "FAQ" },
-  { href: "/business-case", label: "Business case" },
-  { href: "/methodology", label: "Methodology" },
+  { href: "/sources", label: "Sources" },
 ];
 
-const FEATURES: { kind: IsoKind; theme: string; title: string; body: string; link?: { href: string; label: string } }[] = [
+/** The path through Breakeven: three questions, then one page with the answer. */
+const QUESTIONS: { n: number; href: string; kind: IsoKind; theme: string; label: string; title: string; body: string }[] = [
   {
+    n: 1,
+    href: "/worth-it",
     kind: "tokens",
     theme: "theme-api",
-    title: "Tokens",
-    body: "Pay-per-token APIs scale to zero and stay simple, but the bill climbs in step with every token.",
+    label: "Worth it",
+    title: "Is AI worth it for this work?",
+    body: "Compare what the work costs your people today with what it costs once AI does most of it: savings, payback and ROI.",
   },
   {
+    n: 2,
+    href: "/run-it",
     kind: "datacenter",
     theme: "theme-rent",
-    title: "Datacenter",
-    body: "Rented cloud GPUs buy you the facility, cooling and networking without owning the racks.",
+    label: "Run it",
+    title: "How should we run it?",
+    body: "Pay per token, rent cloud GPUs, or own them: what each costs at your volume, where the answer flips, and what fits beyond cost.",
   },
   {
-    kind: "gpu",
-    theme: "theme-own",
-    title: "GPUs",
-    body: "Owned hardware is depreciated month by month, and the cost per token keeps falling as you grow.",
-  },
-  {
+    n: 3,
+    href: "/power-it",
     kind: "power",
     theme: "",
-    title: "Operations & power",
-    body: "Electricity, cooling, colocation and support decide whether owning actually beats renting.",
-    link: { href: "/speed-to-power", label: "Grid running late? Speed-to-Power" },
+    label: "Power it",
+    title: "Can we power it?",
+    body: "If you own, how much power you need, what your power budget allows, and what to do when the grid connection is late.",
   },
-];
-
-const STEPS = [
-  { title: "Set your volume", body: "Pick a preset or enter your monthly tokens. Every price, power and throughput assumption is editable." },
-  { title: "See what's cheapest", body: "Monthly cost and cost per million tokens for the API, rented GPUs and owned GPUs, side by side." },
-  { title: "See where it flips", body: "A projection from 10M to 100B tokens marks exactly where one option overtakes another." },
 ];
 
 const FAQ = [
@@ -105,7 +100,18 @@ export function Landing() {
 
   return (
     <div className="min-h-dvh bg-bg">
-      <SiteHeader nav={NAV} />
+      <PillBar
+        nav={NAV}
+        actions={
+          <a
+            href="/worth-it"
+            onClick={linkClick("/worth-it")}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-ink"
+          >
+            Start <ArrowRight className="size-4" aria-hidden />
+          </a>
+        }
+      />
 
       <main>
         {/* Hero: a large statement on the left, the isometric data center on the right. Always light. */}
@@ -124,11 +130,11 @@ export function Landing() {
                 answer flips.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <CtaLink to="/calculator">
-                  Run the comparison <ArrowRight className="size-4" aria-hidden />
+                <CtaLink to="/worth-it">
+                  Start <ArrowRight className="size-4" aria-hidden />
                 </CtaLink>
-                <CtaLink to="/business-case" variant="secondary">
-                  Build a business case
+                <CtaLink to="/run-it" variant="secondary">
+                  Jump to the calculator
                 </CtaLink>
               </div>
             </div>
@@ -171,14 +177,54 @@ export function Landing() {
           </dl>
         </section>
 
-        {/* 01 · The flip: a scroll-driven story on a dark section */}
+        {/* 01 · How it works: the three questions */}
+        <section id="how" className="scroll-mt-20 bg-bg py-24 sm:py-36">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <SectionHeader
+              index="01"
+              kicker="How it works"
+              title="Three questions, one answer."
+              body="Enter your numbers once. Each step builds on the last, and you finish with one page you can share."
+            />
+            <ol className="mt-16 grid gap-5 md:grid-cols-3">
+              {QUESTIONS.map((q) => (
+                <li key={q.n} className={`${q.theme} flex`}>
+                  <a
+                    href={q.href}
+                    onClick={linkClick(q.href)}
+                    className="group flex w-full flex-col rounded-3xl border border-line bg-surface p-6 transition hover:border-brand"
+                  >
+                    <div className="grid h-40 place-items-center rounded-2xl bg-sunken px-6">
+                      <IsoIcon kind={q.kind} className="h-28 w-auto max-w-full" />
+                    </div>
+                    <p className="mt-6 flex items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-brand-ink">
+                      <span className="grid size-6 place-items-center rounded-full bg-brand text-[11px] text-white">{q.n}</span>
+                      {q.label}
+                    </p>
+                    <h3 className="mt-3 text-2xl font-bold tracking-tight">{q.title}</h3>
+                    <p className="mt-2 text-[15px] leading-7 text-ink-2">{q.body}</p>
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-ink">
+                      {q.n === 1 ? "Start here" : `Go to step ${q.n}`} <ArrowRight className="size-4 transition group-hover:translate-x-0.5" aria-hidden />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 text-ink-2">
+              Then <span className="font-semibold text-ink">Result</span>: one page with the recommendation, the numbers and the risks, ready
+              to print or share.
+            </p>
+          </div>
+        </section>
+
+        {/* 02 · The flip: step 2's answer as a scroll-driven story on a dark section */}
         <section id="flip" className="dark-scope">
           <div className="mx-auto max-w-[1200px] px-4 pt-24 sm:px-6 sm:pt-32">
             <SectionHeader
-              index="01"
+              index="02"
               kicker="The flip"
               title="Watch the cheapest answer change as you grow."
-              body="Scroll to raise the volume from 10 million to 100 billion tokens a month. The bars and the winner follow."
+              body="The heart of step 2. Scroll to raise the volume from 10 million to 100 billion tokens a month; the bars and the winner follow."
             />
           </div>
           <FlipStory />
@@ -187,54 +233,10 @@ export function Landing() {
           </div>
         </section>
 
-        {/* 02 · What it compares */}
-        <section id="compares" className="scroll-mt-20 bg-bg py-24 sm:py-36">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-            <SectionHeader
-              index="02"
-              kicker="What it compares"
-              title="Everything that decides the bill."
-              body="Four cost drivers, one honest comparison. No vendor quotes and no hidden assumptions."
-            />
-            <div className="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {FEATURES.map((f) => (
-                <article key={f.title} className={`${f.theme} flex flex-col rounded-3xl border border-line bg-surface p-6`}>
-                  <div className="grid h-40 place-items-center rounded-2xl bg-sunken px-6">
-                    <IsoIcon kind={f.kind} className="h-28 w-auto max-w-full" />
-                  </div>
-                  <h3 className="mt-6 text-xl font-bold tracking-tight">{f.title}</h3>
-                  <p className="mt-2 text-[15px] leading-7 text-ink-2">{f.body}</p>
-                  {f.link && (
-                    <a href={f.link.href} onClick={linkClick(f.link.href)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink">
-                      {f.link.label} <ArrowRight className="size-4" aria-hidden />
-                    </a>
-                  )}
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* 03 · How it works */}
-        <section id="how" className="scroll-mt-20 border-t border-line bg-surface py-24 sm:py-36">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
-            <SectionHeader index="03" kicker="How it works" title="Three steps, one answer." />
-            <ol className="mt-16 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-3">
-              {STEPS.map((s, i) => (
-                <li key={s.title} className="bg-surface p-7 sm:p-9">
-                  <span className="font-mono text-sm font-semibold text-brand-ink">0{i + 1}</span>
-                  <h3 className="mt-10 text-2xl font-bold tracking-tight">{s.title}</h3>
-                  <p className="mt-3 text-[15px] leading-7 text-ink-2">{s.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* 04 · FAQ */}
+        {/* 03 · FAQ */}
         <section id="faq" className="scroll-mt-20 border-t border-line bg-bg py-24 sm:py-36">
           <div className="mx-auto grid max-w-[1200px] gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
-            <SectionHeader index="04" kicker="FAQ" title="Good questions." body="The short version of how the numbers work." />
+            <SectionHeader index="03" kicker="FAQ" title="Good questions." body="The short version of how the numbers work." />
             <div className="divide-y divide-line border-y border-line">
               {FAQ.map((f) => (
                 <details key={f.q} className="group py-6">
@@ -247,7 +249,7 @@ export function Landing() {
                   <p className="mt-3 max-w-2xl text-[15px] leading-7 text-ink-2">{f.a}</p>
                 </details>
               ))}
-              <a href="/methodology" onClick={linkClick("/methodology")} className="flex items-center justify-between py-6 text-lg font-semibold text-brand-ink">
+              <a href="/sources" onClick={linkClick("/sources")} className="flex items-center justify-between py-6 text-lg font-semibold text-brand-ink">
                 Every number, with its source <ArrowUpRight className="size-5" aria-hidden />
               </a>
             </div>
@@ -261,11 +263,11 @@ export function Landing() {
               Your numbers. <span className="text-brand-ink">Your answer.</span>
             </h2>
             <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
-              <CtaLink to="/calculator" variant="light">
-                Open the calculator <ArrowRight className="size-4" aria-hidden />
+              <CtaLink to="/worth-it" variant="light">
+                Start <ArrowRight className="size-4" aria-hidden />
               </CtaLink>
-              <CtaLink to="/business-case" variant="secondary">
-                Build a business case
+              <CtaLink to="/run-it" variant="secondary">
+                Jump to the calculator
               </CtaLink>
             </div>
           </div>

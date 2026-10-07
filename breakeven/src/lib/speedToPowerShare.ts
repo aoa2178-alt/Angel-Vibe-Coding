@@ -37,17 +37,33 @@ function num(params: URLSearchParams, name: string) {
   return Number.isFinite(n) ? n : null;
 }
 
-export function readScenario(search: string): Scenario {
-  const params = new URLSearchParams(search);
-  const g = num(params, "g");
+/** The bridge settings in the URL, each falling back to its default. Shared with the whole plan (plan.ts). */
+export function readBridge(params: URLSearchParams): BridgeAssumptions {
   const bridge = { ...DEFAULT_BRIDGE };
   for (const [key, { param, min, max }] of Object.entries(BRIDGE_PARAMS) as [keyof BridgeAssumptions, (typeof BRIDGE_PARAMS)[keyof BridgeAssumptions]][]) {
     const n = num(params, param);
     if (n !== null && n >= min && n <= max) bridge[key] = n;
   }
+  return bridge;
+}
+
+export function writeBridge(params: URLSearchParams, bridge: BridgeAssumptions) {
+  for (const [key, { param }] of Object.entries(BRIDGE_PARAMS) as [keyof BridgeAssumptions, { param: string }][]) {
+    if (bridge[key] !== DEFAULT_BRIDGE[key]) params.set(param, String(bridge[key]));
+  }
+}
+
+/** A cluster size from the URL ("g"), or null if none is set or it's unreadable. */
+export function readClusterGpus(params: URLSearchParams) {
+  const g = num(params, "g");
+  return g !== null && Number.isInteger(g) && g >= 1 && g <= 10_000_000 ? g : null;
+}
+
+export function readScenario(search: string): Scenario {
+  const params = new URLSearchParams(search);
   return {
-    gpus: g !== null && Number.isInteger(g) && g >= 1 && g <= 10_000_000 ? g : DEFAULT_GPUS,
-    bridge,
+    gpus: readClusterGpus(params) ?? DEFAULT_GPUS,
+    bridge: readBridge(params),
     assumptions: readEstimate(search).assumptions,
   };
 }
@@ -55,9 +71,7 @@ export function readScenario(search: string): Scenario {
 export function scenarioQuery(s: Scenario) {
   const params = new URLSearchParams();
   if (s.gpus !== DEFAULT_GPUS) params.set("g", String(s.gpus));
-  for (const [key, { param }] of Object.entries(BRIDGE_PARAMS) as [keyof BridgeAssumptions, { param: string }][]) {
-    if (s.bridge[key] !== DEFAULT_BRIDGE[key]) params.set(param, String(s.bridge[key]));
-  }
+  writeBridge(params, s.bridge);
   // The calculator's assumption parameters; its workload parameters don't apply here.
   for (const [k, v] of new URLSearchParams(estimateQuery(DEFAULT_WORKLOAD, s.assumptions))) params.set(k, v);
   const q = params.toString();

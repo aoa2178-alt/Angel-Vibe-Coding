@@ -1,5 +1,6 @@
 // A business case lives in the URL, like an estimate: the template, any fields changed from it, the weights,
 // any scores changed from the defaults, and the step. Anything unreadable falls back to the default.
+// The param readers and writers are shared with the whole plan (plan.ts).
 import { ROI_TEMPLATES, templateById, type RoiInputs, type TemplateId } from "./roi";
 import { CRITERIA, DEFAULT_SCORES, DEFAULT_WEIGHTS, OPTION_IDS, SCORED, type Scores, type Weights } from "./scorecard";
 
@@ -37,12 +38,11 @@ function list(raw: string | null, n: number, min: number, max: number) {
   return parts.length === n && parts.every((p) => p !== null && p >= min && p <= max) ? (parts as number[]) : null;
 }
 
-export function readCase(search: string): BusinessCaseState {
-  const params = new URLSearchParams(search);
+/** The template (null if none is set), its inputs with any URL changes, and the scorecard weights and scores. */
+export function readCaseParams(params: URLSearchParams) {
   const t = params.get("t");
-  const template = ROI_TEMPLATES.find((x) => x.id === t) ?? ROI_TEMPLATES[0];
-
-  const inputs = { ...template.inputs };
+  const found = ROI_TEMPLATES.find((x) => x.id === t);
+  const inputs = { ...(found ?? ROI_TEMPLATES[0]).inputs };
   for (const [key, { param, min, max }] of Object.entries(INPUT_PARAMS) as [keyof RoiInputs, (typeof INPUT_PARAMS)[keyof RoiInputs]][]) {
     const n = num(params.get(param));
     if (n !== null && n >= min && n <= max) inputs[key] = n;
@@ -56,29 +56,44 @@ export function readCase(search: string): BusinessCaseState {
   const scores = structuredClone(DEFAULT_SCORES);
   if (s) SCORED.forEach((c, i) => OPTION_IDS.forEach((o, j) => (scores[c][o] = s[i * OPTION_IDS.length + j])));
 
+  return { templateId: found ? found.id : null, inputs, weights, scores };
+}
+
+/** Writes the template, changed inputs (except `omit`, which another part of the URL already carries), weights and scores. */
+export function writeCaseParams(
+  params: URLSearchParams,
+  c: { templateId: TemplateId | null; inputs: RoiInputs; weights: Weights; scores: Scores },
+  omit: (keyof RoiInputs)[] = [],
+) {
+  if (c.templateId) {
+    params.set("t", c.templateId);
+    const base = templateById(c.templateId).inputs;
+    for (const [key, { param }] of Object.entries(INPUT_PARAMS) as [keyof RoiInputs, { param: string }][]) {
+      if (!omit.includes(key) && c.inputs[key] !== base[key]) params.set(param, String(c.inputs[key]));
+    }
+  }
+  if (CRITERIA.some((cr) => c.weights[cr.id] !== DEFAULT_WEIGHTS[cr.id])) {
+    params.set("w", CRITERIA.map((cr) => c.weights[cr.id]).join(","));
+  }
+  if (SCORED.some((cr) => OPTION_IDS.some((o) => c.scores[cr][o] !== DEFAULT_SCORES[cr][o]))) {
+    params.set("s", SCORED.flatMap((cr) => OPTION_IDS.map((o) => c.scores[cr][o])).join(","));
+  }
+}
+
+export function readCase(search: string): BusinessCaseState {
+  const params = new URLSearchParams(search);
+  const c = readCaseParams(params);
   const step = num(params.get("step"));
   return {
-    templateId: template.id,
-    inputs,
-    weights,
-    scores,
+    ...c,
+    templateId: c.templateId ?? ROI_TEMPLATES[0].id,
     step: step !== null && Number.isInteger(step) && step >= 1 && step <= STEP_COUNT ? step : 1,
   };
 }
 
 export function caseQuery(state: BusinessCaseState) {
   const params = new URLSearchParams();
-  params.set("t", state.templateId);
-  const base = templateById(state.templateId).inputs;
-  for (const [key, { param }] of Object.entries(INPUT_PARAMS) as [keyof RoiInputs, { param: string }][]) {
-    if (state.inputs[key] !== base[key]) params.set(param, String(state.inputs[key]));
-  }
-  if (CRITERIA.some((c) => state.weights[c.id] !== DEFAULT_WEIGHTS[c.id])) {
-    params.set("w", CRITERIA.map((c) => state.weights[c.id]).join(","));
-  }
-  if (SCORED.some((c) => OPTION_IDS.some((o) => state.scores[c][o] !== DEFAULT_SCORES[c][o]))) {
-    params.set("s", SCORED.flatMap((c) => OPTION_IDS.map((o) => state.scores[c][o])).join(","));
-  }
+  writeCaseParams(params, state);
   if (state.step !== 1) params.set("step", String(state.step));
   return `?${params.toString()}`;
 }

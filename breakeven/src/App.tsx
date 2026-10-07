@@ -1,46 +1,61 @@
 import { useEffect, useState } from "react";
-import { BusinessCase } from "./BusinessCase";
-import { Calculator } from "./Calculator";
 import { Landing } from "./Landing";
 import { Methodology } from "./Methodology";
-import { SpeedToPower } from "./SpeedToPower";
+import { PowerIt } from "./PowerIt";
+import { Result } from "./Result";
+import { RunIt } from "./RunIt";
+import { WorthIt } from "./WorthIt";
+import { legacyRedirect } from "@/lib/plan";
 
-type View = "landing" | "calculator" | "methodology" | "business-case" | "speed-to-power";
+type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources";
 
-function viewFor(location: Location): View {
-  if (location.pathname.startsWith("/calculator")) return "calculator";
-  if (location.pathname.startsWith("/methodology")) return "methodology";
-  if (location.pathname.startsWith("/business-case")) return "business-case";
-  if (location.pathname.startsWith("/speed-to-power")) return "speed-to-power";
-  // Links shared before the landing page existed point at "/?v=…"; those still open the calculator.
-  if (location.pathname === "/" && location.search) return "calculator";
-  return "landing";
+const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources"];
+
+/** Old links (/calculator, /business-case, /speed-to-power, /methodology, /?v=) move to the new routes, keeping their plan. */
+function resolve(): View {
+  const { pathname, search, hash } = window.location;
+  const to = legacyRedirect(pathname, search, hash);
+  if (to) window.history.replaceState(null, "", to);
+  const first = window.location.pathname.split("/")[1] as View;
+  return VIEWS.includes(first) ? first : "landing";
 }
 
+const TITLES: Record<View, string> = {
+  landing: "Breakeven · AI infrastructure cost, at your volume",
+  "worth-it": "Breakeven · 1. Is AI worth it?",
+  "run-it": "Breakeven · 2. How should we run it?",
+  "power-it": "Breakeven · 3. Can we power it?",
+  result: "Breakeven · Your AI plan",
+  sources: "Breakeven · Sources",
+};
+
 export default function App() {
-  const [view, setView] = useState<View>(() => viewFor(window.location));
+  // Resolving here, before any page mounts, means pages always read the new route's URL.
+  const [view, setView] = useState<View>(resolve);
 
   useEffect(() => {
-    if (window.location.pathname === "/" && window.location.search) {
-      window.history.replaceState(null, "", `/calculator${window.location.search}${window.location.hash}`);
-    }
-    const onPop = () => setView(viewFor(window.location));
+    const onPop = () => setView(resolve());
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
 
   useEffect(() => {
-    document.title = {
-      landing: "Breakeven · AI infrastructure cost, at your volume",
-      calculator: "Breakeven · Own, rent, or API?",
-      methodology: "Breakeven · Methodology and sources",
-      "business-case": "Breakeven · Build a business case",
-      "speed-to-power": "Breakeven · Speed-to-Power: the grid is late",
-    }[view];
+    document.title = TITLES[view];
   }, [view]);
 
-  if (view === "methodology") return <Methodology />;
-  if (view === "business-case") return <BusinessCase />;
-  if (view === "speed-to-power") return <SpeedToPower />;
-  return view === "landing" ? <Landing /> : <Calculator />;
+  // Keyed by view so a page re-reads the plan from the URL each time you arrive on it.
+  switch (view) {
+    case "worth-it":
+      return <WorthIt key={view} />;
+    case "run-it":
+      return <RunIt key={view} />;
+    case "power-it":
+      return <PowerIt key={view} />;
+    case "result":
+      return <Result key={view} />;
+    case "sources":
+      return <Methodology key={view} />;
+    default:
+      return <Landing />;
+  }
 }

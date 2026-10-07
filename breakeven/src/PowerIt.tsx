@@ -1,10 +1,11 @@
-import { Check, Link2, Zap } from "lucide-react";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Zap } from "lucide-react";
+import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { BridgeChart, type StrategyMeta } from "@/components/BridgeChart";
 import { Odometer } from "@/components/Odometer";
-import { PillBar, SiteFooter } from "@/components/Site";
-import { estimateQuery } from "@/lib/share";
+import { PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
+import { PowerBudget } from "@/components/PowerBudget";
+import { clusterGpusOf, ownedClusterGpus, stepHref } from "@/lib/plan";
 import {
   CLUSTER_PRESETS,
   DEFAULT_BRIDGE,
@@ -21,8 +22,7 @@ import {
   type BridgeAssumptions,
   type StrategyId,
 } from "@/lib/speedToPower";
-import { readScenario, scenarioQuery } from "@/lib/speedToPowerShare";
-import { DEFAULT_WORKLOAD, formatUsd, ownCostPerGpuMonth } from "@/lib/tco";
+import { formatUsd, ownCostPerGpuMonth } from "@/lib/tco";
 
 export const STRATEGY_META: Record<StrategyId, StrategyMeta & { note: string }> = {
   wait: { name: "Rent cloud GPUs while you wait", short: "Rent & wait", color: "var(--bridge-wait)", note: "No commitment, but you pay the cloud premium every month." },
@@ -63,20 +63,14 @@ const FIELDS: { group: string; items: { key: keyof BridgeAssumptions; label: str
   },
 ];
 
-const NAV = [
-  { href: "/calculator", label: "Calculator" },
-  { href: "/business-case", label: "Business case" },
-  { href: "/methodology#speed-to-power", label: "Methodology" },
-];
-
-const mw = (kw: number) => (kw >= 10_000 ? `${Math.round(kw / 1000)} MW` : `${(kw / 1000).toFixed(1)} MW`);
-
-export function SpeedToPower() {
-  const [initial] = useState(() => readScenario(window.location.search));
-  const [gpus, setGpus] = useState(initial.gpus);
-  const [bridge, setBridge] = useState<BridgeAssumptions>(initial.bridge);
-  const assumptions = initial.assumptions;
-  const [copied, setCopied] = useState(false);
+export function PowerIt() {
+  const [plan, setPlan] = usePlan("power-it");
+  const { assumptions, bridge } = plan;
+  const gpus = clusterGpusOf(plan);
+  const yours = ownedClusterGpus(plan);
+  const setGpus = (g: number | null) => setPlan((p) => ({ ...p, clusterGpus: g }));
+  const setBridge = (f: (b: BridgeAssumptions) => BridgeAssumptions) => setPlan((p) => ({ ...p, bridge: f(p.bridge) }));
+  const kw = facilityKw(gpus, assumptions);
 
   const all = useMemo(() => strategies(gpus, assumptions, bridge), [gpus, assumptions, bridge]);
   const stretches = useMemo(() => winnerStretches(all), [all]);
@@ -85,21 +79,7 @@ export function SpeedToPower() {
   const premium = rentPremium(gpus, assumptions);
   const setB = (patch: Partial<BridgeAssumptions>) => setBridge((b) => ({ ...b, ...patch }));
 
-  useEffect(() => {
-    window.history.replaceState(null, "", `/speed-to-power${scenarioQuery({ gpus, bridge, assumptions })}`);
-  }, [gpus, bridge, assumptions]);
-
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      window.prompt("Copy this link to your scenario:", window.location.href);
-    }
-  }
-
-  const calcLink = `/calculator${estimateQuery(DEFAULT_WORKLOAD, assumptions)}`;
+  const calcLink = stepHref("run-it", plan);
   const winnerTotal = totalOver(all[winner], delay);
   const savedVsRent = totalOver(all.wait, delay) - winnerTotal;
   const edited = (Object.keys(DEFAULT_BRIDGE) as (keyof BridgeAssumptions)[]).some(
@@ -107,46 +87,39 @@ export function SpeedToPower() {
   );
 
   return (
-    <div className="min-h-dvh">
-      <PillBar
-        nav={NAV}
-        actions={
-          <>
+    <PlanFrame route="power-it" plan={plan}>
+        <StepHeading route="power-it">
+          Owning only wins if you can power it. Set how much power you can get, then see what to do if the grid connection is late.
+        </StepHeading>
+
+        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
+          <section aria-label="Your power" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
+            <p className="kicker">01 · Power you can get</p>
+            <div className="mt-4">
+              <PowerBudget
+                kw={assumptions.powerLimitKw}
+                assumptions={assumptions}
+                onChange={(v) => setPlan((p) => ({ ...p, assumptions: { ...p.assumptions, powerLimitKw: v } }))}
+              />
+            </div>
+
+            <p className="kicker mt-7">02 · If the grid is late</p>
+            <p className="mt-2 text-sm font-medium">Cluster to power</p>
             <button
               type="button"
-              onClick={copyLink}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-ink"
-              aria-label="Save scenario: copy a link to it"
+              aria-pressed={plan.clusterGpus === null}
+              onClick={() => setGpus(null)}
+              className={`mt-2 w-full rounded-xl border px-3 py-2.5 text-left transition ${plan.clusterGpus === null ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"}`}
             >
-              {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
-              <span className="hidden sm:inline">{copied ? "Link copied" : "Save scenario"}</span>
+              <span className="block text-sm font-semibold leading-tight">Your workload</span>
+              <span className={`mt-0.5 block font-mono text-xs ${plan.clusterGpus === null ? "text-white/80" : "text-muted"}`}>
+                {yours.toLocaleString("en-US")} owned GPUs · {formatKw(facilityKw(yours, assumptions))}
+              </span>
             </button>
-            <span className="sr-only" aria-live="polite">
-              {copied ? "Link to this scenario copied" : ""}
-            </span>
-          </>
-        }
-      />
-
-      <main className="mx-auto max-w-[1360px] px-4 pb-16 pt-7 sm:px-6">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
-          <div>
-            <p className="kicker">Speed-to-Power</p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-none tracking-[-0.035em] sm:text-5xl">
-              The grid is late. <span className="text-brand">Now what?</span>
-            </h1>
-          </div>
-          <p className="max-w-md text-base text-ink-2 lg:text-right">
-            Your servers can be ready long before the utility can power them. Compare the ways to bridge the wait, and when each one pays off.
-          </p>
-        </div>
-
-        <div className="mt-7 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start">
-          <section aria-label="Your cluster" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Your cluster</p>
-            <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Cluster size">
+            <p className="mt-3 text-xs font-medium text-ink-2">What if you grow?</p>
+            <div className="mt-1.5 grid grid-cols-3 gap-2" role="group" aria-label="What-if cluster sizes">
               {CLUSTER_PRESETS.map((p) => {
-                const active = gpus === p.gpus;
+                const active = plan.clusterGpus === p.gpus;
                 return (
                   <button
                     key={p.id}
@@ -163,7 +136,7 @@ export function SpeedToPower() {
             </div>
             <div className="mt-5 flex items-end justify-between gap-3">
               <label htmlFor="gpus" className="text-sm font-medium">
-                GPUs <span className="font-mono text-brand-ink">≈ {mw(facilityKw(gpus, assumptions))}</span>
+                GPUs <span className="font-mono text-brand-ink">≈ {formatKw(kw)}</span>
               </label>
               <input
                 id="gpus"
@@ -173,7 +146,7 @@ export function SpeedToPower() {
                 value={gpus}
                 onChange={(e) => {
                   const v = Math.round(Number(e.target.value));
-                  if (Number.isFinite(v) && v >= 1) setGpus(Math.min(10_000_000, v));
+                  if (Number.isFinite(v) && v >= 1) setGpus(v === yours ? null : Math.min(10_000_000, v));
                 }}
                 className="w-32 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
               />
@@ -218,7 +191,7 @@ export function SpeedToPower() {
 
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
-                <span className="kicker">02 · Assumptions</span>
+                <span className="kicker">03 · Assumptions</span>
                 <span className="text-xs text-muted group-open:hidden">Prices, lead times ▾</span>
                 <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
               </summary>
@@ -261,7 +234,7 @@ export function SpeedToPower() {
                 GPU, rent and grid prices come from the calculator: {formatUsd(assumptions.rentPerGpuHour, 2)} per GPU-hour to rent,{" "}
                 {formatUsd(ownCostPerGpuMonth(assumptions))} per GPU-month to own, {formatUsd(assumptions.electricityPerKwh, 2)} per kWh.{" "}
                 <a href={calcLink} onClick={linkClick(calcLink)} className="font-semibold text-brand-ink underline underline-offset-2">
-                  Change them there
+                  Change them in step 2
                 </a>
                 {" · "}
                 <a href="/methodology#speed-to-power" onClick={linkClick("/methodology#speed-to-power")} className="font-semibold text-brand-ink underline underline-offset-2">
@@ -272,6 +245,13 @@ export function SpeedToPower() {
           </section>
 
           <section aria-label="Results" aria-live="polite" className={`bridge-${winner} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4`}>
+            {kw < 1000 && (
+              <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
+                <span className="font-semibold">At {formatKw(kw)}, power usually isn't your bottleneck:</span> a colocation cage can often
+                power this today. Grid delays bite at multi-megawatt scale. Try <span className="font-semibold">What if you grow?</span> to
+                see them.
+              </p>
+            )}
             {premium <= 0 && (
               <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
                 At these prices renting costs no more than owning, so a late grid costs you nothing: just rent.{" "}
@@ -327,10 +307,7 @@ export function SpeedToPower() {
             </p>
           </section>
         </div>
-      </main>
-
-      <SiteFooter />
-    </div>
+    </PlanFrame>
   );
 }
 

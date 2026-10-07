@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { OPTIONS } from "@/Calculator";
+import { OPTIONS } from "@/components/options";
 import { linkClick } from "./Brand";
 import { ClosingBars } from "./ClosingBars";
 import { Odometer } from "./Odometer";
@@ -185,8 +185,8 @@ export function FlipStory() {
 export function FlipStoryLink() {
   return (
     <a
-      href="/calculator"
-      onClick={linkClick("/calculator")}
+      href="/run-it"
+      onClick={linkClick("/run-it")}
       className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-3 font-semibold text-ink transition hover:border-brand"
     >
       Try your own number <ArrowRight className="size-4" aria-hidden />

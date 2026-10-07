@@ -1,15 +1,17 @@
-import { Check, Download, Link2, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Download, Sparkles, Zap } from "lucide-react";
+import { useEffect, useMemo } from "react";
 import { linkClick } from "@/components/Brand";
-import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
+import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
+import { OPTIONS } from "@/components/options";
 import { Ownership } from "@/components/Ownership";
+import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
+import { Scorecard } from "@/components/Scorecard";
 import { Sensitivity } from "@/components/Sensitivity";
-import { PillBar } from "@/components/Site";
-import { scenarioQuery } from "@/lib/speedToPowerShare";
-import { DEFAULT_BRIDGE, DEFAULT_GPUS } from "@/lib/speedToPower";
-import { estimateCsv, estimateQuery, readEstimate } from "@/lib/share";
+import { stepHref } from "@/lib/plan";
+import { DEFAULT_SCORES, scorecard } from "@/lib/scorecard";
+import { estimateCsv } from "@/lib/share";
 import {
   DEFAULT_ASSUMPTIONS,
   PRESETS,
@@ -21,18 +23,12 @@ import {
   cheapest,
   compare,
   crossovers,
+  facilityKwPerGpu,
   formatTokensM,
   formatUsd,
   type Assumptions,
-  type OptionId,
   type Workload,
 } from "@/lib/tco";
-
-export const OPTIONS: Record<OptionId, OptionMeta & { note: string }> = {
-  api: { name: "Pay per token (API)", short: "API", swatch: "bg-api", note: "No hardware. You pay for every token." },
-  rent: { name: "Rent cloud GPUs", short: "Rent", swatch: "bg-rent", note: "Pay by the GPU-hour, busy or idle." },
-  own: { name: "Own GPUs", short: "Own", swatch: "bg-own", note: "Buy whole 8-GPU servers; pay power and upkeep." },
-};
 
 // The volume slider is logarithmic: 0–1000 maps to 10M–100B tokens a month.
 const SLIDER_STEPS = 1000;
@@ -57,38 +53,23 @@ const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; 
   { key: "supportPctPerYear", label: "Support & maintenance", unit: "% of hardware / year", step: 1 },
 ];
 
-export function Calculator() {
-  // A shared link opens the estimate it was made from.
-  const [initial] = useState(() => readEstimate(window.location.search));
-  const [workload, setWorkload] = useState<Workload>(initial.workload);
-  const [assumptions, setAssumptions] = useState<Assumptions>(initial.assumptions);
-  const [copied, setCopied] = useState(false);
+/** Step 2: how should we run it? The cost of the API, rented GPUs and owned GPUs at your volume, then what fits beyond cost. */
+export function RunIt() {
+  const [plan, setPlan] = usePlan("run-it");
+  const { workload, assumptions } = plan;
 
   const costs = useMemo(() => compare(workload, assumptions), [workload, assumptions]);
   const winner = cheapest(costs);
   const cross = useMemo(() => crossovers(workload, assumptions), [workload, assumptions]);
-  const setW = (patch: Partial<Workload>) => setWorkload((w) => ({ ...w, ...patch }));
+  const setW = (patch: Partial<Workload>) => setPlan((p) => ({ ...p, workload: { ...p.workload, ...patch } }));
+  const setAssumptions = (f: (a: Assumptions) => Assumptions) => setPlan((p) => ({ ...p, assumptions: f(p.assumptions) }));
+  const card = useMemo(() => scorecard(costs, plan.weights, plan.scores), [costs, plan.weights, plan.scores]);
+  const powerLink = stepHref("power-it", plan);
 
   // "See where the answer flips" on the landing page links to #projection. Runs before the URL sync below drops the hash.
   useEffect(() => {
     if (window.location.hash === "#projection") document.getElementById("projection")?.scrollIntoView({ block: "start" });
   }, []);
-
-  // Keep the address bar in sync, so the current estimate is always a shareable link.
-  useEffect(() => {
-    const url = `${window.location.pathname}${estimateQuery(workload, assumptions)}`;
-    window.history.replaceState(null, "", url);
-  }, [workload, assumptions]);
-
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      window.prompt("Copy this link to your estimate:", window.location.href);
-    }
-  }
 
   function exportCsv() {
     const blob = new Blob([estimateCsv(workload, assumptions, costs, winner, cross)], { type: "text/csv;charset=utf-8" });
@@ -100,58 +81,30 @@ export function Calculator() {
   }
 
   return (
-    <div className="min-h-dvh">
-      <PillBar
-        logoTagline
-        actions={
-          <>
-            <span className="hidden rounded-full border border-line bg-brand-soft px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-brand-ink md:inline">
-              Illustrative estimate · USD
-            </span>
-            <button
-              type="button"
-              onClick={exportCsv}
-              className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
-              aria-label="Export CSV"
-            >
-              <Download className="size-3.5" aria-hidden />
-              <span className="hidden sm:inline">Export CSV</span>
-            </button>
-            <button
-              type="button"
-              onClick={copyLink}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-ink"
-              aria-label="Save estimate: copy a link to it"
-            >
-              {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
-              <span className="hidden sm:inline">{copied ? "Link copied" : "Save estimate"}</span>
-            </button>
-            <span className="sr-only" aria-live="polite">
-              {copied ? "Link to this estimate copied" : ""}
-            </span>
-          </>
-        }
-      />
+    <PlanFrame
+      route="run-it"
+      plan={plan}
+      actions={
+        <>
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
+            aria-label="Export CSV"
+          >
+            <Download className="size-3.5" aria-hidden />
+            <span className="hidden xl:inline">Export CSV</span>
+          </button>
+          <CopyLinkButton />
+        </>
+      }
+    >
+        <StepHeading route="run-it">
+          Pay per token, rent cloud GPUs, or own the hardware: what each costs at your volume, where the answer flips, and what fits
+          your priorities beyond cost.
+        </StepHeading>
 
-      <main className="mx-auto max-w-[1360px] px-4 pb-16 pt-7 sm:px-6">
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
-          <div>
-            <p className="font-mono text-sm text-ink-2">
-              <span className="text-brand-ink">&gt;</span> what does AI really cost at my volume?
-            </p>
-            <h1 className="mt-2 text-4xl font-extrabold leading-none tracking-[-0.035em] sm:text-5xl">
-              Own, rent, <span className="text-brand">or API?</span>
-            </h1>
-          </div>
-          <p className="max-w-md text-base text-ink-2 lg:text-right">
-            Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.{" "}
-            <a href="/business-case" onClick={linkClick("/business-case")} className="font-semibold text-brand-ink underline underline-offset-2">
-              Build a business case →
-            </a>
-          </p>
-        </div>
-
-        <div className="mt-7 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start">
+        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           {/* Inputs: stay in view on wide screens while the results scroll beside them */}
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
             <p className="kicker">01 · Your workload</p>
@@ -233,11 +186,21 @@ export function Calculator() {
               max={0.9}
             />
 
-            <PowerBudget
-              kw={assumptions.powerLimitKw}
-              assumptions={assumptions}
-              onChange={(kw) => setAssumptions((a) => ({ ...a, powerLimitKw: kw }))}
-            />
+            <a
+              href={powerLink}
+              onClick={linkClick(powerLink)}
+              className="mt-6 flex items-start gap-3 rounded-xl border border-line bg-bg p-3.5 text-sm transition hover:border-brand"
+            >
+              <Zap className="mt-0.5 size-4 shrink-0 text-brand-ink" aria-hidden />
+              <span>
+                <span className="block font-medium">
+                  {assumptions.powerLimitKw > 0 ? `Power capped at ${assumptions.powerLimitKw} kW (up to ${maxOwnedGpus(assumptions)} owned GPUs)` : "Owning needs power"}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {ownedKw(workload, assumptions)} for your owned GPUs. Set a power budget or a late grid in step 3 →
+                </span>
+              </span>
+            </a>
 
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
@@ -266,7 +229,7 @@ export function Calculator() {
                 <div className="flex items-end sm:col-span-2">
                   <button
                     type="button"
-                    onClick={() => setAssumptions(DEFAULT_ASSUMPTIONS)}
+                    onClick={() => setAssumptions((a) => ({ ...DEFAULT_ASSUMPTIONS, powerLimitKw: a.powerLimitKw }))}
                     className="text-xs font-medium text-brand-ink underline underline-offset-2"
                   >
                     Reset to defaults
@@ -351,16 +314,36 @@ export function Calculator() {
             </p>
           </section>
         </div>
-      </main>
 
-      <footer className="mx-auto flex max-w-[1360px] flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
-        <span>
-          Illustrative estimate <span className="text-brand-ink">·</span> excludes taxes, egress and setup costs
-        </span>
-        <span>Breakeven · v1 · Angel Ade-Oduntan</span>
-      </footer>
-    </div>
+        <section id="beyond-cost" className="mt-14 scroll-mt-24">
+          <div className="mb-6 max-w-2xl">
+            <p className="kicker">Beyond cost</p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Which option fits your priorities?</h2>
+            <p className="mt-2 text-ink-2">
+              The cheapest option isn't always the right one. Weight what matters to you, such as data control or time to launch, and see
+              which way to run AI scores best.
+            </p>
+          </div>
+          <Scorecard
+            costs={costs}
+            cheapestId={winner}
+            card={card}
+            weights={plan.weights}
+            scores={plan.scores}
+            onWeights={(w) => setPlan((p) => ({ ...p, weights: w }))}
+            onScore={(c, o, v) => setPlan((p) => ({ ...p, scores: { ...p.scores, [c]: { ...p.scores[c], [o]: v } } }))}
+            onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
+          />
+        </section>
+    </PlanFrame>
+
   );
+}
+
+/** Power for the GPUs you'd own at this volume, in whole servers. */
+function ownedKw(w: Workload, a: Assumptions) {
+  const owned = compare(w, { ...a, powerLimitKw: 0 }).own.gpus ?? 0;
+  return `${formatKw(owned * facilityKwPerGpu(a))} (${owned} GPUs)`;
 }
 
 /** The math behind the three numbers, written out with the current inputs. */
@@ -430,58 +413,6 @@ function describePower(w: Workload, a: Assumptions) {
   const max = maxOwnedGpus(a);
   if (max === 0) return `Your ${a.powerLimitKw} kW power budget can’t run a single ${a.gpusPerServer}-GPU server, so owning means renting everything.`;
   return `Your ${a.powerLimitKw} kW power budget runs out at about ${formatTokensM(capM)} tokens a month; above that, owning means ${max} owned GPUs plus rented overflow.`;
-}
-
-/** Facility power you have for your own servers. 0 means no limit; above the cap, extra GPUs are rented. */
-function PowerBudget({ kw, assumptions, onChange }: { kw: number; assumptions: Assumptions; onChange: (kw: number) => void }) {
-  const max = maxOwnedGpus(assumptions);
-  const choices = [0, 25, 50, 100];
-  // Carry the calculator's prices over, so both pages use the same GPU, rent and power assumptions.
-  const stpLink = `/speed-to-power${scenarioQuery({ gpus: DEFAULT_GPUS, bridge: DEFAULT_BRIDGE, assumptions })}`;
-  return (
-    <div className="mt-6">
-      <div className="flex items-end justify-between gap-3">
-        <label htmlFor="power-kw" className="text-sm font-medium">
-          Power for owned GPUs
-        </label>
-        <span className="font-mono text-sm text-brand-ink">{kw > 0 ? `up to ${max} GPUs` : "No limit"}</span>
-      </div>
-      <div className="mt-2 flex items-center gap-2">
-        <div className="grid flex-1 grid-cols-4 gap-1.5" role="group" aria-label="Power budget presets">
-          {choices.map((c) => (
-            <button
-              key={c}
-              type="button"
-              aria-pressed={kw === c}
-              onClick={() => onChange(c)}
-              className={`whitespace-nowrap rounded-lg border px-1 py-1.5 font-mono text-xs transition ${kw === c ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"}`}
-            >
-              {c === 0 ? "None" : `${c} kW`}
-            </button>
-          ))}
-        </div>
-        <input
-          id="power-kw"
-          type="number"
-          min={0}
-          step={5}
-          value={kw || ""}
-          placeholder="kW"
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            onChange(Number.isFinite(v) && v > 0 ? v : 0);
-          }}
-          className="w-20 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
-        />
-      </div>
-      <p className="mt-1 text-xs text-muted">
-        Like the size of a colocation cage. Above it, extra GPUs are rented, so owning becomes a hybrid.{" "}
-        <a href={stpLink} onClick={linkClick(stpLink)} className="font-semibold text-brand-ink underline underline-offset-2">
-          Grid not ready yet? Speed-to-Power →
-        </a>
-      </p>
-    </div>
-  );
 }
 
 function describeCrossovers(c: ReturnType<typeof crossovers>) {

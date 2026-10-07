@@ -1,31 +1,31 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect } from "react";
 import { linkClick } from "@/components/Brand";
-import { SiteFooter, SiteHeader } from "@/components/Site";
+import { PlanFrame, usePlan } from "@/components/PlanFrame";
+import { stepHref } from "@/lib/plan";
 import { BRIDGE_FORMULAS, BRIDGE_METHODOLOGY } from "@/lib/bridgeMethodology";
 import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED, type Confidence, type Source } from "@/lib/methodology";
 
-const NAV = [
+const SECTIONS = [
   { href: "#model", label: "The model" },
   { href: "#defaults", label: "Defaults & sources" },
   { href: "#speed-to-power", label: "Speed-to-Power" },
   { href: "#limits", label: "What's not included" },
 ];
 
+/** Sources: the formulas and every default, with its range, reasoning, sources and confidence. */
 export function Methodology() {
+  const [plan] = usePlan("sources");
   // Links like /methodology#speed-to-power open on that section.
   useEffect(() => {
     if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" });
   }, []);
 
   return (
-    <div className="min-h-dvh bg-surface">
-      <SiteHeader nav={NAV} />
-
-      <main>
+    <PlanFrame route="sources" plan={plan} strip={false} bare>
         <section className="border-b border-line bg-bg">
           <div className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6 sm:py-20">
-            <p className="kicker">Methodology</p>
+            <p className="kicker">Sources</p>
             <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-[-0.035em] text-balance sm:text-6xl">
               Where every number comes from
             </h1>
@@ -36,10 +36,17 @@ export function Methodology() {
             <p className="mt-6 inline-flex rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-ink-2">
               Sources checked {CHECKED}
             </p>
+            <nav aria-label="On this page" className="mt-6 flex flex-wrap gap-2">
+              {SECTIONS.map((n) => (
+                <a key={n.href} href={n.href} className="rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-ink-2 transition hover:border-brand hover:text-ink">
+                  {n.label}
+                </a>
+              ))}
+            </nav>
           </div>
         </section>
 
-        <section id="model" className="scroll-mt-16 py-16 sm:py-20">
+        <section id="model" className="scroll-mt-24 py-16 sm:py-20">
           <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
             <div>
               <p className="kicker">The model</p>
@@ -60,7 +67,7 @@ export function Methodology() {
           </div>
         </section>
 
-        <section id="defaults" className="scroll-mt-16 border-y border-line bg-bg py-16 sm:py-20">
+        <section id="defaults" className="scroll-mt-24 border-y border-line bg-bg py-16 sm:py-20">
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
             <div className="max-w-2xl">
               <p className="kicker">Defaults & sources</p>
@@ -94,7 +101,7 @@ export function Methodology() {
                   Each way to bridge a late grid connection is costed as extra spending versus owning the cluster on a working grid from day
                   one. Until an option is ready, you rent.
                 </p>
-                <a href="/speed-to-power" onClick={linkClick("/speed-to-power")} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand-ink">
+                <a href={stepHref("power-it", plan)} onClick={linkClick(stepHref("power-it", plan))} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand-ink">
                   Open Speed-to-Power <ArrowRight className="size-4" aria-hidden />
                 </a>
               </div>
@@ -115,7 +122,7 @@ export function Methodology() {
           </div>
         </section>
 
-        <section id="limits" className="scroll-mt-16 py-16 sm:py-20">
+        <section id="limits" className="scroll-mt-24 py-16 sm:py-20">
           <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
             <div>
               <p className="kicker">What's not included</p>
@@ -137,18 +144,15 @@ export function Methodology() {
           <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-5 rounded-3xl bg-[#2a1458] px-6 py-14 text-center text-white">
             <h2 className="max-w-xl text-3xl font-extrabold tracking-[-0.03em] text-balance sm:text-4xl">Use your own numbers.</h2>
             <a
-              href="/calculator"
-              onClick={linkClick("/calculator")}
+              href={stepHref("run-it", plan)}
+              onClick={linkClick(stepHref("run-it", plan))}
               className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-[#2a1458] transition hover:bg-white/90"
             >
-              Open the calculator <ArrowRight className="size-4" aria-hidden />
+              Back to step 2 <ArrowRight className="size-4" aria-hidden />
             </a>
           </div>
         </section>
-      </main>
-
-      <SiteFooter />
-    </div>
+    </PlanFrame>
   );
 }
 

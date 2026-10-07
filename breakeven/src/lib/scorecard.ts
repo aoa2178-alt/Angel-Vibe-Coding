@@ -10,7 +10,7 @@ export type CriterionId = "cost" | "control" | "launch" | "quality" | "ease" | "
 export type ScoredCriterion = Exclude<CriterionId, "cost">;
 
 export const CRITERIA: { id: CriterionId; label: string; question: string }[] = [
-  { id: "cost", label: "Cost", question: "How cheap is it at your volume? Scored from step 3." },
+  { id: "cost", label: "Cost", question: "How cheap is it at your volume? From the cost comparison above." },
   { id: "control", label: "Data control", question: "Does your data stay inside systems you control?" },
   { id: "launch", label: "Time to launch", question: "How fast can you go live?" },
   { id: "quality", label: "Model quality", question: "Can you use the strongest models?" },

@@ -1,0 +1,983 @@
+{
+ "retrieved": "2026-10-07",
+ "series": {
+  "tablet": {
+   "id": "MRTSSM443USN",
+   "title": "Retail sales: electronics and appliance stores, not seasonally adjusted",
+   "unit": "millions of dollars",
+   "publisher": "U.S. Census Bureau, Monthly Retail Trade Survey, via FRED",
+   "source": "https://fred.stlouisfed.org/series/MRTSSM443USN",
+   "points": [
+    {
+     "month": "2016-08",
+     "value": 7740
+    },
+    {
+     "month": "2016-09",
+     "value": 7308
+    },
+    {
+     "month": "2016-10",
+     "value": 6955
+    },
+    {
+     "month": "2016-11",
+     "value": 9071
+    },
+    {
+     "month": "2016-12",
+     "value": 11270
+    },
+    {
+     "month": "2017-01",
+     "value": 6938
+    },
+    {
+     "month": "2017-02",
+     "value": 6627
+    },
+    {
+     "month": "2017-03",
+     "value": 7393
+    },
+    {
+     "month": "2017-04",
+     "value": 6582
+    },
+    {
+     "month": "2017-05",
+     "value": 7058
+    },
+    {
+     "month": "2017-06",
+     "value": 7128
+    },
+    {
+     "month": "2017-07",
+     "value": 6973
+    },
+    {
+     "month": "2017-08",
+     "value": 7364
+    },
+    {
+     "month": "2017-09",
+     "value": 7189
+    },
+    {
+     "month": "2017-10",
+     "value": 7061
+    },
+    {
+     "month": "2017-11",
+     "value": 9556
+    },
+    {
+     "month": "2017-12",
+     "value": 11235
+    },
+    {
+     "month": "2018-01",
+     "value": 7161
+    },
+    {
+     "month": "2018-02",
+     "value": 6848
+    },
+    {
+     "month": "2018-03",
+     "value": 7457
+    },
+    {
+     "month": "2018-04",
+     "value": 6714
+    },
+    {
+     "month": "2018-05",
+     "value": 7269
+    },
+    {
+     "month": "2018-06",
+     "value": 7374
+    },
+    {
+     "month": "2018-07",
+     "value": 7257
+    },
+    {
+     "month": "2018-08",
+     "value": 7737
+    },
+    {
+     "month": "2018-09",
+     "value": 7175
+    },
+    {
+     "month": "2018-10",
+     "value": 7231
+    },
+    {
+     "month": "2018-11",
+     "value": 9462
+    },
+    {
+     "month": "2018-12",
+     "value": 10892
+    },
+    {
+     "month": "2019-01",
+     "value": 7110
+    },
+    {
+     "month": "2019-02",
+     "value": 6518
+    },
+    {
+     "month": "2019-03",
+     "value": 7140
+    },
+    {
+     "month": "2019-04",
+     "value": 6434
+    },
+    {
+     "month": "2019-05",
+     "value": 7058
+    },
+    {
+     "month": "2019-06",
+     "value": 6924
+    },
+    {
+     "month": "2019-07",
+     "value": 7105
+    },
+    {
+     "month": "2019-08",
+     "value": 7433
+    },
+    {
+     "month": "2019-09",
+     "value": 7030
+    },
+    {
+     "month": "2019-10",
+     "value": 6985
+    },
+    {
+     "month": "2019-11",
+     "value": 9097
+    },
+    {
+     "month": "2019-12",
+     "value": 10679
+    },
+    {
+     "month": "2020-01",
+     "value": 6878
+    },
+    {
+     "month": "2020-02",
+     "value": 6472
+    },
+    {
+     "month": "2020-03",
+     "value": 5596
+    },
+    {
+     "month": "2020-04",
+     "value": 2895
+    },
+    {
+     "month": "2020-05",
+     "value": 3772
+    },
+    {
+     "month": "2020-06",
+     "value": 5387
+    },
+    {
+     "month": "2020-07",
+     "value": 6248
+    },
+    {
+     "month": "2020-08",
+     "value": 6524
+    },
+    {
+     "month": "2020-09",
+     "value": 6161
+    },
+    {
+     "month": "2020-10",
+     "value": 6547
+    },
+    {
+     "month": "2020-11",
+     "value": 7918
+    },
+    {
+     "month": "2020-12",
+     "value": 9055
+    },
+    {
+     "month": "2021-01",
+     "value": 6672
+    },
+    {
+     "month": "2021-02",
+     "value": 5976
+    },
+    {
+     "month": "2021-03",
+     "value": 7696
+    },
+    {
+     "month": "2021-04",
+     "value": 7186
+    },
+    {
+     "month": "2021-05",
+     "value": 7360
+    },
+    {
+     "month": "2021-06",
+     "value": 7749
+    },
+    {
+     "month": "2021-07",
+     "value": 7783
+    },
+    {
+     "month": "2021-08",
+     "value": 7720
+    },
+    {
+     "month": "2021-09",
+     "value": 7424
+    },
+    {
+     "month": "2021-10",
+     "value": 7744
+    },
+    {
+     "month": "2021-11",
+     "value": 8786
+    },
+    {
+     "month": "2021-12",
+     "value": 10268
+    },
+    {
+     "month": "2022-01",
+     "value": 6812
+    },
+    {
+     "month": "2022-02",
+     "value": 6556
+    },
+    {
+     "month": "2022-03",
+     "value": 7785
+    },
+    {
+     "month": "2022-04",
+     "value": 7360
+    },
+    {
+     "month": "2022-05",
+     "value": 7369
+    },
+    {
+     "month": "2022-06",
+     "value": 7271
+    },
+    {
+     "month": "2022-07",
+     "value": 7413
+    },
+    {
+     "month": "2022-08",
+     "value": 7725
+    },
+    {
+     "month": "2022-09",
+     "value": 7498
+    },
+    {
+     "month": "2022-10",
+     "value": 7242
+    },
+    {
+     "month": "2022-11",
+     "value": 8326
+    },
+    {
+     "month": "2022-12",
+     "value": 9694
+    },
+    {
+     "month": "2023-01",
+     "value": 7396
+    },
+    {
+     "month": "2023-02",
+     "value": 6732
+    },
+    {
+     "month": "2023-03",
+     "value": 7368
+    },
+    {
+     "month": "2023-04",
+     "value": 6569
+    },
+    {
+     "month": "2023-05",
+     "value": 7145
+    },
+    {
+     "month": "2023-06",
+     "value": 7222
+    },
+    {
+     "month": "2023-07",
+     "value": 7072
+    },
+    {
+     "month": "2023-08",
+     "value": 7541
+    },
+    {
+     "month": "2023-09",
+     "value": 7393
+    },
+    {
+     "month": "2023-10",
+     "value": 7301
+    },
+    {
+     "month": "2023-11",
+     "value": 8625
+    },
+    {
+     "month": "2023-12",
+     "value": 9826
+    },
+    {
+     "month": "2024-01",
+     "value": 7267
+    },
+    {
+     "month": "2024-02",
+     "value": 7132
+    },
+    {
+     "month": "2024-03",
+     "value": 7075
+    },
+    {
+     "month": "2024-04",
+     "value": 6847
+    },
+    {
+     "month": "2024-05",
+     "value": 7504
+    },
+    {
+     "month": "2024-06",
+     "value": 7147
+    },
+    {
+     "month": "2024-07",
+     "value": 7490
+    },
+    {
+     "month": "2024-08",
+     "value": 7512
+    },
+    {
+     "month": "2024-09",
+     "value": 6883
+    },
+    {
+     "month": "2024-10",
+     "value": 7224
+    },
+    {
+     "month": "2024-11",
+     "value": 8772
+    },
+    {
+     "month": "2024-12",
+     "value": 10330
+    },
+    {
+     "month": "2025-01",
+     "value": 7050
+    },
+    {
+     "month": "2025-02",
+     "value": 6630
+    },
+    {
+     "month": "2025-03",
+     "value": 7199
+    },
+    {
+     "month": "2025-04",
+     "value": 6820
+    },
+    {
+     "month": "2025-05",
+     "value": 7437
+    },
+    {
+     "month": "2025-06",
+     "value": 7147
+    },
+    {
+     "month": "2025-07",
+     "value": 7647
+    },
+    {
+     "month": "2025-08",
+     "value": 7626
+    },
+    {
+     "month": "2025-09",
+     "value": 7413
+    },
+    {
+     "month": "2025-10",
+     "value": 7493
+    },
+    {
+     "month": "2025-11",
+     "value": 8894
+    },
+    {
+     "month": "2025-12",
+     "value": 10689
+    },
+    {
+     "month": "2026-01",
+     "value": 7362
+    },
+    {
+     "month": "2026-02",
+     "value": 6975
+    },
+    {
+     "month": "2026-03",
+     "value": 7682
+    },
+    {
+     "month": "2026-04",
+     "value": 7429
+    },
+    {
+     "month": "2026-05",
+     "value": 7896
+    },
+    {
+     "month": "2026-06",
+     "value": 7771
+    },
+    {
+     "month": "2026-07",
+     "value": 8082
+    }
+   ]
+  },
+  "server": {
+   "id": "U34ANO",
+   "title": "Manufacturers' new orders: electronic computer manufacturing, not seasonally adjusted",
+   "unit": "millions of dollars",
+   "publisher": "U.S. Census Bureau, Manufacturers' Shipments, Inventories, and Orders (M3), via FRED",
+   "source": "https://fred.stlouisfed.org/series/U34ANO",
+   "points": [
+    {
+     "month": "2016-09",
+     "value": 1094
+    },
+    {
+     "month": "2016-10",
+     "value": 1007
+    },
+    {
+     "month": "2016-11",
+     "value": 835
+    },
+    {
+     "month": "2016-12",
+     "value": 1194
+    },
+    {
+     "month": "2017-01",
+     "value": 695
+    },
+    {
+     "month": "2017-02",
+     "value": 626
+    },
+    {
+     "month": "2017-03",
+     "value": 812
+    },
+    {
+     "month": "2017-04",
+     "value": 706
+    },
+    {
+     "month": "2017-05",
+     "value": 671
+    },
+    {
+     "month": "2017-06",
+     "value": 924
+    },
+    {
+     "month": "2017-07",
+     "value": 706
+    },
+    {
+     "month": "2017-08",
+     "value": 693
+    },
+    {
+     "month": "2017-09",
+     "value": 797
+    },
+    {
+     "month": "2017-10",
+     "value": 652
+    },
+    {
+     "month": "2017-11",
+     "value": 644
+    },
+    {
+     "month": "2017-12",
+     "value": 797
+    },
+    {
+     "month": "2018-01",
+     "value": 555
+    },
+    {
+     "month": "2018-02",
+     "value": 536
+    },
+    {
+     "month": "2018-03",
+     "value": 790
+    },
+    {
+     "month": "2018-04",
+     "value": 715
+    },
+    {
+     "month": "2018-05",
+     "value": 745
+    },
+    {
+     "month": "2018-06",
+     "value": 947
+    },
+    {
+     "month": "2018-07",
+     "value": 841
+    },
+    {
+     "month": "2018-08",
+     "value": 932
+    },
+    {
+     "month": "2018-09",
+     "value": 1083
+    },
+    {
+     "month": "2018-10",
+     "value": 867
+    },
+    {
+     "month": "2018-11",
+     "value": 879
+    },
+    {
+     "month": "2018-12",
+     "value": 1097
+    },
+    {
+     "month": "2019-01",
+     "value": 642
+    },
+    {
+     "month": "2019-02",
+     "value": 555
+    },
+    {
+     "month": "2019-03",
+     "value": 780
+    },
+    {
+     "month": "2019-04",
+     "value": 678
+    },
+    {
+     "month": "2019-05",
+     "value": 738
+    },
+    {
+     "month": "2019-06",
+     "value": 894
+    },
+    {
+     "month": "2019-07",
+     "value": 683
+    },
+    {
+     "month": "2019-08",
+     "value": 784
+    },
+    {
+     "month": "2019-09",
+     "value": 887
+    },
+    {
+     "month": "2019-10",
+     "value": 700
+    },
+    {
+     "month": "2019-11",
+     "value": 696
+    },
+    {
+     "month": "2019-12",
+     "value": 884
+    },
+    {
+     "month": "2020-01",
+     "value": 674
+    },
+    {
+     "month": "2020-02",
+     "value": 617
+    },
+    {
+     "month": "2020-03",
+     "value": 763
+    },
+    {
+     "month": "2020-04",
+     "value": 706
+    },
+    {
+     "month": "2020-05",
+     "value": 754
+    },
+    {
+     "month": "2020-06",
+     "value": 921
+    },
+    {
+     "month": "2020-07",
+     "value": 718
+    },
+    {
+     "month": "2020-08",
+     "value": 855
+    },
+    {
+     "month": "2020-09",
+     "value": 883
+    },
+    {
+     "month": "2020-10",
+     "value": 817
+    },
+    {
+     "month": "2020-11",
+     "value": 878
+    },
+    {
+     "month": "2020-12",
+     "value": 959
+    },
+    {
+     "month": "2021-01",
+     "value": 715
+    },
+    {
+     "month": "2021-02",
+     "value": 656
+    },
+    {
+     "month": "2021-03",
+     "value": 838
+    },
+    {
+     "month": "2021-04",
+     "value": 765
+    },
+    {
+     "month": "2021-05",
+     "value": 876
+    },
+    {
+     "month": "2021-06",
+     "value": 962
+    },
+    {
+     "month": "2021-07",
+     "value": 843
+    },
+    {
+     "month": "2021-08",
+     "value": 924
+    },
+    {
+     "month": "2021-09",
+     "value": 935
+    },
+    {
+     "month": "2021-10",
+     "value": 838
+    },
+    {
+     "month": "2021-11",
+     "value": 845
+    },
+    {
+     "month": "2021-12",
+     "value": 967
+    },
+    {
+     "month": "2022-01",
+     "value": 819
+    },
+    {
+     "month": "2022-02",
+     "value": 769
+    },
+    {
+     "month": "2022-03",
+     "value": 916
+    },
+    {
+     "month": "2022-04",
+     "value": 931
+    },
+    {
+     "month": "2022-05",
+     "value": 1011
+    },
+    {
+     "month": "2022-06",
+     "value": 1229
+    },
+    {
+     "month": "2022-07",
+     "value": 1044
+    },
+    {
+     "month": "2022-08",
+     "value": 1109
+    },
+    {
+     "month": "2022-09",
+     "value": 1150
+    },
+    {
+     "month": "2022-10",
+     "value": 1088
+    },
+    {
+     "month": "2022-11",
+     "value": 976
+    },
+    {
+     "month": "2022-12",
+     "value": 1194
+    },
+    {
+     "month": "2023-01",
+     "value": 973
+    },
+    {
+     "month": "2023-02",
+     "value": 848
+    },
+    {
+     "month": "2023-03",
+     "value": 1052
+    },
+    {
+     "month": "2023-04",
+     "value": 1030
+    },
+    {
+     "month": "2023-05",
+     "value": 1076
+    },
+    {
+     "month": "2023-06",
+     "value": 1354
+    },
+    {
+     "month": "2023-07",
+     "value": 1171
+    },
+    {
+     "month": "2023-08",
+     "value": 1265
+    },
+    {
+     "month": "2023-09",
+     "value": 1223
+    },
+    {
+     "month": "2023-10",
+     "value": 1193
+    },
+    {
+     "month": "2023-11",
+     "value": 1252
+    },
+    {
+     "month": "2023-12",
+     "value": 1376
+    },
+    {
+     "month": "2024-01",
+     "value": 1132
+    },
+    {
+     "month": "2024-02",
+     "value": 1200
+    },
+    {
+     "month": "2024-03",
+     "value": 1272
+    },
+    {
+     "month": "2024-04",
+     "value": 1282
+    },
+    {
+     "month": "2024-05",
+     "value": 1412
+    },
+    {
+     "month": "2024-06",
+     "value": 1602
+    },
+    {
+     "month": "2024-07",
+     "value": 1351
+    },
+    {
+     "month": "2024-08",
+     "value": 1538
+    },
+    {
+     "month": "2024-09",
+     "value": 1557
+    },
+    {
+     "month": "2024-10",
+     "value": 1274
+    },
+    {
+     "month": "2024-11",
+     "value": 1293
+    },
+    {
+     "month": "2024-12",
+     "value": 1448
+    },
+    {
+     "month": "2025-01",
+     "value": 1306
+    },
+    {
+     "month": "2025-02",
+     "value": 1315
+    },
+    {
+     "month": "2025-03",
+     "value": 1564
+    },
+    {
+     "month": "2025-04",
+     "value": 1447
+    },
+    {
+     "month": "2025-05",
+     "value": 1683
+    },
+    {
+     "month": "2025-06",
+     "value": 1803
+    },
+    {
+     "month": "2025-07",
+     "value": 1459
+    },
+    {
+     "month": "2025-08",
+     "value": 1672
+    },
+    {
+     "month": "2025-09",
+     "value": 1592
+    },
+    {
+     "month": "2025-10",
+     "value": 1558
+    },
+    {
+     "month": "2025-11",
+     "value": 1642
+    },
+    {
+     "month": "2025-12",
+     "value": 1805
+    },
+    {
+     "month": "2026-01",
+     "value": 1592
+    },
+    {
+     "month": "2026-02",
+     "value": 1575
+    },
+    {
+     "month": "2026-03",
+     "value": 1829
+    },
+    {
+     "month": "2026-04",
+     "value": 1777
+    },
+    {
+     "month": "2026-05",
+     "value": 1880
+    },
+    {
+     "month": "2026-06",
+     "value": 2046
+    },
+    {
+     "month": "2026-07",
+     "value": 1772
+    },
+    {
+     "month": "2026-08",
+     "value": 2022
+    }
+   ]
+  }
+ }
+}

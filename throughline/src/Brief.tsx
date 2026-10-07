@@ -39,7 +39,7 @@ export function Brief() {
           ? `use the ${call.rule.pick.rule.label.toLowerCase()} rule: it earns the most margin and leaves every region at least ${pct(call.rule.pick.minFill)} of its order.`
           : `use the ${call.rule.pick.rule.label.toLowerCase()} rule. It gives up ${formatMoney(fairCost)} of margin against filling the most profitable region first, but that rule leaves a region with ${pct(call.rule.most.minFill)} of its order, and customers remember.`,
       },
-      { label: "Upstream", text: `sharing customer demand data cuts our suppliers' order swings from ${call.notShared.toFixed(0)}× to ${call.shared.toFixed(0)}× customer demand: the cheapest risk reduction on the page.` },
+      { label: "Upstream", text: `for the ${product.name}, sharing customer demand data cuts our suppliers' order swings from ${call.notShared.toFixed(0)}× to ${call.shared.toFixed(0)}× customer demand: the cheapest risk reduction on the page.` },
       {
         label: "Delivery",
         text: s.ship === call.bestMode.mode

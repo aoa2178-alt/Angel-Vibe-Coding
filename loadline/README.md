@@ -1,6 +1,6 @@
 # Loadline
 
-**Can this AI campus go live on time?**
+**Can this AI campus go live on time?** Live at https://loadline-weld.vercel.app
 
 Loadline takes a real AI data center campus and answers three questions, then puts the answers on one page:
 

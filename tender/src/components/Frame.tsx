@@ -44,7 +44,7 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "should-cost", label: "Should-cost", question: "What should a transformer cost?" },
   { route: "bids", label: "Bids", question: "Who should we buy from?" },
   { route: "negotiate", label: "Negotiate", question: "On what terms?" },
-  { route: "brief", label: "Brief", question: "The sourcing recommendation" },
+  { route: "brief", label: "The call", question: "The call: who to buy from, at what price" },
 ];
 const NUMBERED = 4;
 

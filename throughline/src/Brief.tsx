@@ -1,5 +1,7 @@
 import { Printer } from "lucide-react";
+import { CallBlocks, type CallContent } from "@/components/CallBlocks";
 import { Frame, useScenario } from "@/components/Frame";
+import { FAIRNESS_FLOOR, planCall } from "@/lib/call";
 import { SourceLink } from "@/components/ui";
 import { RULES } from "@/lib/allocate";
 import { byMode, onTime, spread } from "@/lib/delivery";
@@ -21,12 +23,60 @@ export function Brief() {
   const bestMode = spread().modes.reduce((x, y) => (y.lateRate < x.lateRate ? y : x));
   const onTimes = product.regions.map((g) => onTime(g.id, s.ship).onTimeRate);
 
+  const call = planCall(s);
+  const sl = (x: number) => pct(x, 1);
+  const saving = call.current ? call.current.total - call.best.total : 0;
+  const fairCost = call.rule.most.margin - call.rule.pick.margin;
+  const content: CallContent = {
+    demo: `Method demo: ${product.name} and ${product.company} are fictional; the demand pattern is real US Census data and the delivery benchmark is 180,519 real orders. Prices, costs and regional splits are labeled assumptions.`,
+    decision: "Decision: what supply plan do we sign this month, and what's our rule if supply falls short?",
+    headline: `Sign the plan at a ${sl(call.best.serviceLevel)} service level: ${formatMoney(call.best.total)} a year all-in${saving > 1000 ? `, ${formatMoney(saving)} less than at ${sl(s.settings.serviceLevel)}` : ""}. Agree now that any shortage is shared fairly, and share demand data with suppliers.`,
+    bullets: [
+      { label: "The plan", text: `hold ${formatUnits(plan.safetyStock)} units of safety stock, order ${plan.rawEoq < plan.monthlyDemand ? "every month" : `${formatUnits(plan.eoq)} at a time`}, and build ${formatUnits(launch.quantity)} for the next model's launch quarter (newsvendor).` },
+      {
+        label: "If supply falls short",
+        text: call.rule.pick.rule.id === call.rule.most.rule.id
+          ? `use the ${call.rule.pick.rule.label.toLowerCase()} rule: it earns the most margin and leaves every region at least ${pct(call.rule.pick.minFill)} of its order.`
+          : `use the ${call.rule.pick.rule.label.toLowerCase()} rule. It gives up ${formatMoney(fairCost)} of margin against filling the most profitable region first, but that rule leaves a region with ${pct(call.rule.most.minFill)} of its order, and customers remember.`,
+      },
+      { label: "Upstream", text: `sharing customer demand data cuts our suppliers' order swings from ${call.notShared.toFixed(0)}× to ${call.shared.toFixed(0)}× customer demand: the cheapest risk reduction on the page.` },
+      {
+        label: "Delivery",
+        text: s.ship === call.bestMode.mode
+          ? `keep ${s.ship}: it's the most reliable promise (${pct(call.ship.lateRate)} late), and lateness tracks the promise, not the region.`
+          : `move from ${s.ship} (${pct(call.ship.lateRate)} late) to ${call.bestMode.mode} (${pct(call.bestMode.lateRate)}): lateness tracks the shipping promise, not the region.`,
+      },
+    ],
+    checksIntro: "The plan rerun with one assumption changed:",
+    checks: call.checks,
+    landing: [
+      { when: "First 30 days", what: ["Sign the plan in this month's sales and operations meeting", "Set reorder points and safety stock in the system", "Agree the shortage rule with sales before it's needed"] },
+      { when: "60 days", what: ["Share point-of-sale demand with the top supplier", "Compare forecast error against the plan's assumption", "Review late orders by shipping promise"] },
+      { when: "90 days", what: ["Decide the launch build", "Re-set the service level if costs or error moved", "Extend data sharing to the next tier"] },
+    ],
+    people: "The hard part is agreeing rules before the crisis: when supply is short, every region's sales lead asks to be first. Owners: demand planning (forecast), supply planning (plan and orders), sales operations (the shortage rule), logistics (shipping promises).",
+    measures: [
+      ["Forecast error (WAPE, last 12 months)", pct(chosen.wape, 1), `≤ ${pct(chosen.wape, 1)}`],
+      ["Fill rate", call.current ? pct(call.current.fillRate, 1) : "–", pct(call.best.fillRate, 1)],
+      ["Inventory and shortage cost a year", call.current ? formatMoney(call.current.total) : "–", formatMoney(call.best.total)],
+      ["Supplier order swing vs customer demand", `${ripple.ratios.at(-1)!.toFixed(0)}×`, `${call.shared.toFixed(0)}×`],
+      ["Orders delivered late", pct(call.ship.lateRate), pct(call.bestMode.lateRate)],
+    ],
+    measuresNote: "A slightly lower fill rate can be the right aim: the last fraction of a point costs more in inventory than the shortages it prevents.",
+    judgment: [
+      { label: "Cost, not a round number, sets the service level", text: "the plan picks the level where holding, ordering and expected shortage costs are lowest together; 99% sounds safer but costs more than the shortages it prevents." },
+      { label: "A fairness floor", text: `no region below ${pct(FAIRNESS_FLOOR)} of its order; above that line, margin decides. It's a judgment about customer relationships the model can't price.` },
+      { label: "Monthly buckets on a stand-in", text: "public Census series stand in for each product's demand, so planning runs monthly; a real planner would use weekly sell-through." },
+      { label: "Left out", text: "supplier capacity limits, the cost of expediting, and the delivery benchmark comes from another industry's orders." },
+    ],
+  };
+
   return (
     <Frame route="brief" s={s} setS={setS}>
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">Supply & demand update · {product.company}</p>
+            <p className="kicker">The call · {product.company}</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{product.name}</h1>
             <p className="mt-1 text-sm text-muted">
               Prepared {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · data through {formatMonth(r.lastMonth)}
@@ -51,6 +101,7 @@ export function Brief() {
           ))}
         </dl>
 
+        <CallBlocks c={content}>
         {[
           {
             title: "Demand",
@@ -78,6 +129,7 @@ export function Brief() {
             <p className="mt-2 text-[16px] leading-8 text-ink-2">{sec.body}</p>
           </section>
         ))}
+        </CallBlocks>
 
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">
           {product.name} and {product.company} are fictional. The demand pattern is real: {product.series.title} (

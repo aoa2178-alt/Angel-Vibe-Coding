@@ -43,7 +43,7 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "allocate", label: "Allocate", question: "When there isn't enough, who gets it?" },
   { route: "ripple", label: "Ripple", question: "What happens up the supply chain?" },
   { route: "deliver", label: "Deliver", question: "Will it get there on time?" },
-  { route: "brief", label: "Brief", question: "The weekly update" },
+  { route: "brief", label: "The call", question: "The call: the plan to sign" },
 ];
 const NUMBERED = 5;
 

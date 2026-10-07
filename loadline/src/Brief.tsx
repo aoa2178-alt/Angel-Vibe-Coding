@@ -29,7 +29,7 @@ export function Brief() {
     demo: `Method demo on a real campus: the phases, sizes and dates come from public disclosures; milestone dates inside each phase, prices and costs are labeled assumptions. The method is the point: find the critical path, put a price on a month, and spend to protect it.`,
     decision: `Decision: what do we fix first to protect go-live at ${campus.site}, and how much is it worth paying to pull it in?`,
     headline: top
-      ? `Chase ${top.phaseName}: ${label(top.milestone)} first. Every month it slips costs about ${formatMoney(monthly)}, so any fix that pulls it in by a month is worth paying up to that.`
+      ? `Chase ${top.phaseName}: ${label(top.milestone)} first. In this scenario every month it slips costs about ${formatMoney(monthly)}. That's the ceiling on what pulling it in is worth, not a budget: fund a fix at its cost times the chance it actually saves the month.`
       : "Every milestone has more than three months of slack: hold the plan and watch the grid date.",
     bullets: [
       ...call.risks.slice(1, 3).map((r, k) => ({ label: k === 0 ? "Second" : "Third", text: `${r.phaseName}: ${label(r.milestone)} (three more months would cost ${formatMoney(r.cost)}).` })),
@@ -42,7 +42,7 @@ export function Brief() {
     checksIntro: "The priorities rerun with one assumption changed:",
     checks: call.checks,
     landing: [
-      { when: "First 30 days", what: ["Name an owner for each critical-path milestone, with a weekly date check", "Price the expedite options (air freight, overtime, a second crew) against the cost of a month", "Order the spare transformers now: they take years to arrive"] },
+      { when: "First 30 days", what: ["Name an owner for each critical-path milestone, with a weekly date check", "Price each expedite option (air freight, overtime, a second crew) and the chance it really saves a month", "Order the spare transformers now: they take years to arrive"] },
       { when: "60 days", what: ["Weekly program review on the critical path, not the whole schedule", "Escalate any milestone that loses a week of slack", "Lock the utility's energization date in writing"] },
       { when: "90 days", what: ["Re-run the plan with actual dates", "Decide the later phases: build now or phase", "Move spend to whatever has become critical"] },
     ],
@@ -54,7 +54,7 @@ export function Brief() {
       ["Spare transformers on order", "–", String(hedge.best)],
     ],
     judgment: [
-      { label: "A month has a price", text: "each month a phase waits is valued at lost lease or GPU revenue plus interest on the capital already spent, so expediting is a business case, not a favor." },
+      { label: "A month has a price", text: "each month a phase waits is valued at lost lease or GPU revenue plus interest on the capital already spent, so expediting is a business case, not a favor. That figure is the exposure, not the spend: a fix earns its cost only weighted by how likely it is to work." },
       { label: "Only the critical path matters", text: "a milestone with slack can slip for free; the ranking slips each one three more months and counts only what moves go-live." },
       { label: "Spares by the newsvendor", text: "hold spares while the chance a shortage costs more than the spare's idle cost stays above the critical ratio; busy factories mean long replacements, so more spares." },
       { label: "Left out", text: "the operator's real contracts and penalties, labor availability, and permitting risk, none of which are public." },

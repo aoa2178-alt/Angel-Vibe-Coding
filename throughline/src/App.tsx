@@ -23,7 +23,7 @@ const TITLES: Record<View, string> = {
   allocate: "Throughline · 3. Allocate",
   ripple: "Throughline · 4. Ripple",
   deliver: "Throughline · 5. Deliver",
-  brief: "Throughline · Brief",
+  brief: "Throughline · The call",
   sources: "Throughline · Sources",
 };
 

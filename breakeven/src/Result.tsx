@@ -3,19 +3,22 @@ import { useMemo } from "react";
 import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
 import { DecisionReport } from "@/components/DecisionReport";
+import { CallChecks, CallJudgment, CallLanding, CallMeasures, CallRecommendation } from "@/components/TheCall";
+import { callOf } from "@/lib/call";
 import { OPTIONS } from "@/components/options";
 import { CopyLinkButton, PlanFrame, formatKw, usePlan } from "@/components/PlanFrame";
 import { SummaryStat, joinLabels, months, percent } from "@/components/ui";
 import { hybrid, maxUtilizationFor, responseTime, retirement } from "@/lib/operate";
-import { clusterGpusOf, ownedClusterGpus, planFreemium, planRoi, roiInputsOf, stepHref, type Plan } from "@/lib/plan";
+import { clusterGpusOf, ownedClusterGpus, planFreemium, planRoi, roiInputsOf, stepHref } from "@/lib/plan";
 import { templateById, type RoiInputs, type RoiResult } from "@/lib/roi";
 import { OPTION_IDS, advantages, scorecard } from "@/lib/scorecard";
 import { bestStrategy, facilityKw, formatMoney, strategies, totalOver } from "@/lib/speedToPower";
-import { cheapest, compare, crossovers, facilityKwPerGpu, formatTokensM, formatUsd, maxOwnedGpus, sensitivity, type OptionId } from "@/lib/tco";
+import { cheapest, compare, crossovers, facilityKwPerGpu, formatTokensM, formatUsd, maxOwnedGpus, type OptionId } from "@/lib/tco";
 
 /** The result: all three answers on one printable page, from the same plan the steps share. */
 export function Result() {
-  const [plan] = usePlan("result");
+  const [plan, setPlan] = usePlan("result");
+  const call = useMemo(() => callOf(plan), [plan]);
   const { workload, assumptions, weights, bridge } = plan;
   const costs = useMemo(() => compare(workload, assumptions), [workload, assumptions]);
   const winner = cheapest(costs);
@@ -29,7 +32,6 @@ export function Result() {
   const cluster = clusterGpusOf(plan);
   const bridges = strategies(cluster, assumptions, bridge);
   const bestBridge = bestStrategy(bridges, bridge.delayMonths);
-  const risks = planRisks(plan, r, winner);
   const step1 = stepHref("worth-it", plan);
   const title = product ? "Your AI product" : plan.templateId ? `AI for ${templateById(plan.templateId).label.toLowerCase()}` : "How to run your AI";
   const cross = crossovers(workload, assumptions);
@@ -60,8 +62,9 @@ export function Result() {
     >
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">Your AI plan · Breakeven</p>
+          <p className="kicker">The call · Breakeven</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">{title}</h1>
+          <p className="mt-2 text-lg font-medium text-ink-2">How should we run it, and is it worth it?</p>
           <p className="mt-2 text-sm text-muted">
             Prepared {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · {formatTokensM(workload.tokensM)} tokens a
             month · Illustrative estimate, USD
@@ -79,7 +82,11 @@ export function Result() {
           <SummaryStat label="Power if owned" value={formatKw(ownedKw)} />
         </dl>
 
-        <Section n={1} title="Is it worth it?">
+        <CallRecommendation call={call} plan={plan} setPlan={setPlan} />
+
+        <p className="kicker mt-10">2 · Why: the evidence</p>
+
+        <Section n="a" title="Is it worth it?">
           {product ? (
             <p>
               {plan.product.users.toLocaleString("en-US")} users a month, {percent(plan.product.paidShare)} paying {formatUsd(plan.product.price)}, bring in{" "}
@@ -112,7 +119,7 @@ export function Result() {
           )}
         </Section>
 
-        <Section n={2} title="How should we run it? Make or buy">
+        <Section n="b" title="How should we run it? Make or buy">
           <div className={`theme-${recommended} win-border rounded-2xl border-2 p-5`}>
             <p className="flex items-center gap-2.5 text-2xl font-extrabold tracking-tight text-ink">
               <span className={`size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
@@ -156,7 +163,7 @@ export function Result() {
           </p>
         </Section>
 
-        <Section n={3} title="Can we power it?">
+        <Section n="c" title="Can we power it?">
           <p>
             Owning at this volume means {owned.toLocaleString("en-US")} GPUs in whole servers, about {formatKw(ownedKw)} of facility power.{" "}
             {assumptions.powerLimitKw > 0 &&
@@ -174,17 +181,10 @@ export function Result() {
           )}
         </Section>
 
-        <section className="mt-8">
-          <h2 className="kicker">Risks to check</h2>
-          <ul className="mt-3 space-y-3">
-            {risks.map((risk) => (
-              <li key={risk} className="flex gap-3 text-[15px] leading-7 text-ink-2">
-                <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
-                {risk}
-              </li>
-            ))}
-          </ul>
-        </section>
+        <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
+        <CallLanding call={call} />
+        <CallMeasures call={call} plan={plan} />
+        <CallJudgment />
 
         <DecisionReport plan={plan} />
 
@@ -212,7 +212,7 @@ function switchPoint(id: OptionId, c: ReturnType<typeof crossovers>) {
   return "";
 }
 
-function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <section className="mt-8">
       <h2 className="flex items-center gap-2.5 text-xl font-bold tracking-tight">
@@ -222,21 +222,6 @@ function Section({ n, title, children }: { n: number; title: string; children: R
       <div className="mt-3 text-[16px] leading-8 text-ink-2">{children}</div>
     </section>
   );
-}
-
-/** What could make this plan wrong, most important first. */
-function planRisks(plan: Plan, r: RoiResult | null, winner: OptionId) {
-  const out: string[] = [];
-  if (r) out.push(...roiRisks(roiInputsOf(plan), r));
-  const flips = sensitivity(plan.workload, plan.assumptions).filter((s) => s.flips);
-  for (const f of flips.slice(0, 2)) {
-    const lower = f.low.winner !== winner;
-    const to = lower ? f.low.winner : f.high.winner;
-    out.push(`If ${sentenceCase(f.label)} is 25% ${lower ? "lower" : "higher"} than assumed, ${OPTIONS[to].name} becomes the cheapest way to run it.`);
-  }
-  if (flips.length === 0) out.push("No single price or hardware assumption moving 25% changes the cheapest way to run it at this volume.");
-  if (r) out.push("Template figures are illustrative. Replace them with your own volumes, handling times and pay rates.");
-  return out;
 }
 
 function roiRisks(inputs: RoiInputs, r: RoiResult) {
@@ -254,9 +239,4 @@ function roiRisks(inputs: RoiInputs, r: RoiResult) {
     else if (breakEven !== null) out.push(`Each task the AI solves saves ${inputs.humanMinutes - inputs.reviewMinutes} of ${inputs.humanMinutes} minutes, so the case holds even at a low success rate.`);
   }
   return out;
-}
-
-/** "Electricity" → "electricity", but "GPU throughput" stays as it is. */
-function sentenceCase(label: string) {
-  return /^[A-Z]{2}/.test(label) ? label : label.charAt(0).toLowerCase() + label.slice(1);
 }

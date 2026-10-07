@@ -25,7 +25,7 @@ const TITLES: Record<View, string> = {
   "worth-it": "Breakeven · 1. Is AI worth it?",
   "run-it": "Breakeven · 2. How should we run it?",
   "power-it": "Breakeven · 3. Can we power it?",
-  result: "Breakeven · Your AI plan",
+  result: "Breakeven · The call",
   sources: "Breakeven · Sources",
 };
 

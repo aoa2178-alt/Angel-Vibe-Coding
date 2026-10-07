@@ -211,7 +211,7 @@ export function Landing() {
               ))}
             </ol>
             <p className="mt-6 text-ink-2">
-              Then <span className="font-semibold text-ink">Result</span>: one page with the recommendation, the numbers and the risks, ready
+              Then <span className="font-semibold text-ink">The call</span>: my recommendation first, what would change it, how to land it and how we'd know it worked, ready
               to print or share.
             </p>
           </div>

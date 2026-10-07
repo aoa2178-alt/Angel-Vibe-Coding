@@ -1,7 +1,7 @@
 import { CheckCircle2, FileText, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { DEPLOYMENTS, HORIZONS, buildPayload, defaultScenarioName, sendReport, validateForm, type ReportForm } from "@/lib/decisionReport";
-import type { Plan } from "@/lib/plan";
+import { CURRENTS, type Plan } from "@/lib/plan";
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "done" } | { kind: "error"; message: string };
 
@@ -11,7 +11,7 @@ const FIELD = "mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm
 export function DecisionReport({ plan }: { plan: Plan }) {
   const [form, setForm] = useState<ReportForm>(() => ({
     scenarioName: defaultScenarioName(plan),
-    currentDeployment: "",
+    currentDeployment: CURRENTS.find((c) => c.id === plan.current)?.label ?? "",
     growthPct: "",
     horizonYears: plan.assumptions.depreciationYears,
   }));

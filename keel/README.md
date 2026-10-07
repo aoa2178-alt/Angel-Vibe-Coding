@@ -1,6 +1,6 @@
 # Keel
 
-**Are we on plan, why not, and what do we do about it?**
+**Are we on plan, why not, and what do we do about it?** Live at https://keel-one-rho.vercel.app
 
 Keel runs the operating rhythm for the commercial org of Halcyon AI, a fictional AI lab that sells an API (usage-based) and enterprise contracts.
 

@@ -41,7 +41,7 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "power", label: "Power", question: "How much power does it need?" },
   { route: "timeline", label: "Timeline", question: "When does it go live, and what's holding it?" },
   { route: "delays", label: "Delays", question: "What does each month late cost?" },
-  { route: "brief", label: "Brief", question: "The brief" },
+  { route: "brief", label: "The call", question: "The call: what to fix first" },
 ];
 
 export const href = (route: PageRoute, s: Scenario) => `/${route}${scenarioQuery(s)}`;

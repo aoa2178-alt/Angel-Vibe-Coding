@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+/*
+ * Where AI Lives: "Night map", picked by Angel. Dark indigo night, periwinkle for the interface, AI sites lit in amber.
+ * Chart series use a validated pair for the dark surface (amber #d07a1c, periwinkle #6c82e8: lightness band, colorblind
+ * separation and contrast all pass). States are shaded with one indigo ramp, dark to light. Text never uses series colors,
+ * and every chart has a table view. Printing switches to a light palette.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+  --color-site: var(--site);
+  --color-amber: var(--amber);
+  --color-peri: var(--peri);
+  --color-good: var(--good);
+  --color-risk: var(--risk);
+}
+
+:root {
+  color-scheme: dark;
+  --bg: #12162b;
+  --surface: #181d38;
+  --sunken: #1f2648;
+  --line: #2a3157;
+  --ink: #e8ebfa;
+  --ink-2: #c3c8e6;
+  --muted: #9aa1c8;
+  --brand: #8fa8ff;
+  --brand-ink: #b4c3ff;
+  --brand-soft: #232c5c;
+  --on-brand: #12162b;
+  /* AI sites on the map */
+  --site: #ffb347;
+  /* Chart series (validated pair) */
+  --amber: #d07a1c;
+  --peri: #6c82e8;
+  /* State ramp: no AI power, then five steps of MW */
+  --ramp-0: #1f2648;
+  --ramp-1: #2b3570;
+  --ramp-2: #3b4a96;
+  --ramp-3: #5468c2;
+  --ramp-4: #7389e6;
+  --ramp-5: #9fb2ff;
+  --good: #6fd3a8;
+  --risk: #ff8a7a;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  accent-color: var(--brand);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+}
+
+.glide {
+  transition-property: width, left, opacity, transform, x, height, y, r, fill;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --sunken: #f1f2f8;
+    --line: #d9dcec;
+    --ink: #12162b;
+    --ink-2: #33395e;
+    --muted: #5b6185;
+    --brand: #3b4a96;
+    --brand-ink: #2b3570;
+    --brand-soft: #e8ebfa;
+    --on-brand: #ffffff;
+    --site: #b5621a;
+    --ramp-0: #f1f2f8;
+    --ramp-1: #dfe4fb;
+    --ramp-2: #c3cdf6;
+    --ramp-3: #9fb0ee;
+    --ramp-4: #7389e6;
+    --ramp-5: #3b4a96;
+    --good: #1d7a50;
+    --risk: #b42318;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

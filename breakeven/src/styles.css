@@ -360,3 +360,18 @@ input[type="range"] {
 .bridge-service { --win: var(--bridge-service); --win-deep: #1e3f94; }
 .bridge-engines { --win: var(--bridge-engines); --win-deep: #8a1d43; }
 .bridge-flex { --win: var(--bridge-flex); --win-deep: #0b5874; }
+
+/* Price history: one color per API provider (validated as a set, light and dark, all pairs). */
+:root,
+.light-scope {
+  --provider-anthropic: #c8603a;
+  --provider-openai: #14916e;
+  --provider-google: #2b5fd9;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --provider-anthropic: #d9734c;
+    --provider-openai: #1fa37f;
+    --provider-google: #5b7ff2;
+  }
+}

@@ -34,6 +34,8 @@ npm run build   # type-check and build to dist/
 - `src/lib/scorecard.ts`: scores API / rent / own on cost (from the model), data control, time to launch, model quality, ease of running and flexibility, weighted 0–5 into a score out of 100.
 - `src/lib/businessCaseShare.ts`: a business case lives in the URL, like an estimate.
 - `src/lib/speedToPower.ts`: Speed-to-Power. Each way to bridge a late grid is costed as extra spending versus owning on a working grid from day one; until an option is ready you rent. `speedToPowerShare.ts` keeps a scenario in the URL; `bridgeMethodology.ts` holds its sources.
+- `src/data/prices.json` + `src/lib/prices.ts`: the tracked price history (API prices per million tokens, H100 rental per hour), every point dated and sourced, shown on the Sources page and as "Market now" in step 2. `src/lib/prices.test.ts` validates it.
+- `agents/price-watcher.md`: instructions for the weekly price watcher, a scheduled agent that proposes new price points on a `prices/YYYY-MM-DD` branch for review. It may only append to `prices.json` and never pushes to `main`.
 - `src/lib/share.ts`: shareable links (the estimate lives in the URL) and CSV export. Tests are in `src/lib/share.test.ts`.
 - `src/components/`: `CostChart` (projection chart), `ClosingBars`, `Odometer`.
 - `src/lib/plan.ts`: the one plan every step shares. It reads and writes the URL, links step 1's tokens per task to the volume, sizes step 3's cluster from step 2, and redirects old links. `src/components/PlanFrame.tsx` holds the step tracker, workload strip and Back/Next.

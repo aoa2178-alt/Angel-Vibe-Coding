@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect } from "react";
 import { linkClick } from "@/components/Brand";
 import { PlanFrame, usePlan } from "@/components/PlanFrame";
+import { PriceHistory } from "@/components/PriceHistory";
 import { stepHref } from "@/lib/plan";
 import { BRIDGE_FORMULAS, BRIDGE_METHODOLOGY } from "@/lib/bridgeMethodology";
 import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED, type Confidence, type Source } from "@/lib/methodology";
@@ -9,6 +10,7 @@ import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED, type Conf
 const SECTIONS = [
   { href: "#model", label: "The model" },
   { href: "#defaults", label: "Defaults & sources" },
+  { href: "#price-history", label: "Price history" },
   { href: "#speed-to-power", label: "Speed-to-Power" },
   { href: "#limits", label: "What's not included" },
 ];
@@ -118,6 +120,21 @@ export function Methodology() {
               {BRIDGE_METHODOLOGY.map((m) => (
                 <SourceCard key={m.label} {...m} />
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="price-history" className="scroll-mt-24 border-y border-line bg-bg py-16 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="max-w-2xl">
+              <p className="kicker">Price history</p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">The prices behind the answer, over time</h2>
+              <p className="mt-4 text-lg leading-8 text-ink-2">
+                API prices and GPU rental move fast, and they decide where the answer flips. Every point below has a date and a source.
+              </p>
+            </div>
+            <div className="mt-10">
+              <PriceHistory />
             </div>
           </div>
         </section>

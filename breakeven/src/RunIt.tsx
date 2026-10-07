@@ -9,7 +9,8 @@ import { Ownership } from "@/components/Ownership";
 import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
 import { Scorecard } from "@/components/Scorecard";
 import { Sensitivity } from "@/components/Sensitivity";
-import { stepHref } from "@/lib/plan";
+import { planQuery, stepHref } from "@/lib/plan";
+import { isStale, latest, withLatest } from "@/lib/prices";
 import { DEFAULT_SCORES, scorecard } from "@/lib/scorecard";
 import { estimateCsv } from "@/lib/share";
 import {
@@ -208,6 +209,7 @@ export function RunIt() {
                 <span className="text-xs text-muted group-open:hidden">Edit prices, power, throughput ▾</span>
                 <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
               </summary>
+              <MarketNow assumptions={assumptions} onUse={() => setAssumptions(withLatest)} sourcesHref={`/sources${planQuery(plan)}#price-history`} />
               <div className="grid gap-3 border-t border-line px-4 py-4 sm:grid-cols-2">
                 {ASSUMPTION_FIELDS.map((f) => (
                   <label key={f.key} className="block">
@@ -241,7 +243,7 @@ export function RunIt() {
                 about $2.50 per H100-hour on GPU-focused clouds (market average ≈ $3.60, hyperscalers ≈ $7). Hardware ≈ $35K
                 per GPU, from 8-GPU H100 servers at $250–320K. 1.3 kW per GPU with its share of the server. Throughput is a
                 conservative estimate for a 70B-class open-weight model with batching.{" "}
-                <a href="/methodology" onClick={linkClick("/methodology")} className="font-semibold text-brand-ink underline underline-offset-2">
+                <a href={`/sources${planQuery(plan)}`} onClick={linkClick(`/sources${planQuery(plan)}`)} className="font-semibold text-brand-ink underline underline-offset-2">
                   Ranges and sources for every number →
                 </a>
               </p>
@@ -467,6 +469,39 @@ function PercentSlider({
         className="mt-3 w-full"
       />
       <p className="mt-1 text-xs text-muted">{hint}</p>
+    </div>
+  );
+}
+
+/** The latest tracked market prices next to the plan's, with a one-click way to use them. */
+function MarketNow({ assumptions, onUse, sourcesHref }: { assumptions: Assumptions; onUse: () => void; sourcesHref: string }) {
+  const l = latest();
+  const stale = isStale(assumptions);
+  const when = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  return (
+    <div className="border-t border-line px-4 py-3 text-xs leading-5">
+      <p className="font-semibold text-ink">Market now</p>
+      <ul className="mt-1 space-y-0.5 text-ink-2">
+        <li>
+          API: <span className="font-mono">{formatUsd(l.api.point.input, 2)} / {formatUsd(l.api.point.output, 2)}</span> per M tokens ({l.api.point.model},{" "}
+          {when(l.api.point.checked)})
+        </li>
+        <li>
+          H100 rental: <span className="font-mono">{formatUsd(l.gpu.point.value, 2)}</span>/hr ({new URL(l.gpu.point.source).hostname.replace(/^www./, "")}, {when(l.gpu.point.date)})
+        </li>
+      </ul>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        {stale ? (
+          <button type="button" onClick={onUse} className="rounded-full bg-brand px-3 py-1.5 font-semibold text-white transition hover:bg-brand-ink">
+            Use latest prices
+          </button>
+        ) : (
+          <span className="font-medium text-brand-ink">Your plan uses the latest prices.</span>
+        )}
+        <a href={sourcesHref} onClick={linkClick(sourcesHref)} className="font-medium text-brand-ink underline underline-offset-2">
+          Price history
+        </a>
+      </div>
     </div>
   );
 }

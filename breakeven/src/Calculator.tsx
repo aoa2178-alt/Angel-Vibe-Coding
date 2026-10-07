@@ -1,11 +1,12 @@
 import { Check, Download, Link2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Logo, linkClick } from "@/components/Brand";
+import { linkClick } from "@/components/Brand";
 import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
 import { Ownership } from "@/components/Ownership";
 import { Sensitivity } from "@/components/Sensitivity";
+import { PillBar } from "@/components/Site";
 import { estimateCsv, estimateQuery, readEstimate } from "@/lib/share";
 import {
   DEFAULT_ASSUMPTIONS,
@@ -98,17 +99,17 @@ export function Calculator() {
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Logo />
-          <div className="flex shrink-0 items-center gap-2">
+      <PillBar
+        logoTagline
+        actions={
+          <>
             <span className="hidden rounded-full border border-line bg-brand-soft px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-brand-ink md:inline">
               Illustrative estimate · USD
             </span>
             <button
               type="button"
               onClick={exportCsv}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-2 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
+              className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
               aria-label="Export CSV"
             >
               <Download className="size-3.5" aria-hidden />
@@ -117,7 +118,7 @@ export function Calculator() {
             <button
               type="button"
               onClick={copyLink}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-2.5 py-2 text-xs font-semibold text-white transition hover:bg-brand-ink"
+              className="inline-flex items-center gap-1.5 rounded-full bg-brand px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-brand-ink"
               aria-label="Save estimate: copy a link to it"
             >
               {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
@@ -126,9 +127,9 @@ export function Calculator() {
             <span className="sr-only" aria-live="polite">
               {copied ? "Link to this estimate copied" : ""}
             </span>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <main className="mx-auto max-w-[1360px] px-4 pb-16 pt-7 sm:px-6">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
@@ -150,7 +151,7 @@ export function Calculator() {
 
         <div className="mt-7 grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start">
           {/* Inputs: stay in view on wide screens while the results scroll beside them */}
-          <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-6">
+          <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
             <p className="kicker">01 · Your workload</p>
 
             <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
@@ -317,7 +318,7 @@ export function Calculator() {
 
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
-            <div id="projection" className="min-w-0 scroll-mt-6">
+            <div id="projection" className="min-w-0 scroll-mt-24">
               <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
             </div>
 

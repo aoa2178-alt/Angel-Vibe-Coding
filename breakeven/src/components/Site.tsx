@@ -1,4 +1,5 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Logo, linkClick } from "./Brand";
 
 export interface NavItem {
@@ -7,39 +8,83 @@ export interface NavItem {
 }
 
 /** In-page anchors ("#faq") scroll normally; site paths ("/methodology") navigate in place. */
-function NavLink({ item, className }: { item: NavItem; className: string }) {
+function NavLink({ item, className, onNavigate }: { item: NavItem; className: string; onNavigate?: () => void }) {
   const internal = item.href.startsWith("/");
   return (
-    <a href={item.href} onClick={internal ? linkClick(item.href) : undefined} className={className}>
+    <a
+      href={item.href}
+      onClick={(e) => {
+        onNavigate?.();
+        if (internal) linkClick(item.href)(e);
+      }}
+      className={className}
+    >
       {item.label}
     </a>
   );
 }
 
-export function SiteHeader({ nav }: { nav: NavItem[] }) {
+/** The floating pill bar every page shares. `actions` replaces the default "Open calculator" button. */
+export function PillBar({ nav = [], actions, logoTagline = false }: { nav?: NavItem[]; actions?: ReactNode; logoTagline?: boolean }) {
+  const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-surface">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6">
-        <Logo tagline={false} />
-        <nav aria-label="Sections" className="hidden items-center gap-1 md:flex">
+    <header className="sticky top-0 z-30 px-3 pt-3 print:hidden">
+      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-3 pr-2 sm:pl-4">
+        <Logo tagline={logoTagline} />
+        {nav.length > 0 && (
+          <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
+            {nav.map((n) => (
+              <NavLink
+                key={n.href}
+                item={n}
+                className="rounded-full px-3 py-2 text-sm font-medium text-ink-2 transition hover:bg-sunken hover:text-ink"
+              />
+            ))}
+          </nav>
+        )}
+        <div className="flex shrink-0 items-center gap-2">
+          {actions ?? (
+            <a
+              href="/calculator"
+              onClick={linkClick("/calculator")}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-brand px-3.5 py-2.5 text-sm sm:px-4 font-semibold text-white transition hover:bg-brand-ink"
+            >
+              <span className="sm:hidden">Calculator</span>
+              <span className="hidden sm:inline">Open calculator</span> <ArrowRight className="size-4" aria-hidden />
+            </a>
+          )}
+          {nav.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              aria-controls="site-menu"
+              aria-label={open ? "Close menu" : "Open menu"}
+              className="grid size-10 place-items-center rounded-full border border-line text-ink transition hover:border-brand lg:hidden"
+            >
+              {open ? <X className="size-4" aria-hidden /> : <Menu className="size-4" aria-hidden />}
+            </button>
+          )}
+        </div>
+      </div>
+      {open && (
+        <nav id="site-menu" aria-label="Sections" className="mx-auto mt-2 max-w-[1200px] rounded-3xl border border-line bg-surface p-2 lg:hidden">
           {nav.map((n) => (
             <NavLink
               key={n.href}
               item={n}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-ink-2 transition hover:bg-sunken hover:text-ink"
+              onNavigate={() => setOpen(false)}
+              className="block rounded-2xl px-4 py-3 text-base font-medium text-ink transition hover:bg-sunken"
             />
           ))}
         </nav>
-        <a
-          href="/calculator"
-          onClick={linkClick("/calculator")}
-          className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-ink"
-        >
-          Open calculator <ArrowRight className="size-4" aria-hidden />
-        </a>
-      </div>
+      )}
     </header>
   );
+}
+
+export function SiteHeader({ nav }: { nav: NavItem[] }) {
+  return <PillBar nav={nav} />;
 }
 
 const FOOTER_LINKS: NavItem[] = [

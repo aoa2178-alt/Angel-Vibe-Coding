@@ -371,7 +371,7 @@ function ScorecardStep({
 
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
-      <section aria-label="Your priorities" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-20">
+      <section aria-label="Your priorities" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
         <p className="kicker">Your priorities</p>
         <div className="mt-4 grid grid-cols-2 gap-2" role="group" aria-label="Priority presets">
           {WEIGHT_PRESETS.map((p) => (

@@ -196,3 +196,136 @@ input[type="range"] {
   --brand-ink: #7419d6;
   color: #1c1530;
 }
+
+/*
+ * Dark sections (the scroll story, the closing call to action) keep dark colors in light mode too.
+ * Tailwind's --color-* resolve at :root, so they are re-declared here against the dark values.
+ */
+.dark-scope {
+  color-scheme: dark;
+  --bg: #120a26;
+  --surface: #1c1336;
+  --sunken: #261b45;
+  --line: #372a5c;
+  --ink: #f3effc;
+  --ink-2: #cbc3e0;
+  --muted: #9d93b8;
+  --brand: #a259f7;
+  --brand-ink: #c39bff;
+  --brand-soft: #2c1d4d;
+  --panel: #261848;
+  --series-api: #12998a;
+  --series-rent: #c9750c;
+  --series-own: #8f4ff0;
+  --api-deep: #0c4f47;
+  --rent-deep: #7a3f06;
+  --own-deep: #3f1a85;
+  --tint: 16%;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-panel: var(--panel);
+  --color-api: var(--series-api);
+  --color-rent: var(--series-rent);
+  --color-own: var(--series-own);
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/*
+ * Isometric illustrations: every box has a top, left and right face in three flat shades of one tone.
+ * No gradients; the option tones are mixed from the series colors so they follow light and dark mode.
+ */
+:root,
+.light-scope {
+  --iso-edge: rgb(28 21 48 / 0.14);
+  --iso-base-top: #f2ecfc;
+  --iso-base-left: #e1d6f7;
+  --iso-base-right: #cfc0f1;
+  --iso-rack-top: #5b3aa6;
+  --iso-rack-left: #3a2275;
+  --iso-rack-right: #2b1859;
+  --iso-blade-top: #9a82e0;
+  --iso-blade-left: #6d52c2;
+  --iso-blade-right: #563da6;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --iso-edge: rgb(0 0 0 / 0.3);
+    --iso-base-top: #2d2350;
+    --iso-base-left: #241b42;
+    --iso-base-right: #1c1535;
+    --iso-rack-top: #7556cc;
+    --iso-rack-left: #523aa0;
+    --iso-rack-right: #402c85;
+    --iso-blade-top: #b7a3f5;
+    --iso-blade-left: #8b72dd;
+    --iso-blade-right: #735bc4;
+  }
+}
+.dark-scope {
+  --iso-edge: rgb(0 0 0 / 0.3);
+  --iso-base-top: #2d2350;
+  --iso-base-left: #241b42;
+  --iso-base-right: #1c1535;
+  --iso-rack-top: #7556cc;
+  --iso-rack-left: #523aa0;
+  --iso-rack-right: #402c85;
+  --iso-blade-top: #b7a3f5;
+  --iso-blade-left: #8b72dd;
+  --iso-blade-right: #735bc4;
+}
+.iso-tones {
+  --iso-brand-top: color-mix(in oklab, var(--brand) 62%, white);
+  --iso-brand-left: var(--brand);
+  --iso-brand-right: color-mix(in oklab, var(--brand) 72%, black);
+  --iso-api-top: color-mix(in oklab, var(--series-api) 62%, white);
+  --iso-api-left: var(--series-api);
+  --iso-api-right: color-mix(in oklab, var(--series-api) 72%, black);
+  --iso-rent-top: color-mix(in oklab, var(--series-rent) 62%, white);
+  --iso-rent-left: var(--series-rent);
+  --iso-rent-right: color-mix(in oklab, var(--series-rent) 72%, black);
+  --iso-own-top: color-mix(in oklab, var(--series-own) 62%, white);
+  --iso-own-left: var(--series-own);
+  --iso-own-right: color-mix(in oklab, var(--series-own) 72%, black);
+}
+.iso-led {
+  fill: var(--win);
+  transition: fill 0.6s ease;
+  animation: iso-blink 2.8s ease-in-out infinite;
+}
+
+/* Server blades slide into the rack from the front; tokens drift toward it. */
+.iso-slide {
+  animation: iso-slide 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.iso-token {
+  animation: iso-token 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite both;
+}
+@keyframes iso-slide {
+  from { opacity: 0; transform: translate(calc(var(--iso-dx) * -1), var(--iso-dy)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes iso-token {
+  0% { opacity: 0; transform: none; }
+  15%, 70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--iso-dx), calc(var(--iso-dy) * -1)); }
+}
+@keyframes iso-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso-token,
+  .iso-led,
+  .iso-slide {
+    animation: none !important;
+  }
+}

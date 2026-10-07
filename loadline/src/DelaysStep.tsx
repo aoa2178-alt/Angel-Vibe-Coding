@@ -1,5 +1,6 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Hedge } from "@/components/Hedge";
 import { Card, NumberField, PHASE_COLOR, Stat } from "@/components/ui";
 import { MILESTONES, campusById, lowerFirst, formatMoney, formatMonth, plan, resolveFirst, type Settings } from "@/lib/model";
 import { MAX_SLIP } from "@/lib/scenario";
@@ -149,6 +150,8 @@ export function DelaysStep() {
           </a>
         </Card>
       </div>
+
+      <Hedge s={s} setS={setS} campus={campus} />
     </Frame>
   );
 }

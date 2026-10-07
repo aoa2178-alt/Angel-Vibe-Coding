@@ -1,6 +1,8 @@
 import { Printer } from "lucide-react";
 import { Frame, useScenario } from "@/components/Frame";
 import { PHASE_COLOR, SourceLink } from "@/components/ui";
+import { expansion } from "@/lib/expansion";
+import { spares } from "@/lib/hedge";
 import { MILESTONES, campusById, lowerFirst, formatMoney, formatMonth, formatMw, plan, resolveFirst } from "@/lib/model";
 
 /** One printable page: the campus, its power, when each phase goes live, what delay costs, and what to resolve first. */
@@ -16,6 +18,8 @@ export function Brief() {
     delay: plans.reduce((n, p) => n + p.delayCost, 0),
   };
   const label = (id: string) => lowerFirst(MILESTONES.find((m) => m.id === id)!.label);
+  const hedge = spares(campus, s.settings, s.hedge);
+  const build = expansion(campus, s.settings, s.expansion);
 
   return (
     <Frame route="brief" s={s} setS={setS}>
@@ -87,6 +91,27 @@ export function Brief() {
           ) : (
             <p className="mt-3 text-ink-2">Every milestone has more than three months of slack.</p>
           )}
+        </section>
+
+        <section className="mt-8">
+          <h2 className="kicker">Hedges and strategy</h2>
+          <ul className="mt-3 space-y-2 text-[15px] leading-7 text-ink-2">
+            <li>
+              <span className="font-semibold text-ink">
+                Hold {hedge.best} spare transformer{hedge.best === 1 ? "" : "s"}
+              </span>{" "}
+              across {hedge.units} on the campus. With factories {Math.round(s.hedge.supplierLoad * 100)}% busy a replacement takes about {Math.round(hedge.leadMonths)} months, so
+              being one short costs about {formatMoney(hedge.underage)} against {formatMoney(hedge.overage)} for an unused spare (newsvendor critical ratio{" "}
+              {(hedge.criticalRatio * 100).toFixed(1)}%).
+            </li>
+            {build.applies && (
+              <li>
+                <span className="font-semibold text-ink">{build.advantage > 0 ? "Build the later phases now" : "Phase the later buildings"}</span>: worth{" "}
+                {formatMoney(Math.abs(build.advantage))} more in expectation at a {Math.round(s.expansion.pStrong * 100)}% chance of strong demand
+                {build.breakEvenP !== null && ` (building now wins above ${Math.round(build.breakEvenP * 100)}%)`}.
+              </li>
+            )}
+          </ul>
         </section>
 
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">

@@ -177,7 +177,7 @@ export function Frame({
         </div>
       </header>
       <div className="px-3 print:hidden">
-        <CampusStrip s={s} onSwitch={(id) => setS(switchCampus(id))} />
+        <CampusStrip s={s} onSwitch={(id) => setS({ ...switchCampus(id), hedge: s.hedge, expansion: s.expansion })} />
       </div>
       <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
         {children}

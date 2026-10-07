@@ -1,4 +1,5 @@
 import { CapacityChart } from "@/components/CapacityChart";
+import { Expansion } from "@/components/Expansion";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Gantt } from "@/components/Gantt";
 import { Card, PHASE_COLOR } from "@/components/ui";
@@ -54,6 +55,7 @@ export function TimelineStep() {
       <div className="mt-6 grid gap-6">
         <Gantt plans={plans} />
         <CapacityChart plans={plans} />
+        <Expansion s={s} setS={setS} campus={campus} />
         <p className="text-xs leading-5 text-muted">
           Construction starts, targets and go-live dates marked as public come from the Sources page. Milestone dates inside each phase are
           assumptions fitted to those public dates; slip them in step 3.

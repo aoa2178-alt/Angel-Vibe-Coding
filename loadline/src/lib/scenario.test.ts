@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultSettings, campusById } from "./model";
+import { DEFAULT_EXPANSION } from "./expansion";
+import { DEFAULT_HEDGE } from "./hedge";
 import { readScenario, scenarioQuery, switchCampus } from "./scenario";
 
 describe("scenario links", () => {
@@ -8,6 +10,8 @@ describe("scenario links", () => {
       campusId: "qts-cedar-rapids",
       slips: { "p1.grid": 3, "p2.electrical": 1.5 },
       settings: { ...defaultSettings(campusById("qts-cedar-rapids")), pricePerMwh: 85, revenueBasis: "gpu" as const },
+      hedge: { ...DEFAULT_HEDGE, supplierLoad: 0.75, priceM: 10 },
+      expansion: { ...DEFAULT_EXPANSION, pStrong: 0.4 },
     };
     expect(readScenario(scenarioQuery(s))).toEqual(s);
   });

@@ -19,7 +19,7 @@ const TITLES: Record<View, string> = {
   spend: "Buildout · 1. Spend",
   payoff: "Buildout · 2. Payoff",
   receivers: "Buildout · 3. Receivers",
-  note: "Buildout · Quarterly note",
+  note: "Buildout · The call",
   sources: "Buildout · Sources",
 };
 

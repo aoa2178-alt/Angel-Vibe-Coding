@@ -23,7 +23,7 @@ export function Brief() {
   const content: CallContent = {
     demo: `Method demo: ${COMPANY} and every supplier are fictional; copper, steel, wages and price indexes are real public data. The method is the point: price the lead time, build the should-cost, then negotiate from it.`,
     decision: `Decision: who supplies the three 80 MVA transformers for ${BUYER.project}, at what price, on what terms?`,
-    headline: `Lead with ${call.leader.bid.supplier} and negotiate to ${formatMoney(n.target)} a unit, saving ${formatMoney(n.savingsAtTarget)} across the three against the quotes; it is also ${formatMoney(call.avoided)} cheaper all-in than taking the cheapest bid.`,
+    headline: `Lead with ${call.leader.bid.supplier} and negotiate to ${formatMoney(n.target)} a unit, saving ${formatMoney(n.savingsAtTarget)} across the three against the quotes; it is also ${formatMoney(call.avoided)} cheaper all-in than the cheapest bid in this scenario, almost all of it the modeled cost of the hall waiting.`,
     bullets: [
       { label: "The award", text: `${bestAward.label.charAt(0).toLowerCase()}${bestAward.label.slice(1)}, through a ${bestStructure.label.toLowerCase()}. Spreading it means two suppliers must fail before the hall slips.` },
       { label: "Why not the cheapest quote", text: `${cheapestQuote.bid.supplier} is ${formatMoney(cheapestQuote.bid.price)} a unit but needs ${cheapestQuote.bid.leadMonths} months against our ${s.needByMonths}; at ${formatMoney(monthlyDelayCost(s).total)} for every month the hall waits, it's the most expensive deal.` },

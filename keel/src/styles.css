@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/*
+ * Keel: "Boardroom". Warm white like a board deck, deep navy for structure and buttons, brass for labels.
+ * No glows, gradients or colored shadows. Status colors always come with a word (on track, watch, off track).
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+  --color-panel: var(--panel);
+  --color-panel-ink: var(--panel-ink);
+  --color-panel-muted: var(--panel-muted);
+  --color-risk: var(--risk);
+  --color-brass: var(--brass);
+}
+
+:root {
+  color-scheme: light;
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --sunken: #f0ede5;
+  --line: #e3dfd5;
+  --ink: #16213a;
+  --ink-2: #3d4659;
+  --muted: #5f6677;
+  --brand: #1f3a68;
+  --brand-ink: #1f3a68;
+  --brand-soft: #e8edf5;
+  --on-brand: #ffffff;
+  --brass: #8a6a2a;
+  --panel: #16213a;
+  --panel-ink: #f6f3ec;
+  --panel-muted: #b3b9c8;
+  --risk: #b42318;
+  /* Status (always shown with a word, never color alone) */
+  --green: #1d7a50;
+  --amber: #b7791f;
+  --red: #b42318;
+  /* Series (validated on white): actual, forecast; plan is drawn in ink, dashed */
+  --series-1: #2463d6;
+  --series-2: #c2620a;
+  --series-3: #b8327a;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  accent-color: var(--brand);
+}
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.glide {
+  transition-property: width, left, opacity, transform, x, height, y;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

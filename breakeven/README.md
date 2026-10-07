@@ -6,7 +6,7 @@ Breakeven compares what one month of AI inference costs three ways: a pay-per-to
 
 Live: https://breakeven-silk.vercel.app
 
-Features: presets, editable assumptions, rolling-digit cost readouts, a closing-gap cost comparison, a cost projection chart (log scales) with both crossovers marked, "Show calculations", CSV export, and estimates saved in a shareable link. Coming next: a power constraint, sourced methodology, ROI and vendor steps, and price trackers.
+Features: presets, editable assumptions, a power budget (owned GPUs capped by kW, with rented overflow), rolling-digit cost readouts, a closing-gap cost comparison, a cost projection chart (log scales) with both crossovers marked, "Show calculations", CSV export, and estimates saved in a shareable link. Coming next: sourced methodology, ROI and vendor steps, and price trackers.
 
 ## Run it
 

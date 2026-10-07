@@ -29,6 +29,7 @@ const ASSUMPTION_PARAMS: Record<keyof Assumptions, string> = {
   electricityPerKwh: "kwh",
   opsPerGpuMonth: "ops",
   gpusPerServer: "server",
+  powerLimitKw: "kw_cap",
 };
 
 // Values that would break the model (dividing by zero) must be positive.

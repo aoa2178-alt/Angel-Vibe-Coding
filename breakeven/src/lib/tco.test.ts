@@ -9,6 +9,7 @@ import {
   formatTokensM,
   gpusNeeded,
   ownCostPerGpuMonth,
+  powerCapVolumeM,
 } from "./tco";
 
 const at = (tokensM: number) => compare({ ...W, tokensM }, A);
@@ -69,4 +70,32 @@ it("formats token volumes", () => {
   expect(formatTokensM(200)).toBe("200M");
   expect(formatTokensM(2_400)).toBe("2.4B");
   expect(formatTokensM(30_000)).toBe("30B");
+});
+
+describe("power budget", () => {
+  // Each owned GPU draws 1.3 kW × 1.3 PUE = 1.69 kW of facility power.
+  it("has no effect when there is no limit", () => {
+    expect(at(30_000).own.overflowGpus).toBe(0);
+  });
+
+  it("caps owned GPUs at whole servers and rents the overflow", () => {
+    const a = { ...A, powerLimitKw: 25 }; // 25 ÷ 1.69 = 14.8 GPUs → one 8-GPU server
+    const c = compare({ ...W, tokensM: 30_000 }, a);
+    expect(c.own.gpus).toBe(8);
+    expect(c.own.overflowGpus).toBe(5); // 13 needed − 8 owned
+    expect(c.own.monthly).toBeCloseTo(8 * ownCostPerGpuMonth(A) + 5 * 730 * 2.5);
+  });
+
+  it("rents everything when the budget can't power one server", () => {
+    const c = compare({ ...W, tokensM: 30_000 }, { ...A, powerLimitKw: 5 });
+    expect(c.own.gpus).toBe(0);
+    expect(c.own.overflowGpus).toBe(13);
+    expect(c.own.monthly).toBeCloseTo(c.rent.monthly);
+  });
+
+  it("finds the volume where the power budget runs out", () => {
+    // 8 GPUs × 900 tokens/sec × 2,628,000 seconds ≈ 18.9B tokens a month
+    expect(powerCapVolumeM(W, { ...A, powerLimitKw: 25 })).toBeCloseTo(18_921.6, 0);
+    expect(powerCapVolumeM(W, A)).toBeNull();
+  });
 });

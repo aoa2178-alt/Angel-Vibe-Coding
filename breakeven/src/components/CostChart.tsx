@@ -5,6 +5,8 @@ import {
   cheapest,
   compare,
   formatTokensM,
+  maxOwnedGpus,
+  powerCapVolumeM,
   formatUsd,
   type Assumptions,
   type Crossovers,
@@ -118,6 +120,10 @@ export function CostChart({
 
   const hoverCosts = hoverV === null ? null : compare({ ...workload, tokensM: hoverV }, assumptions);
 
+  // Where the power budget runs out of owned GPUs (only when a limit is set and it falls inside the chart).
+  const capM = powerCapVolumeM(workload, assumptions);
+  const capInRange = capM !== null && capM > VOLUME_MIN_M && capM < VOLUME_MAX_M;
+
   return (
     <figure className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -136,7 +142,7 @@ export function CostChart({
       </div>
 
       <div ref={wrapRef} className="relative mt-4 w-full min-w-0">
-        <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="block" role="img" aria-label={`Line chart of monthly cost from 10M to 100B tokens a month. ${markers.map((mk) => mk.label).join(". ")}.`}>
+        <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="block" role="img" aria-label={`Line chart of monthly cost from 10M to 100B tokens a month. ${markers.map((mk) => mk.label).join(". ")}.${capInRange ? ` Power budget runs out at ${formatTokensM(capM!)}.` : ""}`}>
           {/* Grid and axes */}
           {yTicks.map((t) => (
             <g key={t}>
@@ -195,6 +201,22 @@ export function CostChart({
               </g>
             );
           })}
+
+          {/* Power cap */}
+          {capInRange && (
+            <g style={{ transition: "transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1)", transform: `translateX(${lx(capM!)}px)` }}>
+              <line y1={m.top} y2={m.top + ph} stroke="var(--series-own)" strokeWidth={1.5} strokeDasharray="2 3" />
+              <text
+                x={-6}
+                y={m.top + ph - 8}
+                textAnchor="end"
+                className="fill-ink-2 text-[11px] font-semibold"
+                style={{ paintOrder: "stroke", stroke: "var(--surface)", strokeWidth: 4, strokeLinejoin: "round" }}
+              >
+                Power cap · {maxOwnedGpus(assumptions)} owned GPUs
+              </text>
+            </g>
+          )}
 
           {/* You are here */}
           <g style={{ transition: "transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1)", transform: `translateX(${lx(current)}px)` }}>

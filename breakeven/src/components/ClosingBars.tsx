@@ -105,7 +105,17 @@ export function ClosingBars({
                   )}
                 </span>
                 <span className="whitespace-nowrap">
-                  <Odometer text={formatUsd(c.perM, 2)} /> / M tokens · {c.gpus === null ? "no GPUs" : <><Odometer text={String(c.gpus)} /> GPU{c.gpus === 1 ? "" : "s"}</>}
+                  <Odometer text={formatUsd(c.perM, 2)} /> / M tokens · {c.gpus === null ? (
+                    "no GPUs"
+                  ) : c.overflowGpus ? (
+                    <>
+                      <Odometer text={String(c.gpus)} /> owned + <Odometer text={String(c.overflowGpus)} /> rented
+                    </>
+                  ) : (
+                    <>
+                      <Odometer text={String(c.gpus)} /> GPU{c.gpus === 1 ? "" : "s"}
+                    </>
+                  )}
                 </span>
               </div>
 

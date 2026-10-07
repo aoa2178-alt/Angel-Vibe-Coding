@@ -11,6 +11,8 @@ import {
   VOLUME_MAX_M,
   VOLUME_MIN_M,
   breakdown,
+  maxOwnedGpus,
+  powerCapVolumeM,
   cheapest,
   compare,
   crossovers,
@@ -222,6 +224,12 @@ export function Calculator() {
               max={0.9}
             />
 
+            <PowerBudget
+              kw={assumptions.powerLimitKw}
+              assumptions={assumptions}
+              onChange={(kw) => setAssumptions((a) => ({ ...a, powerLimitKw: kw }))}
+            />
+
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
                 <span className="kicker">02 · Assumptions</span>
@@ -287,7 +295,14 @@ export function Calculator() {
                 <Stat label="Per M tokens">
                   <Odometer text={formatUsd(costs[winner].perM, 2)} />
                 </Stat>
-                <Stat label="GPUs">{costs[winner].gpus === null ? "None" : <Odometer text={String(costs[winner].gpus)} />}</Stat>
+                <Stat label="GPUs">
+                  {costs[winner].gpus === null ? "None" : <Odometer text={String(costs[winner].gpus)} />}
+                  {!!costs[winner].overflowGpus && (
+                    <span className="text-sm font-normal text-white/80">
+                      {" "}+ <Odometer text={String(costs[winner].overflowGpus)} /> rented
+                    </span>
+                  )}
+                </Stat>
               </div>
             </div>
 
@@ -304,7 +319,9 @@ export function Calculator() {
                 </span>
                 <div>
                   <p className="kicker">Where the answer flips</p>
-                  <p className="mt-1 text-sm leading-6 text-ink">{describeCrossovers(cross)}</p>
+                  <p className="mt-1 text-sm leading-6 text-ink">
+                    {describeCrossovers(cross)} {describePower(workload, assumptions)}
+                  </p>
                 </div>
               </div>
               <Calculations workload={workload} assumptions={assumptions} costs={costs} />
@@ -346,9 +363,19 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
       text: `${n(b.avgTokensPerSec)} tokens/sec on average ÷ (${n(assumptions.gpuTokensPerSec)} tokens/sec × ${pct(workload.utilization)} utilization) = ${n(b.gpusExact, 2)} → ${gpus(costs.rent.gpus)}`,
     },
     { label: "Rent", text: `${gpus(costs.rent.gpus)} × 730 hours × ${formatUsd(assumptions.rentPerGpuHour, 2)} = ${formatUsd(costs.rent.monthly)} / month` },
+    ...(Number.isFinite(b.maxOwned)
+      ? [
+          {
+            label: "Power cap",
+            text: `${n(assumptions.powerLimitKw)} kW ÷ ${n(b.facilityKwPerGpu, 2)} kW per GPU (power × PUE) = ${n(assumptions.powerLimitKw / b.facilityKwPerGpu, 1)} → up to ${gpus(b.maxOwned)} in whole ${n(assumptions.gpusPerServer)}-GPU servers`,
+          },
+        ]
+      : []),
     {
       label: "Own",
-      text: `${gpus(costs.own.gpus)} (whole ${n(assumptions.gpusPerServer)}-GPU servers) × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) = ${formatUsd(costs.own.monthly)} / month`,
+      text: costs.own.overflowGpus
+        ? `${gpus(costs.own.gpus)} owned × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) + ${gpus(costs.own.overflowGpus)} rented × 730 hours × ${formatUsd(assumptions.rentPerGpuHour, 2)} = ${formatUsd(costs.own.monthly)} / month`
+        : `${gpus(costs.own.gpus)} (whole ${n(assumptions.gpusPerServer)}-GPU servers) × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) = ${formatUsd(costs.own.monthly)} / month`,
     },
     { label: "Per M tokens", text: "monthly cost ÷ monthly volume in millions of tokens" },
   ];
@@ -376,6 +403,61 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
     <div>
       <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">{label}</p>
       <p className="mt-1.5 text-lg font-semibold sm:text-2xl">{children}</p>
+    </div>
+  );
+}
+
+function describePower(w: Workload, a: Assumptions) {
+  const capM = powerCapVolumeM(w, a);
+  if (capM === null) return "";
+  const max = maxOwnedGpus(a);
+  if (max === 0) return `Your ${a.powerLimitKw} kW power budget can’t run a single ${a.gpusPerServer}-GPU server, so owning means renting everything.`;
+  return `Your ${a.powerLimitKw} kW power budget runs out at about ${formatTokensM(capM)} tokens a month; above that, owning means ${max} owned GPUs plus rented overflow.`;
+}
+
+/** Facility power you have for your own servers. 0 means no limit; above the cap, extra GPUs are rented. */
+function PowerBudget({ kw, assumptions, onChange }: { kw: number; assumptions: Assumptions; onChange: (kw: number) => void }) {
+  const max = maxOwnedGpus(assumptions);
+  const choices = [0, 25, 50, 100];
+  return (
+    <div className="mt-6">
+      <div className="flex items-end justify-between gap-3">
+        <label htmlFor="power-kw" className="text-sm font-medium">
+          Power for owned GPUs
+        </label>
+        <span className="font-mono text-sm text-brand-ink">{kw > 0 ? `up to ${max} GPUs` : "No limit"}</span>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <div className="grid flex-1 grid-cols-4 gap-1.5" role="group" aria-label="Power budget presets">
+          {choices.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={kw === c}
+              onClick={() => onChange(c)}
+              className={`whitespace-nowrap rounded-lg border px-1 py-1.5 font-mono text-xs transition ${kw === c ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"}`}
+            >
+              {c === 0 ? "None" : `${c} kW`}
+            </button>
+          ))}
+        </div>
+        <input
+          id="power-kw"
+          type="number"
+          min={0}
+          step={5}
+          value={kw || ""}
+          placeholder="kW"
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            onChange(Number.isFinite(v) && v > 0 ? v : 0);
+          }}
+          className="w-20 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
+        />
+      </div>
+      <p className="mt-1 text-xs text-muted">
+        Like the size of a colocation cage. Above it, extra GPUs are rented, so owning becomes a hybrid.
+      </p>
     </div>
   );
 }

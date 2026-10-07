@@ -27,6 +27,8 @@ export interface Assumptions {
   opsPerGpuMonth: number;
   /** Owned GPUs come in servers of this many */
   gpusPerServer: number;
+  /** Facility power available for owned GPUs, kW. 0 means no limit. Above it, the overflow is rented. */
+  powerLimitKw: number;
 }
 
 export interface Workload {
@@ -56,6 +58,7 @@ export const DEFAULT_ASSUMPTIONS: Assumptions = {
   electricityPerKwh: 0.1,
   opsPerGpuMonth: 400,
   gpusPerServer: 8,
+  powerLimitKw: 0,
 };
 
 export const PRESETS = [
@@ -74,12 +77,28 @@ export interface OptionCost {
   perM: number;
   /** GPUs needed (rent) or bought (own); null for the API */
   gpus: number | null;
+  /** Own only: GPUs rented on top because the power budget caps owned capacity (0 when not capped) */
+  overflowGpus?: number;
 }
 
 /** GPUs needed to serve the average load at the target utilization (at least one). */
 export function gpusNeeded(w: Workload, a: Assumptions) {
   const avgTokensPerSec = (w.tokensM * 1e6) / SECONDS_PER_MONTH;
   return Math.max(1, Math.ceil(avgTokensPerSec / (a.gpuTokensPerSec * w.utilization) - 1e-9));
+}
+
+/** Facility kW one owned GPU draws: its own power times the data center overhead (PUE). */
+export function facilityKwPerGpu(a: Assumptions) {
+  return a.kwPerGpu * a.pue;
+}
+
+/** The most GPUs the power budget can run, in whole servers. Infinity when there is no limit. */
+export function maxOwnedGpus(a: Assumptions) {
+  if (!(a.powerLimitKw > 0)) return Infinity;
+  const server = Math.max(1, Math.round(a.gpusPerServer));
+  const perGpu = facilityKwPerGpu(a);
+  if (!(perGpu > 0)) return Infinity;
+  return Math.floor(a.powerLimitKw / perGpu / server) * server;
 }
 
 /** Monthly cost of one owned GPU: depreciation + power + space/staff/maintenance. */
@@ -93,17 +112,20 @@ export function compare(w: Workload, a: Assumptions): Record<OptionId, OptionCos
   const blendedPerM = (1 - w.outputShare) * a.apiInputPerM + w.outputShare * a.apiOutputPerM;
   const rentGpus = gpusNeeded(w, a);
   const server = Math.max(1, Math.round(a.gpusPerServer));
-  const ownGpus = Math.ceil(rentGpus / server) * server;
+  // Own whole servers, up to what the power budget allows; anything beyond that is rented.
+  const wanted = Math.ceil(rentGpus / server) * server;
+  const ownGpus = Math.min(wanted, maxOwnedGpus(a));
+  const overflowGpus = ownGpus < wanted ? Math.max(0, rentGpus - ownGpus) : 0;
 
   const api = w.tokensM * blendedPerM;
   const rent = rentGpus * HOURS_PER_MONTH * a.rentPerGpuHour;
-  const own = ownGpus * ownCostPerGpuMonth(a);
+  const own = ownGpus * ownCostPerGpuMonth(a) + overflowGpus * HOURS_PER_MONTH * a.rentPerGpuHour;
   const perM = (monthly: number) => (w.tokensM > 0 ? monthly / w.tokensM : 0);
 
   return {
     api: { id: "api", monthly: api, perM: perM(api), gpus: null },
     rent: { id: "rent", monthly: rent, perM: perM(rent), gpus: rentGpus },
-    own: { id: "own", monthly: own, perM: perM(own), gpus: ownGpus },
+    own: { id: "own", monthly: own, perM: perM(own), gpus: ownGpus, overflowGpus },
   };
 }
 
@@ -120,7 +142,16 @@ export function breakdown(w: Workload, a: Assumptions) {
     ownDepreciation: a.hardwarePerGpu / (a.depreciationYears * 12),
     ownPower: a.kwPerGpu * a.pue * HOURS_PER_MONTH * a.electricityPerKwh,
     ownOps: a.opsPerGpuMonth,
+    maxOwned: maxOwnedGpus(a),
+    facilityKwPerGpu: facilityKwPerGpu(a),
   };
+}
+
+/** Monthly volume (M tokens) at which the power budget runs out of owned GPUs; null when there is no limit. */
+export function powerCapVolumeM(w: Workload, a: Assumptions) {
+  const max = maxOwnedGpus(a);
+  if (!Number.isFinite(max)) return null;
+  return (max * a.gpuTokensPerSec * w.utilization * SECONDS_PER_MONTH) / 1e6;
 }
 
 /** The cheapest option; ties go API → rent → own (least commitment first). */

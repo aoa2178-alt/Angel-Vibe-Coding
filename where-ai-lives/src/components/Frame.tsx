@@ -42,7 +42,7 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "map", label: "Map", question: "Where is AI being built?" },
   { route: "grid", label: "Grid", question: "What does the grid look like there?" },
   { route: "sites", label: "Sites", question: "Where should the next one go?" },
-  { route: "brief", label: "Brief", question: "The site brief" },
+  { route: "brief", label: "The call", question: "The call: where the next one should go" },
 ];
 const NUMBERED = 3;
 

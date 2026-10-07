@@ -124,3 +124,15 @@ describe("Scenario", () => {
     expect(readScenario("?own=Nobody&at=2099-01-01&price=retail&st=ZZ")).toEqual(DEFAULT_SCENARIO);
   });
 });
+
+describe("The call", () => {
+  it("reruns the frontier under each alternative reading and counts how often each state makes it", async () => {
+    const { siteCall } = await import("./call");
+    const c = siteCall("industrial", "2026-10-07");
+    expect(c.checks).toHaveLength(3 + c.front.length);
+    expect(c.shortlist[0]!.n).toBeLessThanOrEqual(c.shortlist[0]!.of);
+    for (const f of c.front) expect(c.shortlist.some((x) => x.id === f.id)).toBe(true);
+    // Ruling out a frontier state never "holds": the list always changes.
+    expect(c.checks.filter((k) => k.label.startsWith("Rule out")).every((k) => !k.holds)).toBe(true);
+  });
+});

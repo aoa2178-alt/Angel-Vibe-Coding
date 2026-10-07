@@ -54,8 +54,10 @@ export interface StateRow {
   queueGw: number | null;
 }
 
+export type WaitKey = "waitYears" | "p25" | "p75";
+
 /** Every mapped state with its power price (cents/kWh, year to date) and its main grid region's connection wait. */
-export function stateRows(sector: Sector): StateRow[] {
+export function stateRows(sector: Sector, wait: WaitKey = "waitYears"): StateRow[] {
   return MAP.states
     .filter((s) => s.code)
     .map((s) => {
@@ -67,7 +69,7 @@ export function stateRows(sector: Sector): StateRow[] {
         price: PRICES.states[s.code]?.[sector] ?? null,
         region: r?.region ?? null,
         regionShare: r?.share ?? null,
-        wait: region?.waitYears ?? null,
+        wait: region?.[wait] ?? null,
         queueGw: region?.activeGw ?? null,
       };
     })
@@ -75,14 +77,14 @@ export function stateRows(sector: Sector): StateRow[] {
 }
 
 /** DEA units: states with both a price and a wait (no wait figure for New England; Alaska and Hawaii aren't in LBNL's data). */
-export function deaUnits(sector: Sector): Unit[] {
-  return stateRows(sector)
-    .filter((r) => r.price !== null && r.wait !== null)
+export function deaUnits(sector: Sector, wait: WaitKey = "waitYears", exclude: string[] = []): Unit[] {
+  return stateRows(sector, wait)
+    .filter((r) => r.price !== null && r.wait !== null && !exclude.includes(r.code))
     .map((r) => ({ id: r.code, x1: r.price!, x2: r.wait! }));
 }
 
-export function siteScores(sector: Sector): { units: Unit[]; results: DeaResult[] } {
-  const units = deaUnits(sector);
+export function siteScores(sector: Sector, wait: WaitKey = "waitYears", exclude: string[] = []): { units: Unit[]; results: DeaResult[] } {
+  const units = deaUnits(sector, wait, exclude);
   return { units, results: dea(units) };
 }
 

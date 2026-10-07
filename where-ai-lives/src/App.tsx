@@ -19,7 +19,7 @@ const TITLES: Record<View, string> = {
   map: "Where AI Lives · 1. Map",
   grid: "Where AI Lives · 2. Grid",
   sites: "Where AI Lives · 3. Sites",
-  brief: "Where AI Lives · Site brief",
+  brief: "Where AI Lives · The call",
   sources: "Where AI Lives · Sources",
 };
 

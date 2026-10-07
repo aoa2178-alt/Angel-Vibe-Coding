@@ -1,7 +1,9 @@
 import { Printer } from "lucide-react";
 import { useMemo } from "react";
 import { useScores } from "./SitesStep";
+import { CallBlocks, type CallContent } from "@/components/CallBlocks";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { siteCall } from "@/lib/call";
 import { PRICES, REGIONS, RETRIEVED, SITES, STATE_REGION, WAIT_YEARS, cents, formatMonth, formatMw, mwAt, ownerLabel, pct, stateName, years } from "@/lib/data";
 import { byOwner, byState, powerWeighted, totalMw } from "@/lib/metrics";
 
@@ -23,6 +25,40 @@ export function Brief() {
   const regions = Object.entries(REGIONS).filter(([, r]) => r.waitYears !== null).sort((a, b) => a[1].waitYears! - b[1].waitYears!);
   const hubs = points.filter((p) => p.mw > 0).sort((a, b) => b.mw - a.mw).slice(0, 5);
   const focus = points.find((p) => p.unit.id === s.state);
+  const call = useMemo(() => siteCall(s.sector, at), [s.sector, at]);
+  const lead = call.shortlist[0];
+  const second = call.shortlist[1];
+  const content: CallContent = {
+    demo: "Real public data, coarse method: this is a grid-only first screen for a site-selection team, not a site decision. Land, water, fiber, tax and on-site power come next.",
+    decision: "Decision: which states should we shortlist for the next AI data center?",
+    headline: lead ? `Shortlist ${second && second.n === lead.n ? `${stateName(lead.id)} and ${stateName(second.id)}` : `${stateName(lead.id)} first${second ? `, then ${stateName(second.id)}` : ""}`}: no other state, or mix of states, offers both cheaper power and a faster grid connection.` : "No state is clearly ahead.",
+    bullets: [
+      ...(lead ? [{ label: "Why it leads", text: second && second.n === lead.n ? `${call.describe(lead.id)} and ${call.describe(second.id)} each stay on the frontier in ${lead.n} of ${lead.of} ways of reading the data${[lead.id, second.id].sort().join() === "NM,TX" ? ": New Mexico has the cheapest power, Texas the fastest grid and far more AI already built (a deeper supply chain)" : ""}.` :`${call.describe(lead.id)} stays on the frontier in ${lead.n} of ${lead.of} ways of reading the data${second ? `; ${stateName(second.id)} in ${second.n}` : ""}.` }] : []),
+      ...(call.worstHub && call.worstHub.result.theta < 0.9 ? [{ label: "Avoid defaulting to today's hubs", text: `${stateName(call.worstHub.unit.id)}, one of the biggest AI states, scores ${call.worstHub.result.theta.toFixed(2)}: frontier states are about ${pct(1 - call.worstHub.result.theta)} better on both price and wait. Building where everyone already is means queuing behind them.` }] : []),
+      { label: "The strategic point", text: "speed to power is the moat. A site that energizes two years sooner earns two more years of revenue; Loadline puts a dollar figure on each month." },
+    ],
+    checksIntro: "The DEA frontier rerun under other reasonable readings of the data:",
+    checks: call.checks,
+    landing: [
+      { when: "First 30 days", what: ["Ask the utilities in the shortlisted states for large-load studies", "Screen land, water and fiber near substations with spare capacity", "Price a bridge: on-site gas or batteries while the grid connection lands"] },
+      { when: "60 days", what: ["Cut to three sites; get indicative power prices and upgrade costs", "Meet county and state officials on permits and incentives", "Model each site's go-live date and cost of delay in Loadline"] },
+      { when: "90 days", what: ["Investment committee picks the site", "Sign the land option and the power agreement", "Lock the long-lead equipment orders (Tender)"] },
+    ],
+    people: "The hard part is people, not maps: utilities ration large loads, and communities push back on water, noise and tax breaks. Owners: development (site and permits), energy procurement (power), government affairs (incentives and community).",
+    measures: [
+      ["Time from application to energized", years(aiWait), `≤ ${years(lead ? call.front.find((u) => u.id === lead.id)?.x2 ?? null : null)}`],
+      ["All-in power price, ¢/kWh", cents(aiPrice), `≤ ${cents(lead ? call.front.find((u) => u.id === lead.id)?.x1 ?? null : null)}`],
+      ["Share of planned MW with a signed power agreement", "–", "100% before construction"],
+      ["Share of power that is firm (not interruptible)", "–", "set by the tenant's uptime needs"],
+    ],
+    measuresNote: "Today = where AI power sits now, weighted by MW. Aims = the lead state's grid figures.",
+    judgment: [
+      { label: "No hand-picked weights", text: "DEA judges each state on the trade-off that flatters it most, so a low score is hard to argue with." },
+      { label: "Region-level waits", text: "Berkeley Lab has too few projects per state, so states in one grid region share a wait and the score mostly separates regions." },
+      { label: "A proxy for the grid", text: "the wait is for new power plants, a public stand-in for how fast a region adds supply; data centers' own hookup times aren't published consistently." },
+      { label: "Left out", text: `land, water, fiber, tax, on-site generation, and announced timelines that can slip (${PRICES.period.replace(" YTD", " year to date")} prices).` },
+    ],
+  };
   const lowHub = hubs.reduce<(typeof hubs)[number] | null>((lo, p) => (!lo || p.result.theta < lo.result.theta ? p : lo), null);
 
   return (
@@ -38,8 +74,8 @@ export function Brief() {
       </StepHeading>
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">Site brief · Where AI Lives</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where AI lives, and where the next site should go</h2>
+          <p className="kicker">The call · Where AI Lives</p>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where should the next AI data center go?</h2>
           <p className="mt-2 text-sm text-muted">
             As of {formatMonth(at)} · data retrieved {RETRIEVED} · {s.sector} power prices
           </p>
@@ -59,7 +95,8 @@ export function Brief() {
           ))}
         </dl>
 
-        <Section n={1} title="Where AI lives">
+        <CallBlocks c={content}>
+        <Section n="a" title="Where AI lives">
           <p>
             {SITES.length} tracked US sites draw {formatMw(total)} {when}, and announced timelines take that to {formatMw(later)} by the end of 2028. The biggest states are{" "}
             {list(top.map((t) => `${stateName(t.code)} (${formatMw(t.mw)})`))}. The largest owners are{" "}
@@ -67,7 +104,7 @@ export function Brief() {
           </p>
         </Section>
 
-        <Section n={2} title="The grid where it lives">
+        <Section n="b" title="The grid where it lives">
           <p>
             AI power pays {cents(aiPrice)}/kWh on average, weighted by where it sits, against a US average of {cents(us)}: builders have chased cheap power. Connections are slower. AI's power sits in
             regions where new power plants waited a median {years(aiWait)} to connect ({WAIT_YEARS}); the fastest region is {regions[0]?.[0]} ({years(regions[0]?.[1].waitYears ?? null)}) and the
@@ -75,7 +112,7 @@ export function Brief() {
           </p>
         </Section>
 
-        <Section n={3} title="Where the next one should go">
+        <Section n="c" title="Where the next one should go">
           <p>
             On price and wait together (DEA, no hand-picked weights), the efficient frontier is {front.map((u) => `${stateName(u.id)} (${cents(u.x1)}, ${years(u.x2)})`).join(" and ")}. Among today's
             biggest hubs, {list(hubs.map((p) => `${p.name} scores ${p.result.theta.toFixed(2)}`))}.
@@ -89,14 +126,7 @@ export function Brief() {
           )}
         </Section>
 
-        <section className="mt-8">
-          <h3 className="kicker">Caveats</h3>
-          <ul className="mt-3 space-y-2 text-[15px] leading-7 text-ink-2">
-            <li>Future power follows announced timelines (Epoch AI's satellite and permit tracking); projects slip and get cancelled.</li>
-            <li>The grid wait is for new power plants by region, a proxy; data centers' own hookup times aren't published consistently.</li>
-            <li>Prices are state averages ({PRICES.period.replace(" YTD", " year to date")}); land, water, fiber, tax and on-site power also decide real sites.</li>
-          </ul>
-        </section>
+        </CallBlocks>
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">
           Sources: Epoch AI "Frontier Data Centers" (CC BY 4.0); EIA Electric Power Monthly Table 5.6.B; Lawrence Berkeley National Laboratory interconnection queue data; US Census geocoder.
         </p>
@@ -116,7 +146,7 @@ export function Brief() {
 /** "a, b and c" */
 const list = (items: string[]) => (items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`);
 
-function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <section className="mt-8">
       <h3 className="flex items-center gap-2.5 text-xl font-bold tracking-tight">

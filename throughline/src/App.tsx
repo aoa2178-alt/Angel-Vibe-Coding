@@ -4,11 +4,12 @@ import { Brief } from "./Brief";
 import { ForecastStep } from "./ForecastStep";
 import { Landing } from "./Landing";
 import { PlanStep } from "./PlanStep";
+import { DeliverStep } from "./DeliverStep";
 import { RippleStep } from "./RippleStep";
 import { Sources } from "./Sources";
 
-type View = "landing" | "forecast" | "plan" | "allocate" | "ripple" | "brief" | "sources";
-const VIEWS: View[] = ["forecast", "plan", "allocate", "ripple", "brief", "sources"];
+type View = "landing" | "forecast" | "plan" | "allocate" | "ripple" | "deliver" | "brief" | "sources";
+const VIEWS: View[] = ["forecast", "plan", "allocate", "ripple", "deliver", "brief", "sources"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -21,6 +22,7 @@ const TITLES: Record<View, string> = {
   plan: "Throughline · 2. Plan",
   allocate: "Throughline · 3. Allocate",
   ripple: "Throughline · 4. Ripple",
+  deliver: "Throughline · 5. Deliver",
   brief: "Throughline · Brief",
   sources: "Throughline · Sources",
 };
@@ -48,6 +50,8 @@ export default function App() {
       return <AllocateStep key={view} />;
     case "ripple":
       return <RippleStep key={view} />;
+    case "deliver":
+      return <DeliverStep key={view} />;
     case "brief":
       return <Brief key={view} />;
     case "sources":

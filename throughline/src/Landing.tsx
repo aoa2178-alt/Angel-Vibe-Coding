@@ -9,6 +9,7 @@ const STEPS = [
   { n: 2, title: "Plan", body: "Set a service level and get safety stock, order size, a monthly plan and a launch quantity." },
   { n: 3, title: "Allocate", body: "Cut supply and split what's left across regions: fair share, priority or most margin." },
   { n: 4, title: "Ripple", body: "Watch small demand swings grow into big ones up the supply chain, and what shrinks them." },
+  { n: 5, title: "Deliver", body: "See what drives late deliveries in 180,000 real orders, and how often each region gets its goods on time." },
 ];
 
 export function Landing() {
@@ -74,8 +75,8 @@ export function Landing() {
 
         <section className="mx-auto max-w-[1200px] px-4 py-20 sm:px-6 sm:py-28">
           <p className="kicker">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Four steps, one weekly update.</h2>
-          <ol className="mt-10 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-4">
+          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Five steps, one weekly update.</h2>
+          <ol className="mt-10 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
             {STEPS.map((st) => (
               <li key={st.n} className="bg-surface p-7">
                 <span className="grid size-8 place-items-center rounded-full bg-brand font-mono text-sm font-semibold text-on-brand">{st.n}</span>
@@ -85,7 +86,7 @@ export function Landing() {
             ))}
           </ol>
           <p className="mt-6 max-w-3xl text-ink-2">
-            The products and company are fictional. The demand history is real US Census data, and every price, cost and lead time is a labeled assumption
+            The products and company are fictional. The demand history is real US Census data, delivery performance comes from the public DataCo supply chain dataset, and every price, cost and lead time is a labeled assumption
             you can change.
           </p>
         </section>

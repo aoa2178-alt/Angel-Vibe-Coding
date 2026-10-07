@@ -8,7 +8,7 @@ Signal sizes a country's digital divide on World Bank data and turns it into a p
 2. **Afford** (`/afford`): the share of people who can afford a phone (cash under 20% of a month's income, GSMA) and a 2GB plan (under 2%, UN Broadband Commission), from a lognormal income model. Levers: pay-as-you-go phones on mobile-money rails, tax cuts, data subsidies, and their yearly cost to the budget.
 3. **Build** (`/build`): the cheapest technology for each area (4G towers, small cells, satellite hotspots), a budget that connects the most people (cheapest first), and the funding split: operators up to what users repay, then the universal service fund, then government and donors.
 
-Then **Brief** (`/brief`): a printable country memo. **Sources** (`/sources`): datasets, every assumption with its confidence, and the methods.
+Then **The call** (`/call`): the recommendation first, as a strategist would write it: the lever with the least public money per person newly online, the side-by-side comparison, what would change the answer, a 30/60/90-day plan with owners, the measures to track, and the judgment calls behind it. Printable as the country memo. **Sources** (`/sources`): datasets, every assumption with its confidence, and the methods.
 
 Sister apps: [Breakeven](https://breakeven-silk.vercel.app), [Loadline](https://loadline-weld.vercel.app), [Throughline](https://throughline-gilt.vercel.app), [Keel](https://keel-one-rho.vercel.app), Tender, Buildout, Where AI Lives.
 

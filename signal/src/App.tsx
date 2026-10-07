@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { AffordStep } from "./AffordStep";
-import { Brief } from "./Brief";
 import { BuildStep } from "./BuildStep";
+import { Call } from "./Call";
 import { GapStep } from "./GapStep";
 import { Landing } from "./Landing";
 import { Sources } from "./Sources";
 
-type View = "landing" | "gap" | "afford" | "build" | "brief" | "sources";
-const VIEWS: View[] = ["gap", "afford", "build", "brief", "sources"];
+type View = "landing" | "gap" | "afford" | "build" | "call" | "sources";
+const VIEWS: View[] = ["gap", "afford", "build", "call", "sources"];
 
 const resolve = (): View => {
+  // The memo used to live at /brief; it is now The call.
+  if (window.location.pathname.split("/")[1] === "brief") window.history.replaceState(null, "", `/call${window.location.search}`);
   const first = window.location.pathname.split("/")[1] as View;
   return VIEWS.includes(first) ? first : "landing";
 };
@@ -19,7 +21,7 @@ const TITLES: Record<View, string> = {
   gap: "Signal · 1. Gap",
   afford: "Signal · 2. Afford",
   build: "Signal · 3. Build",
-  brief: "Signal · Country memo",
+  call: "Signal · The call",
   sources: "Signal · Sources",
 };
 
@@ -44,8 +46,8 @@ export default function App() {
       return <AffordStep key={view} />;
     case "build":
       return <BuildStep key={view} />;
-    case "brief":
-      return <Brief key={view} />;
+    case "call":
+      return <Call key={view} />;
     case "sources":
       return <Sources key={view} />;
     default:

@@ -34,14 +34,14 @@ export function Logo() {
 
 /* ---------- The steps ---------- */
 
-export type StepRoute = "gap" | "afford" | "build" | "brief";
+export type StepRoute = "gap" | "afford" | "build" | "call";
 export type PageRoute = StepRoute | "sources";
 
 export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "gap", label: "Gap", question: "Who is offline, and why?" },
   { route: "afford", label: "Afford", question: "What would make it affordable?" },
   { route: "build", label: "Build", question: "What does it cost to connect them, and who pays?" },
-  { route: "brief", label: "Brief", question: "The country memo" },
+  { route: "call", label: "The call", question: "What should the country do first?" },
 ];
 const NUMBERED = 3;
 

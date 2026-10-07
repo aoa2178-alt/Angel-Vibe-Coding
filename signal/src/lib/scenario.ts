@@ -25,6 +25,7 @@ const AFFORD: Spec<AffordSettings> = {
   deposit: { param: "dep", min: 0, max: 1 },
   months: { param: "mo", min: 1, max: 60 },
   markup: { param: "mark", min: 0, max: 3 },
+  defaultRate: { param: "dflt", min: 0, max: 1 },
 };
 
 const BUILD: Spec<BuildSettings> = {

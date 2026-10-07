@@ -1,6 +1,6 @@
 # Throughline
 
-**How much should we build, and where should it go?**
+**How much should we build, and where should it go?** Live at https://throughline-gilt.vercel.app
 
 Throughline is a supply-and-demand planner for two fictional products, with real public US demand data behind them. It answers four questions, then puts the answers on one page:
 

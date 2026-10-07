@@ -20,7 +20,7 @@ const SECTIONS: { heading: string; body: React.ReactNode }[] = [
     heading: "What we collect",
     body: (
       <ul className="list-disc space-y-2 pl-5">
-        <li><strong>Account details:</strong> your email address and a display name. If you sign up with email, your password is stored only in hashed form by our authentication provider. If you choose an avatar image link, we store that link.</li>
+        <li><strong>Account details:</strong> your email address and a display name. If you sign up with email, your password is stored only in hashed (scrambled) form, never as plain text. If you choose an avatar image link, we store that link.</li>
         <li><strong>Google sign-in:</strong> if you use “Continue with Google”, Google shares your name, email address and profile picture with us. We don’t get access to your Gmail, contacts, calendar or anything else in your Google account.</li>
         <li><strong>Your progress:</strong> lessons you’ve completed, XP, streak, the places you mark as “want to go” or “been”, and your city and theme preferences.</li>
         <li><strong>Visit counts:</strong> a single running total of visits per day, with nothing that identifies you.</li>
@@ -33,7 +33,7 @@ const SECTIONS: { heading: string; body: React.ReactNode }[] = [
   },
   {
     heading: "Where it’s stored",
-    body: <p>Your account and progress are stored with <a className="underline" href="https://supabase.com/privacy" target="_blank" rel="noreferrer">Supabase</a>, which provides our database and sign-in. The website is hosted by <a className="underline" href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noreferrer">Vercel</a>. Both process data on our behalf, in the United States. Your browser keeps your sign-in session in local storage so you stay logged in.</p>,
+    body: <p>The website is hosted by <a className="underline" href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noreferrer">Vercel</a>, and your account and progress are stored in a database run by <a className="underline" href="https://neon.com/privacy-policy" target="_blank" rel="noreferrer">Neon</a>, which Vercel connects to the site. Both process data on our behalf, in the United States. Your browser keeps a sign-in cookie so you stay logged in.</p>,
   },
   {
     heading: "Deleting your data",

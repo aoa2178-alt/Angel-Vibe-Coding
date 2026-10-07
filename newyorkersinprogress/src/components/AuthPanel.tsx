@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient, type AuthUser } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HERO_IMAGE } from "@/lib/images";
 
-export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOut: () => void }) {
+export function AuthPanel({ user, onSignedOut }: { user: AuthUser | null; onSignedOut: () => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,48 +18,33 @@ export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOu
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle().then(({ data }) => {
-      setProfileName(data?.display_name || user.user_metadata?.["display_name"] || "");
-      setAvatarUrl(data?.avatar_url || user.user_metadata?.["avatar_url"] || "");
-    });
+    setProfileName(user.name ?? "");
+    setAvatarUrl(user.image ?? "");
   }, [user]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setMessage("");
-    if (mode === "signup") {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: { emailRedirectTo: window.location.origin, data: { display_name: name.trim() } },
-      });
-      setMessage(error?.message ?? (data.session ? "Welcome to the neighborhood." : "Check your email to confirm your account."));
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-      setMessage(error?.message ?? "Signed in. Your progress is ready.");
-    }
+    const { error } =
+      mode === "signup"
+        ? await authClient.signUp.email({ email: email.trim(), password, name: name.trim() })
+        : await authClient.signIn.email({ email: email.trim(), password });
+    setMessage(error ? error.message ?? "Something went wrong. Please try again." : mode === "signup" ? "Welcome to the neighborhood." : "Signed in. Your progress is ready.");
     setBusy(false);
   }
 
   async function google() {
     setBusy(true);
-    // Google sign-in through the app's own Supabase project (Lovable's /~oauth broker only exists on Lovable hosting).
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
-    if (error) setMessage(error.message);
-    setBusy(false);
-  }
-
-  async function resetPassword() {
-    if (!email.trim()) return setMessage("Enter your email first.");
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setMessage(error?.message ?? "Password reset link sent.");
+    const { error } = await authClient.signIn.social({ provider: "google", callbackURL: "/" });
+    if (error) {
+      setMessage(error.message ?? "Google sign-in isn't available right now.");
+      setBusy(false);
+    }
   }
 
   if (user) {
-    const display = user.user_metadata?.["display_name"] || user.user_metadata?.["full_name"] || user.email;
+    const display = user.name || user.email;
     return (
       <section className="mx-auto max-w-3xl px-6 py-16">
         <p className="atlas-kicker">Your borough desk</p>
@@ -69,10 +53,10 @@ export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOu
           <p className="text-sm text-muted-foreground">Signed in as</p>
           <p className="mt-1 text-lg font-semibold">{user.email}</p>
           <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">Your XP, streak, completed lessons, theme, and saved places now follow you across devices.</p>
-          <form className="mt-7 grid gap-4 sm:grid-cols-2" onSubmit={async (event) => { event.preventDefault(); setBusy(true); const { error } = await supabase.from("profiles").update({ display_name: profileName.trim(), avatar_url: avatarUrl.trim() || null }).eq("id", user.id); setMessage(error?.message ?? "Profile saved."); setBusy(false); }}>
+          <form className="mt-7 grid gap-4 sm:grid-cols-2" onSubmit={async (event) => { event.preventDefault(); setBusy(true); const { error } = await authClient.updateUser({ name: profileName.trim(), image: avatarUrl.trim() || null }); setMessage(error ? error.message ?? "Couldn't save your profile." : "Profile saved."); setBusy(false); }}>
             <div><Label htmlFor="profile-name">Display name</Label><Input id="profile-name" value={profileName} onChange={(event) => setProfileName(event.target.value)} maxLength={80} required className="mt-1.5" /></div>
             <div><Label htmlFor="avatar-url">Avatar image URL</Label><Input id="avatar-url" type="url" value={avatarUrl} onChange={(event) => setAvatarUrl(event.target.value)} maxLength={500} className="mt-1.5" /></div>
-            <div className="flex items-center gap-3 sm:col-span-2"><Button disabled={busy}>Save profile</Button><Button type="button" variant="outline" onClick={async () => { await supabase.auth.signOut(); onSignedOut(); }}>Sign out</Button></div>
+            <div className="flex items-center gap-3 sm:col-span-2"><Button disabled={busy}>Save profile</Button><Button type="button" variant="outline" onClick={async () => { await authClient.signOut(); onSignedOut(); }}>Sign out</Button></div>
           </form>
           {message && <p role="status" className="mt-4 text-sm text-muted-foreground">{message}</p>}
         </div>
@@ -119,7 +103,6 @@ export function AuthPanel({ user, onSignedOut }: { user: User | null; onSignedOu
           <div><Label htmlFor="password">Password</Label><Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} maxLength={72} required className="mt-1.5" /></div>
           <Button className="h-12 w-full font-extrabold shadow-[0_4px_0_color-mix(in_oklab,var(--foreground)_55%,transparent)]" disabled={busy}>{busy ? "One moment…" : mode === "signin" ? "Sign in" : "Create account"}</Button>
         </form>
-        {mode === "signin" && <Button type="button" variant="link" className="mt-3 h-auto p-0 text-xs" onClick={resetPassword}>Forgot password?</Button>}
         {message && <p role="status" className="mt-4 text-sm text-muted-foreground">{message}</p>}
         <p className="mt-6 border-t border-border pt-4 text-xs text-muted-foreground">How we handle your data: <Link to="/privacy" className="underline">Privacy Policy</Link></p>
        </div>

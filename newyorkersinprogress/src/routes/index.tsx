@@ -1,6 +1,5 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import type { User } from "@supabase/supabase-js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CITY, LESSONS, type Lesson } from "@/lib/curriculum";
 import { HERO_IMAGE, LESSON_IMAGES, CELEBRATION_IMAGES, SOCIAL_IMAGE } from "@/lib/images";
@@ -10,7 +9,8 @@ import { SLANG, SLANG_CATEGORIES, type SlangTerm, type SlangCategory } from "@/l
 import { cn } from "@/lib/utils";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient } from "@/lib/auth-client";
+import { loadProgress, saveLessons, saveSpots, saveStats } from "@/lib/progress.functions";
 import { recordVisit } from "@/lib/visits.functions";
 
 type SpotMark = "been" | "want";
@@ -306,25 +306,28 @@ function SlangOfDay({
   );
 }
 
-/**
- * Kick off a Supabase write without blocking the UI. The client only sends the
- * request once the builder is awaited or `.then`-ed, so every write goes through
- * here — dropping the call with `void` would silently never reach the database.
- */
-function save(promise: PromiseLike<unknown>) {
-  void Promise.resolve(promise).then((result) => {
-    const error = (result as { error?: { message?: string } } | null | undefined)?.error;
-    if (error) console.error("Walkin' Here couldn't save:", error.message ?? "unknown error");
+/** Kick off a save without blocking the UI; failures are logged, not shown. */
+function save(promise: Promise<unknown>) {
+  promise.catch((error: unknown) => {
+    console.error("Walkin' Here couldn't save:", error instanceof Error ? error.message : error);
   });
 }
 
 /* ---------------- page ---------------- */
 
 function Index() {
-  const router = useRouter();
   const recordVisitFn = useServerFn(recordVisit);
-  const [user, setUser] = useState<User | null>(null);
-  const [authReady, setAuthReady] = useState(false);
+  const loadProgressFn = useServerFn(loadProgress);
+  const saveStatsFn = useServerFn(saveStats);
+  const saveLessonsFn = useServerFn(saveLessons);
+  const saveSpotsFn = useServerFn(saveSpots);
+  const { data: session, isPending: sessionPending } = authClient.useSession();
+  const user = session?.user ?? null;
+  // The session is re-checked in the background (e.g. when the tab regains focus); only the
+  // first check should show the loading screen, or the sign-in form would reset mid-typing.
+  const sessionLoadedOnce = useRef(false);
+  if (!sessionPending) sessionLoadedOnce.current = true;
+  const [progressReady, setProgressReady] = useState(false);
   const [xp, setXp] = useState(45);
   const [streak, setStreak] = useState(4);
   const [completed, setCompleted] = useState<string[]>(["cadence"]);
@@ -347,10 +350,7 @@ function Index() {
       const next = { ...m };
       if (nextMark) next[spot.id] = nextMark;
       else delete next[spot.id];
-      if (user) {
-        if (nextMark) save(supabase.from("saved_spots").upsert({ user_id: user.id, spot_id: spot.id, mark: nextMark }, { onConflict: "user_id,spot_id" }));
-        else save(supabase.from("saved_spots").delete().eq("user_id", user.id).eq("spot_id", spot.id));
-      }
+      if (user) save(saveSpotsFn({ data: { spots: [{ spotId: spot.id, mark: nextMark ?? null }] } }));
       return next;
     });
   }
@@ -360,42 +360,43 @@ function Index() {
     if (!sessionStorage.getItem("walkin-visit-recorded")) {
       recordVisitFn().then(() => sessionStorage.setItem("walkin-visit-recorded", "1")).catch(() => undefined);
     }
-    supabase.auth.getUser().then(({ data }) => { setUser(data.user); setAuthReady(true); });
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
-        setUser(session?.user ?? null);
-        setAuthReady(true);
-        router.invalidate();
-      }
-    });
-    return () => data.subscription.unsubscribe();
-  }, [recordVisitFn, router]);
+  }, [recordVisitFn]);
+
+  // Load the signed-in user's saved progress; on a first sign-in, upload what they did before signing in.
+  const userId = user?.id;
+  useEffect(() => {
+    if (!userId) {
+      setProgressReady(false);
+      return;
+    }
+    let cancelled = false;
+    loadProgressFn()
+      .then((progress) => {
+        if (cancelled) return;
+        setXp(progress.xp);
+        setStreak(progress.streak);
+        if (progress.lessons.length) setCompleted(progress.lessons);
+        else if (completed.length) save(saveLessonsFn({ data: { lessons: completed.map((lessonId) => ({ lessonId, earnedXp: 0 })) } }));
+        if (Object.keys(progress.spots).length) setMarks(progress.spots);
+        else if (Object.keys(marks).length) save(saveSpotsFn({ data: { spots: Object.entries(marks).map(([spotId, mark]) => ({ spotId, mark })) } }));
+      })
+      .catch((error: unknown) => console.error("Walkin' Here couldn't load progress:", error))
+      .finally(() => {
+        if (!cancelled) setProgressReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   useEffect(() => {
-    if (!user) return;
-    Promise.all([
-      supabase.from("profiles").select("xp, streak").eq("id", user.id).maybeSingle(),
-      supabase.from("lesson_progress").select("lesson_id").eq("user_id", user.id).eq("completed", true),
-      supabase.from("saved_spots").select("spot_id, mark").eq("user_id", user.id),
-    ]).then(([profileResult, lessonsResult, spotsResult]) => {
-      if (profileResult.data) {
-        setXp(profileResult.data.xp);
-        setStreak(profileResult.data.streak);
-      }
-      if (lessonsResult.data?.length) setCompleted(lessonsResult.data.map((row) => row.lesson_id));
-      else if (completed.length) save(supabase.from("lesson_progress").upsert(completed.map((lessonId) => ({ user_id: user.id, lesson_id: lessonId, completed: true, earned_xp: 0, completed_at: new Date().toISOString() })), { onConflict: "user_id,lesson_id" }));
-      if (spotsResult.data?.length) setMarks(Object.fromEntries(spotsResult.data.map((row) => [row.spot_id, row.mark as SpotMark])));
-      else if (Object.keys(marks).length) save(supabase.from("saved_spots").upsert(Object.entries(marks).map(([spotId, mark]) => ({ user_id: user.id, spot_id: spotId, mark })), { onConflict: "user_id,spot_id" }));
-    });
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
+    // Wait for the saved numbers to load first, so the defaults never overwrite them.
+    if (!userId || !progressReady) return;
     const timer = window.setTimeout(() => {
-      save(supabase.from("profiles").update({ xp, streak }).eq("id", user.id));
+      save(saveStatsFn({ data: { xp, streak } }));
     }, 400);
     return () => window.clearTimeout(timer);
-  }, [user, xp, streak]);
+  }, [userId, progressReady, xp, streak]);
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -442,10 +443,10 @@ function Index() {
     }
     setActive(null);
     setCelebrate((n) => n + 1);
-    if (user) save(supabase.from("lesson_progress").upsert({ user_id: user.id, lesson_id: lesson.id, completed: true, earned_xp: earned, completed_at: new Date().toISOString() }, { onConflict: "user_id,lesson_id" }));
+    if (user) save(saveLessonsFn({ data: { lessons: [{ lessonId: lesson.id, earnedXp: earned }] } }));
   }
 
-  if (!authReady) {
+  if (sessionPending && !sessionLoadedOnce.current) {
     return <main className="nyc-glow grid min-h-screen place-items-center"><span className="nc-mascot text-4xl" aria-label="Loading Walkin' Here!">🐦</span></main>;
   }
 
@@ -498,18 +499,18 @@ function Index() {
               onClick={() => setProfileOpen((open) => !open)}
               className="gap-2 bg-surface"
             >
-              {user.user_metadata?.["avatar_url"] ? <img src={user.user_metadata["avatar_url"]} alt="" className="size-5 rounded-full object-cover" onError={(event) => { event.currentTarget.hidden = true; }} /> : <span aria-hidden>👤</span>}
-              <span className="hidden sm:inline">{user.user_metadata?.["display_name"] || user.user_metadata?.["full_name"] || "Profile"}</span>
+              {user.image ? <img src={user.image} alt="" className="size-5 rounded-full object-cover" onError={(event) => { event.currentTarget.hidden = true; }} /> : <span aria-hidden>👤</span>}
+              <span className="hidden sm:inline">{user.name || "Profile"}</span>
               <span aria-hidden className="text-[10px]">▾</span>
             </Button>
             {profileOpen && (
               <div role="menu" className="absolute right-0 top-[calc(100%+0.5rem)] z-40 w-64 rounded-xl border border-border bg-surface p-2 shadow-xl">
                 <div className="border-b border-border px-3 py-2">
-                  <p className="truncate text-sm font-bold">{user.user_metadata?.["display_name"] || user.user_metadata?.["full_name"] || "New Yorker"}</p>
+                  <p className="truncate text-sm font-bold">{user.name || "New Yorker"}</p>
                   <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <Button role="menuitem" variant="ghost" className="mt-1 w-full justify-start" onClick={() => { if (tab !== "account") setReturnTab(tab); setTab("account"); setProfileOpen(false); }}>View / edit profile</Button>
-                <Button role="menuitem" variant="ghost" className="w-full justify-start text-destructive" onClick={async () => { setProfileOpen(false); await supabase.auth.signOut(); setTab("learn"); }}>Sign out</Button>
+                <Button role="menuitem" variant="ghost" className="w-full justify-start text-destructive" onClick={async () => { setProfileOpen(false); await authClient.signOut(); setTab("learn"); }}>Sign out</Button>
               </div>
             )}
           </div>

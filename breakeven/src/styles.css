@@ -179,3 +179,20 @@ input[type="range"] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Sections that sit on the (always light) illustration keep light-mode colors in dark mode too. */
+.light-scope {
+  /* Tailwind color utilities read --color-*, which resolve once at :root, so override those directly. */
+  --color-surface: #fdfcff;
+  --color-sunken: #eee9f8;
+  --color-line: #e3dcf1;
+  --color-ink: #1c1530;
+  --color-ink-2: #463c5e;
+  --color-muted: #716882;
+  --color-brand-ink: #7419d6;
+  --surface: #fdfcff;
+  --line: #e3dcf1;
+  --ink: #1c1530;
+  --brand-ink: #7419d6;
+  color: #1c1530;
+}

@@ -1,19 +1,30 @@
-import { ArrowRight, Coins, Cpu, Server, Zap } from "lucide-react";
+import { ArrowRight, Check, Coins, Cpu, Server, Zap } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import hero from "@/assets/landing-hero.webp";
+import { OPTIONS } from "@/Calculator";
 import { Logo, linkClick } from "@/components/Brand";
+import { ClosingBars } from "@/components/ClosingBars";
+import { Odometer } from "@/components/Odometer";
 import {
   DEFAULT_ASSUMPTIONS,
   DEFAULT_WORKLOAD,
   PRESETS,
   cheapest,
   compare,
+  crossovers,
   formatTokensM,
   formatUsd,
-  ownCostPerGpuMonth,
-  type OptionId,
 } from "@/lib/tco";
 
-const WINNER_NAME: Record<OptionId, string> = { api: "Pay per token (API)", rent: "Rent cloud GPUs", own: "Own GPUs" };
+// The illustration's own edge color, so the hero band and the picture blend into one surface.
+const HERO_BG = "#fbf8fe";
+
+const NAV = [
+  { href: "#compares", label: "What it compares" },
+  { href: "#demo", label: "Try it" },
+  { href: "#how", label: "How it works" },
+  { href: "#faq", label: "FAQ" },
+];
 
 const FEATURES = [
   {
@@ -43,198 +54,355 @@ const FEATURES = [
 ];
 
 const STEPS = [
-  { n: "01", title: "Set your volume", body: "Pick a preset or enter your monthly tokens. Every price, power and throughput assumption is editable." },
-  { n: "02", title: "See what's cheapest", body: "Monthly cost and cost per million tokens for the API, rented GPUs and owned GPUs, side by side." },
-  { n: "03", title: "See where it flips", body: "A projection from 10M to 100B tokens marks exactly where one option overtakes another." },
+  { title: "Set your volume", body: "Pick a preset or enter your monthly tokens. Every price, power and throughput assumption is editable." },
+  { title: "See what's cheapest", body: "Monthly cost and cost per million tokens for the API, rented GPUs and owned GPUs, side by side." },
+  { title: "See where it flips", body: "A projection from 10M to 100B tokens marks exactly where one option overtakes another." },
 ];
 
+const FAQ = [
+  {
+    q: "Are these real prices?",
+    a: "The defaults are illustrative public list prices from October 2026: Claude Sonnet 5.5 API pricing, typical H100 cloud rental rates and 8-GPU server costs. They are not quotes, and every one of them is editable in the calculator.",
+  },
+  {
+    q: "Why can't I just run Claude or GPT on my own GPUs?",
+    a: "Frontier models are only available through their providers' APIs. So “rent” and “own” mean running an open-weight model of similar size yourself, which makes switching a quality decision as well as a cost one.",
+  },
+  {
+    q: "How does it work out how many GPUs I need?",
+    a: "Your average tokens per second, divided by what one GPU serves at your target utilization, rounded up. Rented GPUs come one at a time; owned GPUs are bought in whole 8-GPU servers.",
+  },
+  {
+    q: "What is PUE?",
+    a: "Power usage effectiveness: total facility power divided by the power the computers themselves use. A PUE of 1.3 means 30% extra on top for cooling and everything else.",
+  },
+];
+
+function SectionHeader({ kicker, title, body }: { kicker: string; title: string; body?: string }) {
+  return (
+    <div className="mx-auto max-w-2xl text-center">
+      <p className="kicker">{kicker}</p>
+      <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] text-balance sm:text-[2.6rem] sm:leading-[1.1]">{title}</h2>
+      {body && <p className="mt-4 text-lg leading-8 text-ink-2 text-pretty">{body}</p>}
+    </div>
+  );
+}
+
+function CtaLink({ to, children, variant = "primary" }: { to: string; children: ReactNode; variant?: "primary" | "secondary" | "light" }) {
+  const styles = {
+    primary: "bg-brand text-white hover:bg-brand-ink",
+    secondary: "border border-line bg-surface text-ink hover:border-brand",
+    light: "bg-white text-[#2a1458] hover:bg-white/90",
+  }[variant];
+  return (
+    <a href={to} onClick={linkClick(to)} className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-base font-semibold transition ${styles}`}>
+      {children}
+    </a>
+  );
+}
+
 export function Landing() {
-  const examples = PRESETS.map((p) => {
-    const costs = compare({ ...DEFAULT_WORKLOAD, tokensM: p.tokensM }, DEFAULT_ASSUMPTIONS);
-    const winner = cheapest(costs);
-    return { preset: p, winner, cost: costs[winner] };
-  });
-  const a = DEFAULT_ASSUMPTIONS;
+  const startup = compare(DEFAULT_WORKLOAD, DEFAULT_ASSUMPTIONS);
+  const startupWinner = cheapest(startup);
+  const cross = crossovers(DEFAULT_WORKLOAD, DEFAULT_ASSUMPTIONS);
 
   return (
-    <div className="min-h-dvh">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-[1360px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <Logo />
-          <nav className="flex items-center gap-1 sm:gap-2">
-            <a href="#how" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-ink-2 hover:text-ink sm:inline">
-              How it works
-            </a>
-            <a
-              href="/calculator"
-              onClick={linkClick("/calculator")}
-              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand px-3.5 py-2 text-sm font-semibold text-white transition hover:bg-brand-ink"
-            >
-              Open calculator <ArrowRight className="size-4" aria-hidden />
-            </a>
+    <div className="min-h-dvh bg-surface">
+      {/* Navigation */}
+      <header className="sticky top-0 z-30 border-b border-line bg-surface">
+        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6">
+          <Logo tagline={false} />
+          <nav aria-label="Sections" className="hidden items-center gap-1 md:flex">
+            {NAV.map((n) => (
+              <a key={n.href} href={n.href} className="rounded-lg px-3 py-2 text-sm font-medium text-ink-2 transition hover:bg-sunken hover:text-ink">
+                {n.label}
+              </a>
+            ))}
           </nav>
+          <a
+            href="/calculator"
+            onClick={linkClick("/calculator")}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-ink"
+          >
+            Open calculator <ArrowRight className="size-4" aria-hidden />
+          </a>
         </div>
       </header>
 
       <main>
-        {/* Hero */}
-        <section className="mx-auto max-w-[1360px] px-4 pt-10 sm:px-6 lg:pt-16">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-end">
-            <div className="max-w-4xl">
-              <p className="inline-flex rounded-full border border-line bg-brand-soft px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-ink">
-                AI infrastructure cost calculator
-              </p>
-              <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-[-0.035em] sm:text-6xl">
-                Should your AI run on <span className="underline decoration-api decoration-[6px] underline-offset-[10px]">tokens</span>,{" "}
-                <span className="underline decoration-rent decoration-[6px] underline-offset-[10px]">rented GPUs</span>, or{" "}
-                <span className="underline decoration-own decoration-[6px] underline-offset-[10px]">your own hardware</span>?
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-2">
-                Breakeven shows the monthly cost and cost per million tokens of each option at your volume. API prices,
-                rented GPUs, hardware, power and operations, in one honest comparison.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="/calculator"
-                  onClick={linkClick("/calculator")}
-                  className="inline-flex items-center gap-2 rounded-xl bg-brand px-5 py-3 font-semibold text-white transition hover:bg-brand-ink"
-                >
-                  Run the comparison <ArrowRight className="size-4" aria-hidden />
-                </a>
-                <a
-                  href="/calculator#projection"
-                  onClick={linkClick("/calculator#projection")}
-                  className="inline-flex items-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 font-semibold text-ink transition hover:border-brand"
-                >
-                  See where the answer flips
-                </a>
-              </div>
+        {/* Hero: centered message over a full-width illustration that shares its background */}
+        <section className="light-scope relative overflow-hidden" style={{ backgroundColor: HERO_BG }}>
+          <div className="mx-auto max-w-[1200px] px-4 pt-16 text-center sm:px-6 sm:pt-24">
+            <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-sm font-medium text-ink-2">
+              <span className="rounded-full bg-brand px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">Free</span>
+              AI infrastructure cost calculator
+            </p>
+            <h1 className="mx-auto mt-6 max-w-4xl text-[2.6rem] font-extrabold leading-[1.04] tracking-[-0.04em] text-balance sm:text-6xl lg:text-7xl">
+              Tokens, rented GPUs, or your own hardware?
+            </h1>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-ink-2 text-pretty sm:text-xl">
+              Breakeven compares what it really costs to run your AI three ways, at your exact volume, and shows where the cheapest
+              option changes.
+            </p>
+            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+              <CtaLink to="/calculator">
+                Run the comparison <ArrowRight className="size-4" aria-hidden />
+              </CtaLink>
+              <CtaLink to="/calculator#projection" variant="secondary">
+                See where the answer flips
+              </CtaLink>
             </div>
-
-            <dl className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line bg-line lg:grid-cols-1">
-              {[
-                ["3", "ways to run it"],
-                ["10M–100B", "tokens a month"],
-                ["0", "sign-ups needed"],
-              ].map(([value, label]) => (
-                <div key={label} className="bg-surface px-4 py-3 lg:px-5 lg:py-4">
-                  <dt className="sr-only">{label}</dt>
-                  <dd className="whitespace-nowrap font-mono text-base font-semibold tracking-tight sm:text-2xl">{value}</dd>
-                  <dd className="text-xs text-muted">{label}</dd>
-                </div>
+            <ul className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-ink-2">
+              {["No sign-up", "Every assumption editable", "Shareable estimates"].map((t) => (
+                <li key={t} className="flex items-center gap-1.5">
+                  <Check className="size-4 text-brand" aria-hidden />
+                  {t}
+                </li>
               ))}
-            </dl>
+            </ul>
           </div>
 
-          {/* Illustration with live labels pinned to it */}
-          <figure className="relative mt-10 overflow-hidden rounded-3xl border border-line bg-[#f7f5fc]">
+          <div className="relative mx-auto mt-12 max-w-[1600px]">
             <img
               src={hero}
               alt="Illustration of GPU chips wired into a data center, with cooling units and power lines behind it"
               width={1536}
               height={1024}
-              className="block aspect-[3/2] w-full object-cover md:aspect-[12/5] md:object-[center_48%]"
+              className="block aspect-[3/2] w-full object-cover sm:aspect-[2/1] lg:aspect-[21/9] lg:object-[center_46%]"
             />
-            <Tag className="left-[3%] top-[70%]" swatch="bg-own" title="Own GPUs" value={`${formatUsd(ownCostPerGpuMonth(a))} per GPU / month`} />
-            <Tag className="left-[47%] top-[8%]" swatch="bg-rent" title="Rent cloud GPUs" value={`${formatUsd(a.rentPerGpuHour, 2)} per GPU-hour`} />
-            <Tag className="right-[3%] top-[74%]" swatch="bg-brand" title="Power & cooling" value={`${a.kwPerGpu} kW per GPU · PUE ${a.pue}`} />
-          </figure>
+            {/* A real answer from the calculator, pinned over the picture */}
+            <div className={`theme-${startupWinner} win-panel absolute bottom-5 left-1/2 hidden w-72 -translate-x-1/2 rounded-2xl p-4 text-left text-white sm:block lg:bottom-8 lg:left-[40%] lg:translate-x-0`}>
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/75">Cheapest at 2B tokens / month</p>
+              <p className="mt-1.5 text-xl font-extrabold tracking-tight">{OPTIONS[startupWinner].name}</p>
+              <p className="mt-1 font-mono text-sm text-white/85">
+                {formatUsd(startup[startupWinner].monthly)} / month · {formatUsd(startup[startupWinner].perM, 2)} / M
+              </p>
+            </div>
+            {cross.ownFromM !== null && (
+              <div className="absolute right-4 top-4 hidden rounded-xl border border-line bg-surface px-3.5 py-2.5 text-left md:block lg:right-[6%] lg:top-8">
+                <p className="flex items-center gap-1.5 text-xs font-semibold">
+                  <span className="size-2 rounded-full bg-own" aria-hidden /> Owning wins for good
+                </p>
+                <p className="mt-0.5 font-mono text-xs text-ink-2">from {formatTokensM(cross.ownFromM)} tokens / month</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* At a glance */}
+        <section aria-label="At a glance" className="border-y border-line bg-surface">
+          <dl className="mx-auto grid max-w-[1200px] grid-cols-3 divide-x divide-line px-4 sm:px-6">
+            {[
+              ["3", "ways to run your AI"],
+              ["10M–100B", "tokens a month, compared"],
+              ["0", "sign-ups or quotes needed"],
+            ].map(([value, label]) => (
+              <div key={label} className="flex flex-col-reverse px-3 py-7 text-center sm:py-9">
+                <dt className="mt-1.5 text-xs text-muted sm:text-sm">{label}</dt>
+                <dd className="font-mono text-xl font-semibold tracking-tight sm:text-4xl">{value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* What it compares */}
-        <section className="mx-auto max-w-[1360px] px-4 pt-16 sm:px-6">
-          <p className="kicker">What it compares</p>
-          <h2 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Everything that decides the bill.</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {FEATURES.map(({ icon: Icon, title, swatch, body }) => (
-              <article key={title} className="rounded-2xl border border-line bg-surface p-5">
-                <span className={`grid size-10 place-items-center rounded-xl text-white ${swatch}`} aria-hidden>
-                  <Icon className="size-5" />
-                </span>
-                <h3 className="mt-4 text-lg font-bold tracking-tight">{title}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-ink-2">{body}</p>
-              </article>
-            ))}
+        <section id="compares" className="scroll-mt-16 bg-bg py-20 sm:py-28">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <SectionHeader
+              kicker="What it compares"
+              title="Everything that decides the bill"
+              body="Four cost drivers, one honest comparison. No vendor quotes and no hidden assumptions."
+            />
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {FEATURES.map(({ icon: Icon, title, swatch, body }) => (
+                <article key={title} className="flex flex-col rounded-2xl border border-line bg-surface p-6">
+                  <span className={`grid size-11 place-items-center rounded-xl text-white ${swatch}`} aria-hidden>
+                    <Icon className="size-5" />
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold tracking-tight">{title}</h3>
+                  <p className="mt-2 text-[15px] leading-7 text-ink-2">{body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Live demo */}
+        <section id="demo" className="scroll-mt-16 bg-surface py-20 sm:py-28">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <SectionHeader
+              kicker="Try it"
+              title="Watch the cheapest option change"
+              body="Pick a company size. The gap between the three options closes and opens as the volume grows."
+            />
+            <LiveDemo />
           </div>
         </section>
 
         {/* How it works */}
-        <section id="how" className="mx-auto max-w-[1360px] scroll-mt-6 px-4 pt-16 sm:px-6">
-          <p className="kicker">How it works</p>
-          <h2 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Three steps, one answer.</h2>
-          <ol className="mt-8 grid gap-4 md:grid-cols-3">
-            {STEPS.map((s) => (
-              <li key={s.n} className="rounded-2xl border border-line bg-surface p-5">
-                <span className="font-mono text-sm font-semibold text-brand-ink">{s.n}</span>
-                <h3 className="mt-2 text-lg font-bold tracking-tight">{s.title}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-ink-2">{s.body}</p>
-              </li>
-            ))}
-          </ol>
+        <section id="how" className="scroll-mt-16 bg-bg py-20 sm:py-28">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <SectionHeader kicker="How it works" title="Three steps, one answer" />
+            <ol className="relative mt-14 grid gap-10 md:grid-cols-3 md:gap-6">
+              <span className="absolute left-[16.6%] right-[16.6%] top-6 hidden h-px bg-line md:block" aria-hidden />
+              {STEPS.map((s, i) => (
+                <li key={s.title} className="relative text-center">
+                  <span className="relative mx-auto grid size-12 place-items-center rounded-full border border-line bg-surface font-mono text-sm font-semibold text-brand-ink">
+                    0{i + 1}
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold tracking-tight">{s.title}</h3>
+                  <p className="mx-auto mt-2 max-w-xs text-[15px] leading-7 text-ink-2">{s.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
 
-        {/* Three volumes, three winners */}
-        <section className="mx-auto max-w-[1360px] px-4 pb-20 pt-16 sm:px-6">
-          <div className="rounded-3xl border border-line bg-surface p-6 sm:p-10">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <p className="kicker">One workload. Three ways to run it.</p>
-                <h2 className="mt-2 max-w-2xl text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
-                  The cheapest option changes with your volume.
-                </h2>
-              </div>
-              <a
-                href="/calculator"
-                onClick={linkClick("/calculator")}
-                className="inline-flex shrink-0 items-center gap-2 self-start rounded-xl bg-brand px-5 py-3 font-semibold text-white transition hover:bg-brand-ink lg:self-auto"
-              >
-                Open the calculator <ArrowRight className="size-4" aria-hidden />
-              </a>
+        {/* FAQ */}
+        <section id="faq" className="scroll-mt-16 bg-surface py-20 sm:py-28">
+          <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
+            <div>
+              <p className="kicker">FAQ</p>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-[2.6rem] sm:leading-[1.1]">Good questions</h2>
+              <p className="mt-4 text-lg leading-8 text-ink-2">The short version of how the numbers work.</p>
             </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              {examples.map(({ preset, winner, cost }) => (
-                <a
-                  key={preset.id}
-                  href={`/calculator?v=${preset.tokensM}`}
-                  onClick={linkClick(`/calculator?v=${preset.tokensM}`)}
-                  className={`theme-${winner} win-panel group block rounded-2xl p-5 text-white transition hover:-translate-y-0.5`}
-                >
-                  <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
-                    {preset.label} · {formatTokensM(preset.tokensM)} tokens / month
-                  </p>
-                  <p className="mt-3 text-2xl font-extrabold tracking-tight">{WINNER_NAME[winner]}</p>
-                  <p className="mt-1 font-mono text-sm text-white/85">
-                    {formatUsd(cost.monthly)} / month · {formatUsd(cost.perM, 2)} per M tokens
-                  </p>
-                  <p className="mt-4 inline-flex items-center gap-1 text-sm font-semibold">
-                    Open this estimate <ArrowRight className="size-4 transition group-hover:translate-x-0.5" aria-hidden />
-                  </p>
-                </a>
+            <div className="divide-y divide-line border-y border-line">
+              {FAQ.map((f) => (
+                <details key={f.q} className="group py-5">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold">
+                    {f.q}
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line text-ink-2 transition group-open:rotate-45" aria-hidden>
+                      +
+                    </span>
+                  </summary>
+                  <p className="mt-3 max-w-2xl text-[15px] leading-7 text-ink-2">{f.a}</p>
+                </details>
               ))}
             </div>
-            <p className="mt-4 text-xs text-muted">Using the calculator's default assumptions. Every one of them is editable.</p>
+          </div>
+        </section>
+
+        {/* Closing call to action */}
+        <section className="bg-surface px-4 pb-20 sm:px-6 sm:pb-28">
+          <div className="mx-auto flex max-w-[1200px] flex-col items-center rounded-3xl bg-[#2a1458] px-6 py-16 text-center text-white sm:py-20">
+            <h2 className="max-w-2xl text-3xl font-extrabold tracking-[-0.03em] text-balance sm:text-5xl">Find your breakeven.</h2>
+            <p className="mt-4 max-w-xl text-lg leading-8 text-white/80">
+              Two minutes, your own numbers, and an answer you can share with your team.
+            </p>
+            <div className="mt-8">
+              <CtaLink to="/calculator" variant="light">
+                Open the calculator <ArrowRight className="size-4" aria-hidden />
+              </CtaLink>
+            </div>
           </div>
         </section>
       </main>
 
-      <footer className="mx-auto flex max-w-[1360px] flex-wrap justify-between gap-2 border-t border-line px-4 py-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
-        <span>
-          Illustrative estimates <span className="text-brand-ink">·</span> not provider quotes
-        </span>
-        <span>Breakeven · Angel Ade-Oduntan</span>
+      <footer className="border-t border-line bg-bg">
+        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
+          <div>
+            <Logo tagline={false} />
+            <p className="mt-4 max-w-sm text-sm leading-6 text-ink-2">
+              An AI compute cost-of-ownership calculator: pay per token, rent cloud GPUs, or own the hardware.
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold">Product</p>
+            <ul className="mt-3 space-y-2 text-sm text-ink-2">
+              <li>
+                <a href="/calculator" onClick={linkClick("/calculator")} className="hover:text-ink">
+                  Calculator
+                </a>
+              </li>
+              <li>
+                <a href="/calculator#projection" onClick={linkClick("/calculator#projection")} className="hover:text-ink">
+                  Cost projection
+                </a>
+              </li>
+              <li>
+                <a href="#how" className="hover:text-ink">
+                  How it works
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-sm font-semibold">About</p>
+            <ul className="mt-3 space-y-2 text-sm text-ink-2">
+              <li>Built by Angel Ade-Oduntan</li>
+              <li>Illustrative estimates, not provider quotes</li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-line">
+          <p className="mx-auto max-w-[1200px] px-4 py-5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
+            © 2026 Breakeven · Excludes taxes, egress and setup costs
+          </p>
+        </div>
       </footer>
     </div>
   );
 }
 
-function Tag({ className, swatch, title, value }: { className: string; swatch: string; title: string; value: string }) {
+/** A small working version of the calculator, framed like a browser window. */
+function LiveDemo() {
+  const [presetId, setPresetId] = useState<string>("startup");
+  const preset = PRESETS.find((p) => p.id === presetId) ?? PRESETS[1];
+  const workload = { ...DEFAULT_WORKLOAD, tokensM: preset.tokensM };
+  const costs = compare(workload, DEFAULT_ASSUMPTIONS);
+  const winner = cheapest(costs);
+
   return (
-    <div className={`absolute hidden rounded-xl border border-line bg-surface/95 px-3 py-2 md:block ${className}`}>
-      <span className="flex items-center gap-1.5 text-xs font-semibold text-ink">
-        <span className={`size-2 rounded-full ${swatch}`} aria-hidden />
-        {title}
-      </span>
-      <span className="mt-0.5 block font-mono text-xs text-ink-2">{value}</span>
+    <div className="mx-auto mt-14 max-w-4xl overflow-hidden rounded-2xl border border-line bg-bg">
+      <div className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
+        <span className="flex gap-1.5" aria-hidden>
+          <span className="size-3 rounded-full bg-line" />
+          <span className="size-3 rounded-full bg-line" />
+          <span className="size-3 rounded-full bg-line" />
+        </span>
+        <span className="flex-1 truncate rounded-md bg-sunken px-3 py-1 text-center font-mono text-xs text-muted">
+          breakeven-silk.vercel.app/calculator
+        </span>
+      </div>
+
+      <div className={`theme-${winner} grid gap-4 p-4 sm:p-6`}>
+        <div className="grid grid-cols-3 gap-2" role="group" aria-label="Company size">
+          {PRESETS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-pressed={p.id === presetId}
+              onClick={() => setPresetId(p.id)}
+              className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                p.id === presetId ? "border-brand bg-brand text-white" : "border-line bg-surface hover:border-brand"
+              }`}
+            >
+              <span className="block text-sm font-semibold leading-tight">{p.label}</span>
+              <span className={`mt-0.5 block font-mono text-xs ${p.id === presetId ? "text-white/80" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="win-panel flex flex-wrap items-end justify-between gap-3 rounded-2xl p-5 text-white">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Cheapest at {formatTokensM(preset.tokensM)} tokens / month</p>
+            <p key={winner} className="mt-1.5 animate-rise text-2xl font-extrabold tracking-tight sm:text-3xl">
+              {OPTIONS[winner].name}
+            </p>
+          </div>
+          <p className="font-mono text-lg font-semibold sm:text-xl">
+            <Odometer text={formatUsd(costs[winner].monthly)} /> <span className="text-sm font-normal text-white/75">/ month</span>
+          </p>
+        </div>
+
+        <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
+
+        <div className="flex justify-center">
+          <CtaLink to={`/calculator?v=${preset.tokensM}`} variant="secondary">
+            Open this estimate in the calculator <ArrowRight className="size-4" aria-hidden />
+          </CtaLink>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,136 @@
+{
+  "checked": "2026-10-07",
+  "gpuProfiles": {
+    "gb200": {
+      "label": "NVIDIA GB200 NVL72",
+      "kwPerGpu": 2.083,
+      "why": "NVIDIA's reference design gives each scalable unit of 8 GB200 NVL72 racks (576 GPUs) a 1.2 MW thermal design power, about 2.08 kW per GPU including networking.",
+      "source": "https://docs.nvidia.com/dgx-superpod/reference-architecture-scalable-infrastructure-gb200/latest/dgx-superpod-architecture.html",
+      "confidence": "Vendor"
+    }
+  },
+  "milestones": [
+    { "id": "shell", "label": "Building shell", "help": "Structure up and closed in" },
+    { "id": "electrical", "label": "Transformers & switchgear", "help": "Large power equipment delivered and installed; transformer lead times run 2–4 years" },
+    { "id": "grid", "label": "Grid energization", "help": "The utility connection and substation are live" },
+    { "id": "cooling", "label": "Cooling", "help": "Cooling plant installed and tested" },
+    { "id": "gpus", "label": "GPUs delivered", "help": "Racks delivered and installed by the operator or tenant" }
+  ],
+  "campuses": [
+    {
+      "id": "crusoe-abilene",
+      "company": "Crusoe",
+      "site": "Abilene, Texas",
+      "tagline": "The flagship Stargate campus, built for Oracle and OpenAI",
+      "customer": "Oracle Cloud Infrastructure, for OpenAI",
+      "region": { "state": "Texas", "grid": "ERCOT", "pricePerMwh": 70.7, "priceSource": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a", "priceNote": "EIA average industrial price in Texas, July 2026 (7.07¢/kWh). A regional average, not the campus's own contract." },
+      "assumptions": { "pue": 1.25, "loadFactor": 0.85, "revenueBasis": "lease", "leasePerKwMonth": 150, "gpuHourPrice": 4, "utilization": 0.85, "capexPerMw": 12.5, "costOfCapital": 0.09 },
+      "facts": [
+        { "text": "1.2 GW campus of eight buildings, about 4 million square feet, with a 1.2 GW grid interconnection plus on-site batteries, solar and backup gas turbines.", "source": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts", "confidence": "Primary" },
+        { "text": "Each building is designed for up to 50,000 NVIDIA GB200 GPUs on one network fabric.", "source": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts", "confidence": "Primary" },
+        { "text": "Phase 1 (two buildings, 200+ MW) began construction in June 2024 and was expected to be energized in the first half of 2025.", "source": "https://www.crusoe.ai/resources/newsroom/crusoe-expands-ai-data-center-campus-in-abilene-to-1-2-gigawatts", "confidence": "Primary" },
+        { "text": "Phase 1 went live on September 30, 2025, serving Oracle Cloud Infrastructure for OpenAI; GB200 racks began arriving in June 2025.", "source": "https://crusoe.ai/resources/newsroom/crusoe-announces-flagship-abilene-data-center-is-live", "confidence": "Primary" },
+        { "text": "Phase 2 (six buildings) began construction in March 2025, is expected in mid-2026, and topped out its final building in November 2025.", "source": "https://www.datacenterdynamics.com/en/news/crusoe-tops-out-final-building-at-openai-stargate-data-center-campus-in-abilene-texas/", "confidence": "Analyst" }
+      ],
+      "phases": [
+        {
+          "id": "p1",
+          "name": "Phase 1",
+          "buildings": 2,
+          "gpus": 100000,
+          "gpuProfile": "gb200",
+          "start": "2024-06-01",
+          "target": { "date": "2025-06-30", "label": "Targeted: energized in the first half of 2025" },
+          "actual": { "date": "2025-09-30", "label": "Live September 30, 2025" },
+          "milestones": { "shell": "2025-04-30", "electrical": "2025-05-31", "grid": "2025-06-30", "cooling": "2025-06-15", "gpus": "2025-08-15" },
+          "commissioningMonths": 1.5
+        },
+        {
+          "id": "p2",
+          "name": "Phase 2",
+          "buildings": 6,
+          "gpus": 300000,
+          "gpuProfile": "gb200",
+          "start": "2025-03-01",
+          "target": { "date": "2026-07-01", "label": "Targeted: mid-2026" },
+          "status": "Not publicly confirmed live as of October 2026.",
+          "milestones": { "shell": "2025-11-30", "electrical": "2026-03-31", "grid": "2026-04-30", "cooling": "2026-04-15", "gpus": "2026-05-31" },
+          "commissioningMonths": 1
+        }
+      ]
+    },
+    {
+      "id": "coreweave-lancaster",
+      "company": "CoreWeave",
+      "site": "Lancaster, Pennsylvania",
+      "tagline": "A $6 billion GPU cloud campus near Philadelphia",
+      "customer": "CoreWeave's own GPU cloud",
+      "region": { "state": "Pennsylvania", "grid": "PJM", "pricePerMwh": 110.4, "priceSource": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a", "priceNote": "EIA average industrial price in Pennsylvania, July 2026 (11.04¢/kWh). A regional average, not the campus's own contract." },
+      "assumptions": { "pue": 1.25, "loadFactor": 0.85, "revenueBasis": "gpu", "leasePerKwMonth": 150, "gpuHourPrice": 4, "utilization": 0.85, "capexPerMw": 12.5, "costOfCapital": 0.1 },
+      "facts": [
+        { "text": "A $6 billion investment in a new data center in Lancaster, Pennsylvania, with room to grow up to 300 MW.", "source": "https://www.coreweave.com/blog/building-pennsylvania-into-the-mid-atlantic-ai-hub", "confidence": "Primary" },
+        { "text": "An estimated 100 MW project with capacity to expand to 300 MW, announced July 2025; built by a Turner–Wohlsen joint venture and co-developed by Chirisa Technology Parks and Machine Investment Group. Completion date not disclosed.", "source": "https://www.enr.com/articles/61102-turner-wohlsen-jv-will-build-6b-pennsylvania-data-center-for-startup-coreweave", "confidence": "Analyst" }
+      ],
+      "phases": [
+        {
+          "id": "p1",
+          "name": "Initial 100 MW",
+          "buildings": 1,
+          "itMw": 100,
+          "gpuProfile": "gb200",
+          "start": "2025-10-01",
+          "milestones": { "shell": "2026-11-30", "electrical": "2027-03-31", "grid": "2027-02-28", "cooling": "2027-01-31", "gpus": "2027-04-30" },
+          "commissioningMonths": 2
+        },
+        {
+          "id": "p2",
+          "name": "Expansion to 300 MW",
+          "buildings": 2,
+          "itMw": 200,
+          "gpuProfile": "gb200",
+          "start": "2027-01-01",
+          "milestones": { "shell": "2028-03-31", "electrical": "2028-09-30", "grid": "2028-06-30", "cooling": "2028-05-31", "gpus": "2028-08-31" },
+          "commissioningMonths": 2
+        }
+      ]
+    },
+    {
+      "id": "qts-cedar-rapids",
+      "company": "QTS",
+      "site": "Cedar Rapids, Iowa",
+      "tagline": "A 612-acre hyperscale campus, built to lease",
+      "customer": "Hyperscale tenants (leased capacity)",
+      "region": { "state": "Iowa", "grid": "MISO (Alliant Energy)", "pricePerMwh": 99.9, "priceSource": "https://www.eia.gov/electricity/monthly/epm_table_grapher.php?t=epmt_5_6_a", "priceNote": "EIA average industrial price in Iowa, July 2026 (9.99¢/kWh). A regional average, not the campus's own contract." },
+      "assumptions": { "pue": 1.15, "loadFactor": 0.85, "revenueBasis": "lease", "leasePerKwMonth": 140, "gpuHourPrice": 4, "utilization": 0.85, "capexPerMw": 11, "costOfCapital": 0.08 },
+      "facts": [
+        { "text": "612 acres in the Big Cedar Industrial Center, up to seven data center buildings, a planned $10 billion investment; the builder lists 420 MW with completion in December 2026.", "source": "https://www.weitz.com/projects/qts-data-center-campus/", "confidence": "Analyst" },
+        { "text": "Alliant Energy supplies power; the campus uses water-free cooling; at least two stages, with the first expected to be operational in 2026.", "source": "https://www.datacenterfrontier.com/site-selection/article/55268088/cedar-rapids-iowa-gets-approval-for-two-major-data-center-investments-by-google-and-qts", "confidence": "Analyst" },
+        { "text": "An analyst estimate puts the campus at about 1,133 MW of IT power by the end of 2027.", "source": "https://epoch.ai/data/ai-data-centers/directory/qts-cedar-rapids", "confidence": "Estimate" }
+      ],
+      "phases": [
+        {
+          "id": "p1",
+          "name": "Stage 1",
+          "buildings": 1,
+          "itMw": 420,
+          "gpuProfile": "gb200",
+          "start": "2025-03-01",
+          "target": { "date": "2026-12-31", "label": "Builder's completion date: December 2026" },
+          "milestones": { "shell": "2026-03-31", "electrical": "2026-08-31", "grid": "2026-09-30", "cooling": "2026-09-15", "gpus": "2026-11-15" },
+          "commissioningMonths": 1.5
+        },
+        {
+          "id": "p2",
+          "name": "Stage 2",
+          "buildings": 3,
+          "itMw": 713,
+          "gpuProfile": "gb200",
+          "start": "2026-01-01",
+          "target": { "date": "2027-12-31", "label": "Analyst estimate: about 1,133 MW in total by late 2027" },
+          "milestones": { "shell": "2027-04-30", "electrical": "2027-09-30", "grid": "2027-08-31", "cooling": "2027-09-15", "gpus": "2027-10-31" },
+          "commissioningMonths": 1.5
+        }
+      ]
+    }
+  ]
+}

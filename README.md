@@ -5,4 +5,5 @@ Projects and exercises from my Vibe Coding class at Columbia Business School.
 ## Projects
 
 - [`breakeven/`](breakeven/): Breakeven, an AI compute cost-of-ownership calculator (capstone), live at https://breakeven-silk.vercel.app
+- [`loadline/`](loadline/): Loadline, an AI campus planner: power needed, critical path to go-live, and the cost of each month late (Crusoe, CoreWeave and QTS case studies)
 - [`newyorkersinprogress/`](newyorkersinprogress/): Walkin' Here!, live at https://walkinhere.vercel.app

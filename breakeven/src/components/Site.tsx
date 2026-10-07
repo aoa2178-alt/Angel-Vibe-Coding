@@ -45,6 +45,7 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
 const FOOTER_LINKS: NavItem[] = [
   { href: "/calculator", label: "Calculator" },
   { href: "/calculator#projection", label: "Cost projection" },
+  { href: "/business-case", label: "Build a business case" },
   { href: "/methodology", label: "Methodology & sources" },
 ];
 

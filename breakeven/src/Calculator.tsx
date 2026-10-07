@@ -141,7 +141,10 @@ export function Calculator() {
             </h1>
           </div>
           <p className="max-w-md text-base text-ink-2 lg:text-right">
-            Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.
+            Compare the three ways to run AI, see which is cheapest for you, and where that answer flips.{" "}
+            <a href="/business-case" onClick={linkClick("/business-case")} className="font-semibold text-brand-ink underline underline-offset-2">
+              Build a business case →
+            </a>
           </p>
         </div>
 

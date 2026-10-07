@@ -25,6 +25,7 @@ const NAV = [
   { href: "#demo", label: "Try it" },
   { href: "#how", label: "How it works" },
   { href: "#faq", label: "FAQ" },
+  { href: "/business-case", label: "Business case" },
   { href: "/methodology", label: "Methodology" },
 ];
 
@@ -131,8 +132,8 @@ export function Landing() {
               <CtaLink to="/calculator">
                 Run the comparison <ArrowRight className="size-4" aria-hidden />
               </CtaLink>
-              <CtaLink to="/calculator#projection" variant="secondary">
-                See where the answer flips
+              <CtaLink to="/business-case" variant="secondary">
+                Build a business case
               </CtaLink>
             </div>
             <ul className="mt-7 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-ink-2">

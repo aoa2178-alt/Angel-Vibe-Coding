@@ -23,8 +23,10 @@ export interface Assumptions {
   pue: number;
   /** Electricity, $ per kWh */
   electricityPerKwh: number;
-  /** Space, staff and maintenance per owned GPU, $ per month */
-  opsPerGpuMonth: number;
+  /** Colocation (space, cooling and facility services), $ per kW of IT load per month */
+  colocationPerKwMonth: number;
+  /** Support and maintenance contracts, % of hardware cost per year */
+  supportPctPerYear: number;
   /** Owned GPUs come in servers of this many */
   gpusPerServer: number;
   /** Facility power available for owned GPUs, kW. 0 means no limit. Above it, the overflow is rented. */
@@ -46,6 +48,9 @@ export interface Workload {
 // - Hardware: an 8× H100 server runs about $250–320K, about $35K per GPU all-in.
 // - Power: H100 SXM is 700 W; with its share of the server, about 1.3 kW per GPU.
 // - Throughput: ~1,500 tokens/sec per GPU for a 70B-class open-weight model with batching (conservative).
+// - Colocation: CBRE reports about $195 per kW per month across North America in 2025.
+// - Support: annual hardware support and maintenance runs roughly 10–20% of purchase price; 10% here.
+// Sources for every default are on the methodology page (src/lib/methodology.ts).
 export const DEFAULT_ASSUMPTIONS: Assumptions = {
   apiInputPerM: 2,
   apiOutputPerM: 10,
@@ -56,7 +61,8 @@ export const DEFAULT_ASSUMPTIONS: Assumptions = {
   kwPerGpu: 1.3,
   pue: 1.3,
   electricityPerKwh: 0.1,
-  opsPerGpuMonth: 400,
+  colocationPerKwMonth: 195,
+  supportPctPerYear: 10,
   gpusPerServer: 8,
   powerLimitKw: 0,
 };
@@ -101,11 +107,20 @@ export function maxOwnedGpus(a: Assumptions) {
   return Math.floor(a.powerLimitKw / perGpu / server) * server;
 }
 
-/** Monthly cost of one owned GPU: depreciation + power + space/staff/maintenance. */
+/** The four parts of one owned GPU's monthly cost. */
+export function ownCostParts(a: Assumptions) {
+  return {
+    hardware: a.hardwarePerGpu / (a.depreciationYears * 12),
+    support: (a.hardwarePerGpu * a.supportPctPerYear) / 100 / 12,
+    electricity: a.kwPerGpu * a.pue * HOURS_PER_MONTH * a.electricityPerKwh,
+    colocation: a.kwPerGpu * a.colocationPerKwMonth,
+  };
+}
+
+/** Monthly cost of one owned GPU: depreciation + support + electricity (with PUE) + colocation. */
 export function ownCostPerGpuMonth(a: Assumptions) {
-  const depreciation = a.hardwarePerGpu / (a.depreciationYears * 12);
-  const power = a.kwPerGpu * a.pue * HOURS_PER_MONTH * a.electricityPerKwh;
-  return depreciation + power + a.opsPerGpuMonth;
+  const p = ownCostParts(a);
+  return p.hardware + p.support + p.electricity + p.colocation;
 }
 
 export function compare(w: Workload, a: Assumptions): Record<OptionId, OptionCost> {
@@ -139,9 +154,7 @@ export function breakdown(w: Workload, a: Assumptions) {
     avgTokensPerSec,
     servedPerGpu,
     gpusExact: avgTokensPerSec / servedPerGpu,
-    ownDepreciation: a.hardwarePerGpu / (a.depreciationYears * 12),
-    ownPower: a.kwPerGpu * a.pue * HOURS_PER_MONTH * a.electricityPerKwh,
-    ownOps: a.opsPerGpuMonth,
+    own: ownCostParts(a),
     maxOwned: maxOwnedGpus(a),
     facilityKwPerGpu: facilityKwPerGpu(a),
   };
@@ -198,4 +211,83 @@ export function formatTokensM(m: number) {
 
 export function formatUsd(n: number, digits = 0) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: digits, minimumFractionDigits: digits });
+}
+
+export interface OwnershipView {
+  id: OptionId;
+  /** Cash spent in the first year, including any hardware bought up front */
+  yearOne: number;
+  /** Total spent over the whole ownership period */
+  total: number;
+  /** For owning: the parts of the total */
+  parts?: { hardware: number; support: number; electricity: number; colocation: number; rentedOverflow: number };
+}
+
+/** Cash view over the ownership period (the depreciation years): owning pays for hardware up front. */
+export function ownershipView(w: Workload, a: Assumptions): Record<OptionId, OwnershipView> {
+  const c = compare(w, a);
+  const months = a.depreciationYears * 12;
+  const p = ownCostParts(a);
+  const owned = c.own.gpus ?? 0;
+  const overflowMonthly = (c.own.overflowGpus ?? 0) * HOURS_PER_MONTH * a.rentPerGpuHour;
+  const hardware = owned * a.hardwarePerGpu;
+  const runMonthly = owned * (p.support + p.electricity + p.colocation) + overflowMonthly;
+  return {
+    api: { id: "api", yearOne: c.api.monthly * 12, total: c.api.monthly * months },
+    rent: { id: "rent", yearOne: c.rent.monthly * 12, total: c.rent.monthly * months },
+    own: {
+      id: "own",
+      yearOne: hardware + runMonthly * 12,
+      total: hardware + runMonthly * months,
+      parts: {
+        hardware,
+        support: owned * p.support * months,
+        electricity: owned * p.electricity * months,
+        colocation: owned * p.colocation * months,
+        rentedOverflow: overflowMonthly * months,
+      },
+    },
+  };
+}
+
+export const SENSITIVITY_DRIVERS: {
+  id: string;
+  label: string;
+  apply: (a: Assumptions, f: number) => Assumptions;
+  workload?: (w: Workload, f: number) => Workload;
+}[] = [
+  { id: "api", label: "API price", apply: (a, f) => ({ ...a, apiInputPerM: a.apiInputPerM * f, apiOutputPerM: a.apiOutputPerM * f }) },
+  { id: "rent", label: "Cloud GPU rental", apply: (a, f) => ({ ...a, rentPerGpuHour: a.rentPerGpuHour * f }) },
+  { id: "hardware", label: "Hardware cost", apply: (a, f) => ({ ...a, hardwarePerGpu: a.hardwarePerGpu * f }) },
+  { id: "throughput", label: "GPU throughput", apply: (a, f) => ({ ...a, gpuTokensPerSec: a.gpuTokensPerSec * f }) },
+  { id: "utilization", label: "GPU utilization", apply: (a) => a, workload: (w, f) => ({ ...w, utilization: Math.min(1, w.utilization * f) }) },
+  { id: "electricity", label: "Electricity", apply: (a, f) => ({ ...a, electricityPerKwh: a.electricityPerKwh * f }) },
+  { id: "colocation", label: "Colocation", apply: (a, f) => ({ ...a, colocationPerKwMonth: a.colocationPerKwMonth * f }) },
+  { id: "support", label: "Support & maintenance", apply: (a, f) => ({ ...a, supportPctPerYear: a.supportPctPerYear * f }) },
+];
+
+export interface SensitivityRow {
+  id: string;
+  label: string;
+  low: { winner: OptionId; monthly: number };
+  high: { winner: OptionId; monthly: number };
+  /** How far the cheapest monthly cost moves between low and high */
+  swing: number;
+  /** True when the cheapest option changes at either end */
+  flips: boolean;
+}
+
+/** Moves each driver down and up by step (0.25 = ±25%) and reports the cheapest option at each end, flips and biggest swings first. */
+export function sensitivity(w: Workload, a: Assumptions, step = 0.25): SensitivityRow[] {
+  const base = cheapest(compare(w, a));
+  return SENSITIVITY_DRIVERS.map((d) => {
+    const at = (f: number) => {
+      const c = compare(d.workload ? d.workload(w, f) : w, d.apply(a, f));
+      const winner = cheapest(c);
+      return { winner, monthly: c[winner].monthly };
+    };
+    const low = at(1 - step);
+    const high = at(1 + step);
+    return { id: d.id, label: d.label, low, high, swing: Math.abs(high.monthly - low.monthly), flips: low.winner !== base || high.winner !== base };
+  }).sort((x, y) => Number(y.flips) - Number(x.flips) || y.swing - x.swing);
 }

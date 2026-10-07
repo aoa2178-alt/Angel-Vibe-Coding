@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { linkClick } from "@/components/Brand";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { CHECKED, FORMULAS, METHODOLOGY, NOT_INCLUDED } from "@/lib/methodology";
+import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED } from "@/lib/methodology";
 
 const NAV = [
   { href: "#model", label: "The model" },
@@ -35,7 +35,7 @@ export function Methodology() {
           <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
             <div>
               <p className="kicker">The model</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Seven formulas, no black box</h2>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{FORMULAS.length} formulas, no black box</h2>
               <p className="mt-4 text-lg leading-8 text-ink-2">
                 Each option's monthly cost is worked out from your volume and the assumptions below. “Show calculations” in the
                 calculator writes them out with your own numbers.
@@ -56,12 +56,27 @@ export function Methodology() {
           <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
             <div className="max-w-2xl">
               <p className="kicker">Defaults & sources</p>
-              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Nine assumptions, each with a source</h2>
+              <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
+                {METHODOLOGY.length} assumptions, each with a source
+              </h2>
             </div>
+            <dl className="mt-8 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+              {CONFIDENCE_KEY.map((c) => (
+                <div key={c.level} className="bg-surface p-4">
+                  <dt className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-ink">{c.level}</dt>
+                  <dd className="mt-1 text-sm leading-6 text-ink-2">{c.meaning}</dd>
+                </div>
+              ))}
+            </dl>
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               {METHODOLOGY.map((m) => (
                 <article key={m.key} className="flex flex-col rounded-2xl border border-line bg-surface p-6">
-                  <p className="text-sm font-semibold text-ink-2">{m.label}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-ink-2">{m.label}</p>
+                    <span className="rounded-full border border-line bg-bg px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-ink-2">
+                      {m.confidence}
+                    </span>
+                  </div>
                   <p className="mt-1 font-mono text-xl font-semibold tracking-tight">{m.value}</p>
                   <dl className="mt-4 grid gap-3 text-[15px] leading-7">
                     <div>

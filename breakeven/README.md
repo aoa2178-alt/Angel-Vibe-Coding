@@ -6,7 +6,7 @@ Breakeven compares what one month of AI inference costs three ways: a pay-per-to
 
 Live: https://breakeven-silk.vercel.app
 
-Features: a methodology page with sources for every default, presets, editable assumptions, a power budget (owned GPUs capped by kW, with rented overflow), rolling-digit cost readouts, a closing-gap cost comparison, a cost projection chart (log scales) with both crossovers marked, "Show calculations", CSV export, and estimates saved in a shareable link. Coming next: ROI and vendor steps, and price trackers.
+Features: a methodology page with sources and confidence ratings for every default, an ownership view (year-1 cash vs total), a sensitivity table (what flips the answer), presets, editable assumptions, a power budget (owned GPUs capped by kW, with rented overflow), rolling-digit cost readouts, a closing-gap cost comparison, a cost projection chart (log scales) with both crossovers marked, "Show calculations", CSV export, and estimates saved in a shareable link. Coming next: ROI and vendor steps, and price trackers.
 
 ## Run it
 
@@ -22,7 +22,7 @@ npm run build   # type-check and build to dist/
 - `src/lib/tco.ts`: the cost model (pure functions), defaults and presets. Tests are in `src/lib/tco.test.ts`.
   - **API:** tokens × the blended input/output price.
   - **Rent:** GPUs needed × 730 hours × $/GPU-hour.
-  - **Own:** GPUs bought in whole 8-GPU servers × (depreciation + power × PUE + space, staff and upkeep).
+  - **Own:** GPUs bought in whole 8-GPU servers × (depreciation + support % of hardware + electricity × PUE + colocation per kW).
   - GPUs needed = average tokens/sec ÷ (throughput per GPU × utilization).
 - `src/lib/share.ts`: shareable links (the estimate lives in the URL) and CSV export. Tests are in `src/lib/share.test.ts`.
 - `src/components/`: `CostChart` (projection chart), `ClosingBars`, `Odometer`.

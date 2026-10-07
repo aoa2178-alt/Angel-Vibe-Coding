@@ -27,7 +27,8 @@ const ASSUMPTION_PARAMS: Record<keyof Assumptions, string> = {
   kwPerGpu: "kw",
   pue: "pue",
   electricityPerKwh: "kwh",
-  opsPerGpuMonth: "ops",
+  colocationPerKwMonth: "colo",
+  supportPctPerYear: "support",
   gpusPerServer: "server",
   powerLimitKw: "kw_cap",
 };

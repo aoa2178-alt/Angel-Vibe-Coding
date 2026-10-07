@@ -4,6 +4,8 @@ import { Logo, linkClick } from "@/components/Brand";
 import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
+import { Ownership } from "@/components/Ownership";
+import { Sensitivity } from "@/components/Sensitivity";
 import { estimateCsv, estimateQuery, readEstimate } from "@/lib/share";
 import {
   DEFAULT_ASSUMPTIONS,
@@ -48,7 +50,8 @@ const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; 
   { key: "kwPerGpu", label: "Power draw", unit: "kW per GPU", step: 0.1 },
   { key: "pue", label: "Data center PUE", unit: "facility ÷ IT power", step: 0.05 },
   { key: "electricityPerKwh", label: "Electricity", unit: "$ / kWh", step: 0.01 },
-  { key: "opsPerGpuMonth", label: "Space, staff & upkeep", unit: "$ / GPU / month", step: 50 },
+  { key: "colocationPerKwMonth", label: "Colocation", unit: "$ / kW / month", step: 5 },
+  { key: "supportPctPerYear", label: "Support & maintenance", unit: "% of hardware / year", step: 1 },
 ];
 
 export function Calculator() {
@@ -316,6 +319,11 @@ export function Calculator() {
             </div>
 
             <div className="grid items-start gap-4 xl:grid-cols-2">
+              <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
+              <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
+            </div>
+
+            <div className="grid items-start gap-4 xl:grid-cols-2">
               <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
                 <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
                   <Sparkles className="size-4" />
@@ -377,8 +385,8 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
     {
       label: "Own",
       text: costs.own.overflowGpus
-        ? `${gpus(costs.own.gpus)} owned × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) + ${gpus(costs.own.overflowGpus)} rented × 730 hours × ${formatUsd(assumptions.rentPerGpuHour, 2)} = ${formatUsd(costs.own.monthly)} / month`
-        : `${gpus(costs.own.gpus)} (whole ${n(assumptions.gpusPerServer)}-GPU servers) × (${formatUsd(b.ownDepreciation)} hardware + ${formatUsd(b.ownPower)} power + ${formatUsd(b.ownOps)} upkeep) = ${formatUsd(costs.own.monthly)} / month`,
+        ? `${gpus(costs.own.gpus)} owned × (${formatUsd(b.own.hardware)} hardware + ${formatUsd(b.own.support)} support + ${formatUsd(b.own.electricity)} electricity + ${formatUsd(b.own.colocation)} colocation) + ${gpus(costs.own.overflowGpus)} rented × 730 hours × ${formatUsd(assumptions.rentPerGpuHour, 2)} = ${formatUsd(costs.own.monthly)} / month`
+        : `${gpus(costs.own.gpus)} (whole ${n(assumptions.gpusPerServer)}-GPU servers) × (${formatUsd(b.own.hardware)} hardware + ${formatUsd(b.own.support)} support + ${formatUsd(b.own.electricity)} electricity + ${formatUsd(b.own.colocation)} colocation) = ${formatUsd(costs.own.monthly)} / month`,
     },
     { label: "Per M tokens", text: "monthly cost ÷ monthly volume in millions of tokens" },
   ];

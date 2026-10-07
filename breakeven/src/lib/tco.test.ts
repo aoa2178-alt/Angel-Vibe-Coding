@@ -10,6 +10,9 @@ import {
   gpusNeeded,
   ownCostPerGpuMonth,
   powerCapVolumeM,
+  ownCostParts,
+  ownershipView,
+  sensitivity,
 } from "./tco";
 
 const at = (tokensM: number) => compare({ ...W, tokensM }, A);
@@ -36,9 +39,9 @@ describe("cost model", () => {
     expect(c.own.monthly).toBeCloseTo(16 * ownCostPerGpuMonth(A));
   });
 
-  it("costs an owned GPU as depreciation + power + ops", () => {
-    // 35,000/48 + 1.3 kW × 1.3 PUE × 730 h × $0.10 + 400
-    expect(ownCostPerGpuMonth(A)).toBeCloseTo(729.17 + 123.37 + 400, 1);
+  it("costs an owned GPU as depreciation + support + electricity + colocation", () => {
+    // 35,000/48 + 10% × 35,000/12 + 1.3 kW × 1.3 PUE × 730 h × $0.10 + 1.3 kW × $195
+    expect(ownCostPerGpuMonth(A)).toBeCloseTo(729.17 + 291.67 + 123.37 + 253.5, 1);
   });
 });
 
@@ -55,9 +58,9 @@ describe("crossovers", () => {
     // API ($4/M) loses to one rented GPU ($1,825/month) at ~456M tokens
     expect(x.apiUntilM).toBeGreaterThan(420);
     expect(x.apiUntilM).toBeLessThan(500);
-    // From 11 GPUs (~23.7B tokens) up, owning always wins
-    expect(x.ownFromM).toBeGreaterThan(22_000);
-    expect(x.ownFromM).toBeLessThan(25_000);
+    // From 19 GPUs (~43B tokens) up, owning always wins: e.g. 24 owned ($33.5K) beats 19 rented ($34.7K)
+    expect(x.ownFromM).toBeGreaterThan(41_000);
+    expect(x.ownFromM).toBeLessThan(44_000);
     expect(x.flipFlops).toBe(true);
   });
 
@@ -97,5 +100,34 @@ describe("power budget", () => {
     // 8 GPUs × 900 tokens/sec × 2,628,000 seconds ≈ 18.9B tokens a month
     expect(powerCapVolumeM(W, { ...A, powerLimitKw: 25 })).toBeCloseTo(18_921.6, 0);
     expect(powerCapVolumeM(W, A)).toBeNull();
+  });
+});
+
+describe("ownership view", () => {
+  it("puts owned hardware up front and spreads running costs over the depreciation years", () => {
+    const v = ownershipView({ ...W, tokensM: 30_000 }, A); // 16 owned GPUs
+    const p = ownCostParts(A);
+    expect(v.own.parts!.hardware).toBeCloseTo(16 * 35_000);
+    expect(v.own.yearOne).toBeCloseTo(16 * 35_000 + 16 * (p.support + p.electricity + p.colocation) * 12);
+    expect(v.own.total).toBeCloseTo(16 * 35_000 + 16 * (p.support + p.electricity + p.colocation) * 48);
+    // Over the full period, owning costs the same as its monthly figure × 48
+    expect(v.own.total).toBeCloseTo(compare({ ...W, tokensM: 30_000 }, A).own.monthly * 48);
+    expect(v.rent.yearOne).toBeCloseTo(13 * 730 * 2.5 * 12);
+  });
+});
+
+describe("sensitivity", () => {
+  it("flags the drivers that change the cheapest option", () => {
+    const rows = sensitivity({ ...W, tokensM: 30_000 }, A);
+    expect(rows).toHaveLength(8);
+    // At 30B, owning only narrowly beats renting, so a 25% cheaper rental flips the answer
+    const rent = rows.find((r) => r.id === "rent")!;
+    expect(rent.flips).toBe(true);
+    expect(rent.low.winner).toBe("rent");
+    expect(rows[0]!.flips).toBe(true); // flips sort first
+  });
+
+  it("finds nothing that flips the answer far from a crossover", () => {
+    expect(sensitivity({ ...W, tokensM: 10 }, A).some((r) => r.flips)).toBe(false);
   });
 });

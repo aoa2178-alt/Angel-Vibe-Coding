@@ -37,6 +37,6 @@ describe("csv and breakdown", () => {
     expect(b.blendedPerM).toBeCloseTo(4);
     expect(b.servedPerGpu).toBeCloseTo(900);
     expect(b.gpusExact).toBeCloseTo(0.8457, 3);
-    expect(b.ownDepreciation + b.ownPower + b.ownOps).toBeCloseTo(1252.54, 1);
+    expect(b.own.hardware + b.own.support + b.own.electricity + b.own.colocation).toBeCloseTo(1397.71, 1);
   });
 });

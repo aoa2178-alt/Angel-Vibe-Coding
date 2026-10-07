@@ -1,15 +1,23 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { useEffect } from "react";
 import { linkClick } from "@/components/Brand";
 import { SiteFooter, SiteHeader } from "@/components/Site";
-import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED } from "@/lib/methodology";
+import { BRIDGE_FORMULAS, BRIDGE_METHODOLOGY } from "@/lib/bridgeMethodology";
+import { CHECKED, CONFIDENCE_KEY, FORMULAS, METHODOLOGY, NOT_INCLUDED, type Confidence, type Source } from "@/lib/methodology";
 
 const NAV = [
   { href: "#model", label: "The model" },
   { href: "#defaults", label: "Defaults & sources" },
+  { href: "#speed-to-power", label: "Speed-to-Power" },
   { href: "#limits", label: "What's not included" },
 ];
 
 export function Methodology() {
+  // Links like /methodology#speed-to-power open on that section.
+  useEffect(() => {
+    if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: "start" });
+  }, []);
+
   return (
     <div className="min-h-dvh bg-surface">
       <SiteHeader nav={NAV} />
@@ -70,41 +78,38 @@ export function Methodology() {
             </dl>
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               {METHODOLOGY.map((m) => (
-                <article key={m.key} className="flex flex-col rounded-2xl border border-line bg-surface p-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-semibold text-ink-2">{m.label}</p>
-                    <span className="rounded-full border border-line bg-bg px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-ink-2">
-                      {m.confidence}
-                    </span>
+                <SourceCard {...m} key={m.key} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="speed-to-power" className="scroll-mt-24 py-16 sm:py-20">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
+              <div>
+                <p className="kicker">Speed-to-Power</p>
+                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">When the grid is late</h2>
+                <p className="mt-4 text-lg leading-8 text-ink-2">
+                  Each way to bridge a late grid connection is costed as extra spending versus owning the cluster on a working grid from day
+                  one. Until an option is ready, you rent.
+                </p>
+                <a href="/speed-to-power" onClick={linkClick("/speed-to-power")} className="mt-5 inline-flex items-center gap-2 font-semibold text-brand-ink">
+                  Open Speed-to-Power <ArrowRight className="size-4" aria-hidden />
+                </a>
+              </div>
+              <dl className="divide-y divide-line rounded-2xl border border-line bg-bg">
+                {BRIDGE_FORMULAS.map((f) => (
+                  <div key={f.label} className="grid gap-1 px-5 py-4 sm:grid-cols-[10rem_1fr] sm:gap-6">
+                    <dt className="font-semibold">{f.label}</dt>
+                    <dd className="font-mono text-[13px] leading-6 text-ink-2">{f.formula}</dd>
                   </div>
-                  <p className="mt-1 font-mono text-xl font-semibold tracking-tight">{m.value}</p>
-                  <dl className="mt-4 grid gap-3 text-[15px] leading-7">
-                    <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Range we found</dt>
-                      <dd className="text-ink-2">{m.range}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Why this value</dt>
-                      <dd className="text-ink-2">{m.why}</dd>
-                    </div>
-                  </dl>
-                  <ul className="mt-auto space-y-1.5 border-t border-line pt-4 text-sm">
-                    {m.sources.map((s) => (
-                      <li key={s.url}>
-                        <a
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-start gap-1 font-medium text-brand-ink underline-offset-2 hover:underline"
-                        >
-                          {s.label}
-                          <ArrowUpRight className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-                          <span className="sr-only">(opens in a new tab)</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </article>
+                ))}
+              </dl>
+            </div>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {BRIDGE_METHODOLOGY.map((m) => (
+                <SourceCard key={m.label} {...m} />
               ))}
             </div>
           </div>
@@ -144,5 +149,46 @@ export function Methodology() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+/** One assumption: its value, the range we found, why we chose it, and the sources with their confidence. */
+function SourceCard({ label, confidence, value, range, why, sources }: { label: string; confidence: Confidence; value: string; range: string; why: string; sources: Source[] }) {
+  return (
+    <article className="flex flex-col rounded-2xl border border-line bg-surface p-6">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-ink-2">{label}</p>
+        <span className="rounded-full border border-line bg-bg px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-ink-2">
+          {confidence}
+        </span>
+      </div>
+      <p className="mt-1 font-mono text-xl font-semibold tracking-tight">{value}</p>
+      <dl className="mt-4 grid gap-3 text-[15px] leading-7">
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Range we found</dt>
+          <dd className="text-ink-2">{range}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Why this value</dt>
+          <dd className="text-ink-2">{why}</dd>
+        </div>
+      </dl>
+      <ul className="mt-auto space-y-1.5 border-t border-line pt-4 text-sm">
+        {sources.map((s) => (
+          <li key={s.url}>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-start gap-1 font-medium text-brand-ink underline-offset-2 hover:underline"
+            >
+              {s.label}
+              <ArrowUpRight className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </article>
   );
 }

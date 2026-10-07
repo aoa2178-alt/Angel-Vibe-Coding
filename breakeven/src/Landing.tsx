@@ -17,7 +17,7 @@ const NAV = [
   { href: "/methodology", label: "Methodology" },
 ];
 
-const FEATURES: { kind: IsoKind; theme: string; title: string; body: string }[] = [
+const FEATURES: { kind: IsoKind; theme: string; title: string; body: string; link?: { href: string; label: string } }[] = [
   {
     kind: "tokens",
     theme: "theme-api",
@@ -41,6 +41,7 @@ const FEATURES: { kind: IsoKind; theme: string; title: string; body: string }[] 
     theme: "",
     title: "Operations & power",
     body: "Electricity, cooling, colocation and support decide whether owning actually beats renting.",
+    link: { href: "/speed-to-power", label: "Grid running late? Speed-to-Power" },
   },
 ];
 
@@ -203,6 +204,11 @@ export function Landing() {
                   </div>
                   <h3 className="mt-6 text-xl font-bold tracking-tight">{f.title}</h3>
                   <p className="mt-2 text-[15px] leading-7 text-ink-2">{f.body}</p>
+                  {f.link && (
+                    <a href={f.link.href} onClick={linkClick(f.link.href)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink">
+                      {f.link.label} <ArrowRight className="size-4" aria-hidden />
+                    </a>
+                  )}
                 </article>
               ))}
             </div>

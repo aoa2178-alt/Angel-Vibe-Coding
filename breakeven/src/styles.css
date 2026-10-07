@@ -329,3 +329,34 @@ input[type="range"] {
     animation: none !important;
   }
 }
+
+/*
+ * Speed-to-Power strategy colors (validated as a set, light and dark, all pairs):
+ * renting while you wait = amber (it is the Rent option), bridge power = blue, gas engines = rose, batteries = sky.
+ * Deep shades carry white text on the verdict panel.
+ */
+:root,
+.light-scope {
+  --bridge-wait: #e8850f;
+  --bridge-service: #2b5fd9;
+  --bridge-engines: #c22f63;
+  --bridge-flex: #5cc0e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bridge-wait: #c9750c;
+    --bridge-service: #5b6ff0;
+    --bridge-engines: #d64a7d;
+    --bridge-flex: #2b9ec2;
+  }
+}
+.dark-scope {
+  --bridge-wait: #c9750c;
+  --bridge-service: #5b6ff0;
+  --bridge-engines: #d64a7d;
+  --bridge-flex: #2b9ec2;
+}
+.bridge-wait { --win: var(--bridge-wait); --win-deep: #8a4705; }
+.bridge-service { --win: var(--bridge-service); --win-deep: #1e3f94; }
+.bridge-engines { --win: var(--bridge-engines); --win-deep: #8a1d43; }
+.bridge-flex { --win: var(--bridge-flex); --win-deep: #0b5874; }

@@ -7,6 +7,8 @@ import { Odometer } from "@/components/Odometer";
 import { Ownership } from "@/components/Ownership";
 import { Sensitivity } from "@/components/Sensitivity";
 import { PillBar } from "@/components/Site";
+import { scenarioQuery } from "@/lib/speedToPowerShare";
+import { DEFAULT_BRIDGE, DEFAULT_GPUS } from "@/lib/speedToPower";
 import { estimateCsv, estimateQuery, readEstimate } from "@/lib/share";
 import {
   DEFAULT_ASSUMPTIONS,
@@ -434,6 +436,8 @@ function describePower(w: Workload, a: Assumptions) {
 function PowerBudget({ kw, assumptions, onChange }: { kw: number; assumptions: Assumptions; onChange: (kw: number) => void }) {
   const max = maxOwnedGpus(assumptions);
   const choices = [0, 25, 50, 100];
+  // Carry the calculator's prices over, so both pages use the same GPU, rent and power assumptions.
+  const stpLink = `/speed-to-power${scenarioQuery({ gpus: DEFAULT_GPUS, bridge: DEFAULT_BRIDGE, assumptions })}`;
   return (
     <div className="mt-6">
       <div className="flex items-end justify-between gap-3">
@@ -471,7 +475,10 @@ function PowerBudget({ kw, assumptions, onChange }: { kw: number; assumptions: A
         />
       </div>
       <p className="mt-1 text-xs text-muted">
-        Like the size of a colocation cage. Above it, extra GPUs are rented, so owning becomes a hybrid.
+        Like the size of a colocation cage. Above it, extra GPUs are rented, so owning becomes a hybrid.{" "}
+        <a href={stpLink} onClick={linkClick(stpLink)} className="font-semibold text-brand-ink underline underline-offset-2">
+          Grid not ready yet? Speed-to-Power →
+        </a>
       </p>
     </div>
   );

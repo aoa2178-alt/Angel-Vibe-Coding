@@ -91,6 +91,7 @@ const FOOTER_LINKS: NavItem[] = [
   { href: "/calculator", label: "Calculator" },
   { href: "/calculator#projection", label: "Cost projection" },
   { href: "/business-case", label: "Build a business case" },
+  { href: "/speed-to-power", label: "Speed-to-Power" },
   { href: "/methodology", label: "Methodology & sources" },
 ];
 

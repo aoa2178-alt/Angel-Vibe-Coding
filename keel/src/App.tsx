@@ -19,7 +19,7 @@ const TITLES: Record<View, string> = {
   plan: "Keel · 1. Plan",
   review: "Keel · 2. Review",
   prioritize: "Keel · 3. Prioritize",
-  brief: "Keel · Brief",
+  brief: "Keel · The call",
   sources: "Keel · Sources",
 };
 

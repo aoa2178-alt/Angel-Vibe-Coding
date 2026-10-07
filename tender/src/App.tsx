@@ -21,7 +21,7 @@ const TITLES: Record<View, string> = {
   "should-cost": "Tender · 2. Should-cost",
   bids: "Tender · 3. Bids",
   negotiate: "Tender · 4. Negotiate",
-  brief: "Tender · Brief",
+  brief: "Tender · The call",
   sources: "Tender · Sources",
 };
 

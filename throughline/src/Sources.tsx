@@ -1,5 +1,6 @@
 import { Frame, useScenario } from "@/components/Frame";
 import { Card, SourceLink } from "@/components/ui";
+import { DELIVERY } from "@/lib/delivery";
 import { DATA, PRODUCTS, formatMoney, formatMonth, formatUnits, pct } from "@/lib/products";
 
 const METHODS: [string, string][] = [
@@ -12,6 +13,7 @@ const METHODS: [string, string][] = [
   ["Launch quantity", "newsvendor: Q* = mean + z × σ at the critical ratio (price − cost) ÷ ((price − cost) + (cost − salvage))"],
   ["Allocation", "fair share (same fill rate everywhere), priority order, or most margin per unit first"],
   ["Bullwhip", "each tier orders q = incoming + (L + 1) × change in its moving-average forecast; swing = variance of orders ÷ variance of demand"],
+  ["Delivery", "late rate = late orders ÷ orders, summed over the cells in a slice; days late = Σ orders × (actual − scheduled days) ÷ orders"],
 ];
 
 /** Where the data comes from, what's assumed, and the methods. */
@@ -59,6 +61,19 @@ export function Sources() {
             </dl>
           </Card>
         ))}
+
+        <Card>
+          <p className="kicker">Delivery benchmark (step 5)</p>
+          <p className="mt-2 text-[15px] leading-7 text-ink-2">
+            {DELIVERY.source.authors} ({DELIVERY.source.year}). <span className="italic">{DELIVERY.source.title}</span>, version {DELIVERY.source.version}. Mendeley Data.{" "}
+            <SourceLink href={DELIVERY.source.doi}>{DELIVERY.source.doi.replace("https://", "")}</SourceLink>. Licensed {DELIVERY.source.license}.
+          </p>
+          <p className="mt-2 text-[15px] leading-7 text-ink-2">
+            {DELIVERY.totalOrders.toLocaleString("en-US")} orders from DataCo Global, an anonymized company selling clothing, sports and electronic goods.{" "}
+            {DELIVERY.source.note} Markets stand in for the products' regions: Americas = US & Canada + Latin America; EMEA = Europe + Africa; Asia-Pacific = Pacific Asia.
+            Rates are weighted by orders.
+          </p>
+        </Card>
 
         <Card>
           <p className="kicker">Why not the Walmart (M5) data?</p>

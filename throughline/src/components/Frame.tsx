@@ -34,7 +34,7 @@ export function Logo() {
 
 /* ---------- The steps ---------- */
 
-export type StepRoute = "forecast" | "plan" | "allocate" | "ripple" | "brief";
+export type StepRoute = "forecast" | "plan" | "allocate" | "ripple" | "deliver" | "brief";
 export type PageRoute = StepRoute | "sources";
 
 export const STEPS: { route: StepRoute; label: string; question: string }[] = [
@@ -42,9 +42,10 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "plan", label: "Plan", question: "How much should we build, and when?" },
   { route: "allocate", label: "Allocate", question: "When there isn't enough, who gets it?" },
   { route: "ripple", label: "Ripple", question: "What happens up the supply chain?" },
+  { route: "deliver", label: "Deliver", question: "Will it get there on time?" },
   { route: "brief", label: "Brief", question: "The weekly update" },
 ];
-const NUMBERED = 4;
+const NUMBERED = 5;
 
 export const href = (route: PageRoute, s: Scenario) => `/${route}${scenarioQuery(s)}`;
 

@@ -157,6 +157,7 @@ describe("scenario links", () => {
       rule: "priority" as const,
       order: ["emea", "apac", "americas"] as ("americas" | "emea" | "apac")[],
       bullwhip: { leadMonths: 3, window: 6, share: true },
+      ship: "First Class" as const,
     };
     expect(readScenario(scenarioQuery(s))).toEqual(s);
     expect(scenarioQuery(defaultScenario("tablet"))).toBe("?p=tablet");

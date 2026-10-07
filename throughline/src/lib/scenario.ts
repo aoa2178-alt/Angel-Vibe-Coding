@@ -4,6 +4,7 @@ import { DEFAULT_BULLWHIP, type BullwhipSettings } from "./bullwhip";
 import { METHODS, type MethodId } from "./forecast";
 import { PRODUCTS, productById, type ProductId, type RegionId, type Settings } from "./products";
 import { RULES, type Rule } from "./allocate";
+import { MODES, type Mode } from "./delivery";
 
 export interface Scenario {
   productId: ProductId;
@@ -16,6 +17,8 @@ export interface Scenario {
   /** Priority order for the "priority" rule */
   order: RegionId[];
   bullwhip: BullwhipSettings;
+  /** Shipping mode for step 5 */
+  ship: Mode;
 }
 
 export const DEFAULT_CUT = 0.3;
@@ -38,7 +41,7 @@ const num = (params: URLSearchParams, name: string) => {
 
 export function defaultScenario(id: ProductId): Scenario {
   const p = productById(id);
-  return { productId: p.id, settings: { ...p.defaults }, method: null, cut: DEFAULT_CUT, rule: "proportional", order: p.regions.map((r) => r.id), bullwhip: { ...DEFAULT_BULLWHIP } };
+  return { productId: p.id, settings: { ...p.defaults }, method: null, cut: DEFAULT_CUT, rule: "proportional", order: p.regions.map((r) => r.id), bullwhip: { ...DEFAULT_BULLWHIP }, ship: "Standard Class" };
 }
 
 export function readScenario(search: string): Scenario {
@@ -61,6 +64,8 @@ export function readScenario(search: string): Scenario {
   const bw = num(params, "bw");
   if (bw !== null && bw >= 1 && bw <= 24) s.bullwhip.window = bw;
   if (params.get("share") === "1") s.bullwhip.share = true;
+  const ship = params.get("ship");
+  if (MODES.includes(ship as Mode)) s.ship = ship as Mode;
   return s;
 }
 
@@ -78,8 +83,9 @@ export function scenarioQuery(s: Scenario) {
   if (s.bullwhip.leadMonths !== base.bullwhip.leadMonths) params.set("bl", String(s.bullwhip.leadMonths));
   if (s.bullwhip.window !== base.bullwhip.window) params.set("bw", String(s.bullwhip.window));
   if (s.bullwhip.share) params.set("share", "1");
+  if (s.ship !== base.ship) params.set("ship", s.ship);
   return `?${params.toString()}`;
 }
 
-/** Switching product starts its assumptions fresh but keeps the bullwhip settings. */
-export const switchProduct = (s: Scenario, id: ProductId): Scenario => ({ ...defaultScenario(id), bullwhip: s.bullwhip });
+/** Switching product starts its assumptions fresh but keeps the bullwhip and shipping settings. */
+export const switchProduct = (s: Scenario, id: ProductId): Scenario => ({ ...defaultScenario(id), bullwhip: s.bullwhip, ship: s.ship });

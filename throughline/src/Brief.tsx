@@ -2,6 +2,7 @@ import { Printer } from "lucide-react";
 import { Frame, useScenario } from "@/components/Frame";
 import { SourceLink } from "@/components/ui";
 import { RULES } from "@/lib/allocate";
+import { byMode, onTime, spread } from "@/lib/delivery";
 import { METHODS } from "@/lib/forecast";
 import { formatMoney, formatMonth, formatUnits, pct } from "@/lib/products";
 import { run } from "@/lib/run";
@@ -16,6 +17,9 @@ export function Brief() {
   const lastYear = r.hist.slice(-12).reduce((x, h) => x + h.units, 0);
   const peak = fc.forecast.reduce((best, v, i) => (v > fc.forecast[best]! ? i : best), 0);
   const worst = a.regions.reduce((x, y) => (y.fillRate < x.fillRate ? y : x));
+  const ship = byMode(s.ship);
+  const bestMode = spread().modes.reduce((x, y) => (y.lateRate < x.lateRate ? y : x));
+  const onTimes = product.regions.map((g) => onTime(g.id, s.ship).onTimeRate);
 
   return (
     <Frame route="brief" s={s} setS={setS}>
@@ -63,6 +67,10 @@ export function Brief() {
           {
             title: "Upstream risk",
             body: `With ${s.bullwhip.leadMonths}-month lead times at each tier${s.bullwhip.share ? " and shared demand data" : ""}, our suppliers' orders swing ${ripple.ratios.at(-1)!.toFixed(0)}× as much as customer demand. ${s.bullwhip.share ? "Sharing demand data is already holding that down." : "Sharing customer demand data with suppliers is the cheapest way to cut that swing."}`,
+          },
+          {
+            title: "Delivery",
+            body: `Shipping ${s.ship}, about ${pct(Math.min(...onTimes))}–${pct(Math.max(...onTimes))} of orders should arrive on time in every region, ${ship.avgDaysLate >= 0.05 ? `about ${ship.avgDaysLate.toFixed(1)} days later than promised on average` : "on the promised day on average"} (benchmark: 180,519 DataCo orders). Lateness tracks the shipping promise, not the region${s.ship === bestMode.mode ? ", and this is already the most reliable mode" : `: ${bestMode.mode} runs ${pct(bestMode.lateRate)} late against ${pct(ship.lateRate)} for ${s.ship}`}.`,
           },
         ].map((sec) => (
           <section key={sec.title} className="mt-7">

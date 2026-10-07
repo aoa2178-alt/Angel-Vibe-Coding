@@ -18,7 +18,7 @@ export const STEPS: { route: StepRoute; label: string; question: string }[] = [
   { route: "worth-it", label: "Worth it", question: "Is AI worth it for this work?" },
   { route: "run-it", label: "Run it", question: "How should we run it?" },
   { route: "power-it", label: "Power it", question: "Can we power it?" },
-  { route: "result", label: "Result", question: "Your recommendation" },
+  { route: "result", label: "The call", question: "The call: how to run it, and is it worth it?" },
 ];
 
 export interface Plan {
@@ -38,7 +38,19 @@ export interface Plan {
   /** Step 1: work the company does today ("work"), or an AI product it sells ("product") */
   mode: Mode;
   product: ProductInputs;
+  /** How the company runs AI today, for the call's "versus today" (unset until chosen) */
+  current?: Current;
 }
+
+export type Current = "none" | "api" | "rent" | "own" | "mix";
+export const CURRENTS: { id: Current; label: string }[] = [
+  { id: "none", label: "Not using AI yet" },
+  { id: "api", label: "Pay-per-token API" },
+  { id: "rent", label: "Rented cloud GPUs" },
+  { id: "own", label: "Own GPUs" },
+  { id: "mix", label: "A mix" },
+];
+const readCurrent = (params: URLSearchParams) => CURRENTS.find((c) => c.id === params.get("now"))?.id;
 
 export function readPlan(search: string): Plan {
   const params = new URLSearchParams(search);
@@ -56,6 +68,7 @@ export function readPlan(search: string): Plan {
     ops: readOps(params),
     mode: readMode(params),
     product: readProduct(params),
+    current: readCurrent(params),
   };
 }
 
@@ -66,6 +79,7 @@ export function planQuery(plan: Plan) {
   writeBridge(params, plan.bridge);
   writeOps(params, plan.ops);
   writeProduct(params, plan.mode, plan.product);
+  if (plan.current) params.set("now", plan.current);
   const q = params.toString();
   return q ? `?${q}` : "";
 }

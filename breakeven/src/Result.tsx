@@ -2,6 +2,7 @@ import { ArrowRight, Printer } from "lucide-react";
 import { useMemo } from "react";
 import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
+import { DecisionReport } from "@/components/DecisionReport";
 import { OPTIONS } from "@/components/options";
 import { CopyLinkButton, PlanFrame, formatKw, usePlan } from "@/components/PlanFrame";
 import { SummaryStat, joinLabels, months, percent } from "@/components/ui";
@@ -184,6 +185,8 @@ export function Result() {
             ))}
           </ul>
         </section>
+
+        <DecisionReport plan={plan} />
 
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">
           Every number is an editable assumption with a source on the Sources page. Illustrative, not quotes; excludes taxes, egress and

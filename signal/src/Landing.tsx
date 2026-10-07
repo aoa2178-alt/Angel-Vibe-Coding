@@ -2,6 +2,8 @@ import { ArrowRight } from "lucide-react";
 import { Footer, Logo, href, linkClick } from "@/components/Frame";
 import { DEFAULT_AFFORD, afford } from "@/lib/afford";
 import { CASES, byIso, pct, people, shortName } from "@/lib/data";
+import { leverOptions, ranked } from "@/lib/call";
+import { DEFAULT_BUILD } from "@/lib/build";
 import { gap } from "@/lib/gap";
 import { DEFAULT_SCENARIO } from "@/lib/scenario";
 
@@ -42,13 +44,15 @@ export function Landing() {
               const c = byIso(iso)!;
               const g = gap(c);
               const a = afford(c, DEFAULT_AFFORD);
-              const to = href("gap", { ...DEFAULT_SCENARIO, country: iso });
+              const lead = ranked(leverOptions(c, DEFAULT_AFFORD, DEFAULT_BUILD))[0]!;
+              const to = href("call", { ...DEFAULT_SCENARIO, country: iso });
               return (
                 <li key={iso} className="bg-surface">
                   <a href={to} onClick={linkClick(to)} className="block p-4 transition hover:bg-sunken">
                     <span className="block text-sm font-semibold">{shortName(c)}</span>
                     <span className="mt-1 block font-mono text-lg font-semibold">{people(g.offline)}</span>
                     <span className="block text-xs text-muted">offline · {pct(a.share)} can afford a phone and data</span>
+                    <span className="mt-2 block text-xs font-semibold text-brand-ink">The call: {lead.id === "payg" ? "finance the phone" : lead.id === "towers" ? "build coverage" : lead.label.toLowerCase()} →</span>
                   </a>
                 </li>
               );
@@ -57,7 +61,7 @@ export function Landing() {
         </section>
         <section className="mx-auto max-w-[1200px] px-4 pb-24 pt-8 sm:px-6">
           <p className="kicker">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Three steps, one country memo.</h2>
+          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Three steps, then the call.</h2>
           <ol className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-3">
             {STEPS.map((st) => (
               <li key={st.n} className="bg-surface p-7">

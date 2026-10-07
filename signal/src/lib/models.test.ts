@@ -3,6 +3,7 @@ import { DEFAULT_AFFORD, afford, defaultDataPrice, prices } from "./afford";
 import { DEFAULT_BUILD, TECHS, allocate, annuity, defaultGap, fullCost, funding, lifetime, tranches, uncovered, type Tranche } from "./build";
 import { CASES, COUNTRIES, byIso, type Country } from "./data";
 import { gap } from "./gap";
+import { leverOptions, ranked, sensitivities } from "./call";
 import { DEFAULT_SCENARIO, readScenario, scenarioQuery } from "./scenario";
 import { giniFromQuintiles, lognormal, normCdf, normInv } from "./stats";
 
@@ -163,5 +164,39 @@ describe("Scenario", () => {
 
   it("ignores unreadable values", () => {
     expect(readScenario("?c=XXX&sub=5&fund=-1")).toEqual(DEFAULT_SCENARIO);
+  });
+});
+
+describe("The call", () => {
+  const nga = byIso("NGA")!;
+
+  it("pay-as-you-go's public cost per new user is the guarantee by hand: financed amount × default rate, renewed every phone", () => {
+    const o = leverOptions(nga, DEFAULT_AFFORD, DEFAULT_BUILD).find((x) => x.id === "payg")!;
+    // $54 × 85% financed × 15% defaults × (10 years ÷ 3-year phone life) = $22.95
+    expect(o.perPerson).toBeCloseTo(54 * 0.85 * 0.15 * (10 / 3), 6);
+  });
+
+  it("data levers add no one while the phone is the barrier, and their spend is all deadweight", () => {
+    const opts = leverOptions(nga, DEFAULT_AFFORD, DEFAULT_BUILD);
+    for (const id of ["dataTax", "subsidy"] as const) {
+      const o = opts.find((x) => x.id === id)!;
+      expect(o.people).toBe(0);
+      expect(o.perPerson).toBe(Infinity);
+      expect(o.deadweight).toBeCloseTo(1, 9);
+    }
+  });
+
+  it("the ranking is by public money per new person, and Nigeria's lead is phone financing, cheaper than towers", () => {
+    const r = ranked(leverOptions(nga, DEFAULT_AFFORD, DEFAULT_BUILD));
+    for (let k = 1; k < r.length; k++) expect(r[k]!.perPerson).toBeGreaterThanOrEqual(r[k - 1]!.perPerson);
+    expect(r[0]!.id).toBe("payg");
+    expect(r.find((x) => x.id === "towers")!.perPerson).toBeGreaterThan(r[0]!.perPerson);
+  });
+
+  it("sensitivities flag when the lead changes: doubling defaults makes phone financing dearer", () => {
+    const s = sensitivities(nga, DEFAULT_AFFORD, DEFAULT_BUILD);
+    expect(s).toHaveLength(4);
+    const doubled = leverOptions(nga, { ...DEFAULT_AFFORD, defaultRate: 0.3 }, DEFAULT_BUILD).find((x) => x.id === "payg")!;
+    expect(doubled.perPerson).toBeCloseTo(2 * 54 * 0.85 * 0.15 * (10 / 3), 6);
   });
 });

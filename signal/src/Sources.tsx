@@ -37,6 +37,7 @@ const METHODS: [string, string][] = [
   ["Can afford", "share with income ≥ max(phone cash ÷ 20%, data price ÷ 2%); pay-as-you-go makes the phone cash = deposit + first payment"],
   ["Lifetime cost", "capex + yearly running cost × annuity(years, rate), per person covered; ÷ adoption for per person connected"],
   ["Budget", "fund the lowest cost per connected person first (fractional knapsack: optimal when areas can be partly funded)"],
+  ["The call", "each lever alone vs today's prices: people newly able to afford a phone and data × share with a signal × adoption; public cost = forgone tax or subsidy on every user × annuity, or the pay-as-you-go default guarantee; ranked by public money per person newly online; sensitivities rerun the ranking with one assumption changed"],
   ["Who pays", "operators fund up to the present value of a user's margin (revenue × margin × annuity); the viability gap goes to the universal service fund (levy × telecom revenue × annuity), then government and donors"],
 ];
 

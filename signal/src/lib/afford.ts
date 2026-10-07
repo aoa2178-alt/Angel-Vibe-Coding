@@ -24,6 +24,8 @@ export interface AffordSettings {
   deposit: number;
   months: number;
   markup: number;
+  /** Share of financed phones that default, covered by a public guarantee (0–1) */
+  defaultRate: number;
 }
 
 export const DEFAULT_AFFORD: AffordSettings = {
@@ -38,6 +40,7 @@ export const DEFAULT_AFFORD: AffordSettings = {
   deposit: 0.15,
   months: 12,
   markup: 0.35,
+  defaultRate: 0.15,
 };
 
 /** The income-group default for a 2GB plan, $ a month. */

@@ -2,7 +2,8 @@ import { ArrowRight, Check, Coins, Cpu, Server, Zap } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import hero from "@/assets/landing-hero.webp";
 import { OPTIONS } from "@/Calculator";
-import { Logo, linkClick } from "@/components/Brand";
+import { linkClick } from "@/components/Brand";
+import { SiteFooter, SiteHeader } from "@/components/Site";
 import { ClosingBars } from "@/components/ClosingBars";
 import { Odometer } from "@/components/Odometer";
 import {
@@ -24,6 +25,7 @@ const NAV = [
   { href: "#demo", label: "Try it" },
   { href: "#how", label: "How it works" },
   { href: "#faq", label: "FAQ" },
+  { href: "/methodology", label: "Methodology" },
 ];
 
 const FEATURES = [
@@ -62,7 +64,7 @@ const STEPS = [
 const FAQ = [
   {
     q: "Are these real prices?",
-    a: "The defaults are illustrative public list prices from October 2026: Claude Sonnet 5.5 API pricing, typical H100 cloud rental rates and 8-GPU server costs. They are not quotes, and every one of them is editable in the calculator.",
+    a: "The defaults are illustrative public list prices from October 2026: Claude Sonnet 5.5 API pricing, typical H100 cloud rental rates and 8-GPU server costs. They are not quotes, and every one of them is editable in the calculator. The methodology page lists the range and source behind each one.",
   },
   {
     q: "Why can't I just run Claude or GPT on my own GPUs?",
@@ -108,26 +110,7 @@ export function Landing() {
 
   return (
     <div className="min-h-dvh bg-surface">
-      {/* Navigation */}
-      <header className="sticky top-0 z-30 border-b border-line bg-surface">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-6">
-          <Logo tagline={false} />
-          <nav aria-label="Sections" className="hidden items-center gap-1 md:flex">
-            {NAV.map((n) => (
-              <a key={n.href} href={n.href} className="rounded-lg px-3 py-2 text-sm font-medium text-ink-2 transition hover:bg-sunken hover:text-ink">
-                {n.label}
-              </a>
-            ))}
-          </nav>
-          <a
-            href="/calculator"
-            onClick={linkClick("/calculator")}
-            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-ink"
-          >
-            Open calculator <ArrowRight className="size-4" aria-hidden />
-          </a>
-        </div>
-      </header>
+      <SiteHeader nav={NAV} />
 
       <main>
         {/* Hero: centered message over a full-width illustration that shares its background */}
@@ -298,48 +281,7 @@ export function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-line bg-bg">
-        <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
-          <div>
-            <Logo tagline={false} />
-            <p className="mt-4 max-w-sm text-sm leading-6 text-ink-2">
-              An AI compute cost-of-ownership calculator: pay per token, rent cloud GPUs, or own the hardware.
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-semibold">Product</p>
-            <ul className="mt-3 space-y-2 text-sm text-ink-2">
-              <li>
-                <a href="/calculator" onClick={linkClick("/calculator")} className="hover:text-ink">
-                  Calculator
-                </a>
-              </li>
-              <li>
-                <a href="/calculator#projection" onClick={linkClick("/calculator#projection")} className="hover:text-ink">
-                  Cost projection
-                </a>
-              </li>
-              <li>
-                <a href="#how" className="hover:text-ink">
-                  How it works
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-sm font-semibold">About</p>
-            <ul className="mt-3 space-y-2 text-sm text-ink-2">
-              <li>Built by Angel Ade-Oduntan</li>
-              <li>Illustrative estimates, not provider quotes</li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-line">
-          <p className="mx-auto max-w-[1200px] px-4 py-5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
-            © 2026 Breakeven · Excludes taxes, egress and setup costs
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

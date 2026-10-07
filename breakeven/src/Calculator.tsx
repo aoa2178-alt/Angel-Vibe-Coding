@@ -1,6 +1,6 @@
 import { Check, Download, Link2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Logo } from "@/components/Brand";
+import { Logo, linkClick } from "@/components/Brand";
 import { ClosingBars, type OptionMeta } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Odometer } from "@/components/Odometer";
@@ -268,7 +268,10 @@ export function Calculator() {
                 Defaults (October 2026, illustrative): API at Claude Sonnet 5.5 list price ($2 / $10 per M tokens). Rent at
                 about $2.50 per H100-hour on GPU-focused clouds (market average ≈ $3.60, hyperscalers ≈ $7). Hardware ≈ $35K
                 per GPU, from 8-GPU H100 servers at $250–320K. 1.3 kW per GPU with its share of the server. Throughput is a
-                conservative estimate for a 70B-class open-weight model with batching.
+                conservative estimate for a 70B-class open-weight model with batching.{" "}
+                <a href="/methodology" onClick={linkClick("/methodology")} className="font-semibold text-brand-ink underline underline-offset-2">
+                  Ranges and sources for every number →
+                </a>
               </p>
             </details>
           </section>

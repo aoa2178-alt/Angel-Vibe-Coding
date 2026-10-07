@@ -19,7 +19,7 @@ const TITLES: Record<View, string> = {
   power: "Loadline · 1. Power",
   timeline: "Loadline · 2. Timeline",
   delays: "Loadline · 3. Delays",
-  brief: "Loadline · Brief",
+  brief: "Loadline · The call",
   sources: "Loadline · Sources",
 };
 

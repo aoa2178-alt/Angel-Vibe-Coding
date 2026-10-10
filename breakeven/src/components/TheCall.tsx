@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { ReactNode } from "react";
+import { CountUp, anim, useInView } from "./Motion";
 import { OPTIONS } from "./options";
 import { joinLabels, months, percent } from "./ui";
 import { advantages } from "@/lib/scorecard";
@@ -27,7 +28,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
   const rec = costs[recommended];
   const currentLabel = CURRENTS.find((c) => c.id === current)?.label;
   return (
-    <section className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`}>
+    <section className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`} style={anim("rise", 600, 0, "back")}>
       <p className="kicker">1 · My recommendation</p>
       <p className="mt-2 flex items-start gap-2.5 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">
         <span className={`mt-2 size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
@@ -67,7 +68,13 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
               </>
             )
           ) : versusToday > 1 ? (
-            `you run on ${lowerFirst(currentLabel ?? "")} today. Switching saves about ${formatUsd(versusToday)} a year.`
+            <>
+              you run on {lowerFirst(currentLabel ?? "")} today. Switching saves about{" "}
+              <span className="font-semibold text-ink">
+                <CountUp value={versusToday} format={(v) => formatUsd(v)} delay={300} />
+              </span>{" "}
+              a year.
+            </>
           ) : versusToday < -1 ? (
             `you run on ${lowerFirst(currentLabel ?? "")} today, which is ${formatUsd(-versusToday)} a year cheaper; the recommendation costs more but scores higher on ${joinLabels(
               advantages(card, plan.weights, recommended, cheapestId).map((a) => a.label.toLowerCase()),
@@ -113,6 +120,9 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
 
 /** 3 · What would change my mind: every flip point, as checks that hold or don't. */
 export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
+  const view = useInView<HTMLUListElement>();
+  let k = 0;
+  const row = () => anim("slideR", 600, k++ * 120, "back");
   const flips = [...call.volumeChecks, ...call.checks.filter((c) => !c.holds)];
   const holds = call.checks.filter((c) => c.holds).map((c) => c.label.replace(" 25% higher or lower", ""));
   return (
@@ -120,9 +130,9 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
       {call.recommended !== call.cheapestId && (
         <p className="mb-2">These are cost checks. The cheapest option today is {lowerFirst(OPTIONS[call.cheapestId].name)}; the recommendation trades some cost for your priorities.</p>
       )}
-      <ul className="space-y-2">
+      <ul ref={view.ref} className={`space-y-2 ${view.paused}`}>
         {holds.length > 0 && (
-          <li className="flex gap-2.5">
+          <li className="flex gap-2.5" style={row()}>
             <Check className="mt-1.5 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-label="Holds" />
             <span>
               The answer holds if any one of these is 25% higher or lower than assumed: {joinLabels(holds.map(lowerFirst))}.
@@ -130,7 +140,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
           </li>
         )}
         {flips.map((c) => (
-          <li key={c.label} className="flex gap-2.5">
+          <li key={c.label} className="flex gap-2.5" style={row()}>
             {c.holds ? <Check className="mt-1.5 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-label="Holds" /> : <X className="mt-1.5 size-4 shrink-0 text-red-700 dark:text-red-400" aria-label="Changes the answer" />}
             <span>
               {c.label}: {c.holds ? "the answer holds." : <>the cheapest way becomes <span className="font-semibold text-ink">{lowerFirst(OPTIONS[c.instead!].name)}</span>.</>}
@@ -138,7 +148,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
           </li>
         ))}
         {extra.map((e) => (
-          <li key={e} className="flex gap-2.5">
+          <li key={e} className="flex gap-2.5" style={row()}>
             <X className="mt-1.5 size-4 shrink-0 text-red-700 dark:text-red-400" aria-hidden />
             <span>{e}</span>
           </li>
@@ -150,11 +160,12 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
 
 /** 4 · How to land it: 30/60/90 days and the people side. */
 export function CallLanding({ call }: { call: Call }) {
+  const view = useInView<HTMLDivElement>();
   return (
     <Block n={4} title="How to land it">
-      <div className="grid gap-3 sm:grid-cols-3">
-        {landingPlan(call.recommended).map((col) => (
-          <div key={col.when} className="rounded-xl border border-line p-4">
+      <div ref={view.ref} className={`grid gap-3 sm:grid-cols-3 ${view.paused}`}>
+        {landingPlan(call.recommended).map((col, i) => (
+          <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
             <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-ink">{col.when}</p>
             <ul className="mt-2 list-disc space-y-1 pl-4 text-sm leading-6">
               {col.what.map((w) => (

@@ -41,10 +41,13 @@ export function Waterfall({ start, end, steps, startLabel = "Plan", endLabel = "
   const hi = Math.max(...totals) + span * 0.25;
 
   const narrow = width < 560;
-  const H = narrow ? 320 : 300;
-  const m = { top: 28, right: 8, bottom: narrow ? 108 : 44, left: 8 };
   const n = bars.length + 2;
-  const slot = (width - m.left - m.right) / n;
+  const slot = (width - 16) / n;
+  // Tilt the names whenever the longest one won't fit under its bar (about 6px a character at this size).
+  const longest = Math.max(startLabel.length, endLabel.length, ...steps.map((st) => st.label.length));
+  const tilt = narrow || slot < longest * 6;
+  const H = tilt ? 320 : 300;
+  const m = { top: 28, right: 8, bottom: tilt ? 108 : 44, left: 8 };
   const bw = Math.min(56, slot * 0.62);
   const x = (i: number) => m.left + slot * i + (slot - bw) / 2;
   const y = (v: number) => m.top + (H - m.top - m.bottom) * (1 - (v - lo) / (hi - lo));
@@ -81,9 +84,9 @@ export function Waterfall({ start, end, steps, startLabel = "Plan", endLabel = "
       <text
         x={x(i) + bw / 2}
         y={base + 16}
-        textAnchor={narrow ? "end" : "middle"}
+        textAnchor={tilt ? "end" : "middle"}
         className="fill-muted text-[10.5px]"
-        transform={narrow ? `rotate(-60 ${x(i) + bw / 2} ${base + 16})` : undefined}
+        transform={tilt ? `rotate(-60 ${x(i) + bw / 2} ${base + 16})` : undefined}
         style={anim("fade", 300, 100 + i * step)}
       >
         {name}

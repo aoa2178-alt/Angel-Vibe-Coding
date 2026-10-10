@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Replay, anim, useInView } from "./Motion";
 import type { DeaResult, Unit } from "@/lib/dea";
 
 export interface ScatterPoint {
@@ -33,6 +34,9 @@ export function Scatter({
   const [width, setWidth] = useState(720);
   const [hover, setHover] = useState<ScatterPoint | null>(null);
   const [table, setTable] = useState(false);
+  // Scatter Pop-In: states pop in from the cheapest power to the dearest, then the frontier draws itself.
+  const view = useInView<HTMLElement>();
+  const [run, setRun] = useState(0);
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -64,12 +68,13 @@ export function Scatter({
     ? `M${x(f[0]!.x1)},${y(yMax)} ` + f.map((u) => `L${x(u.x1)},${y(u.x2)}`).join(" ") + ` L${x(xMax)},${y(f.at(-1)!.x2)}`
     : "";
   const sel = points.find((p) => p.unit.id === selected);
+  const popOrder = new Map([...points].sort((a, b) => a.unit.x1 - b.unit.x1).map((p, i) => [p.unit.id, i]));
   const xTicks = Array.from({ length: xMax / 2 + 1 }, (_, k) => k * 2);
   const yTicks = Array.from({ length: yMax + 1 }, (_, k) => k);
   const labelled = new Set(points.filter((p) => p.result.efficient || p.mw >= 500 || p.unit.id === selected || clipped(p.unit.x1)).map((p) => p.unit.id));
 
   return (
-    <figure className="min-w-0">
+    <figure ref={view.ref} className={`min-w-0 ${view.paused}`}>
       <figcaption className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-2">
         <span className="text-sm font-semibold text-ink">Power price against grid wait, by state</span>
         <span className="flex flex-wrap gap-x-3 gap-y-1">
@@ -106,7 +111,7 @@ export function Scatter({
           <text transform={`translate(11,${m.top + ph / 2}) rotate(-90)`} textAnchor="middle" className="fill-muted text-[11px]">
             Grid wait, years →
           </text>
-          {frontierPath && <path d={frontierPath} fill="none" stroke={AMBER} strokeWidth={2} strokeLinejoin="round" />}
+          {frontierPath && <path key={`f${run}`} d={frontierPath} fill="none" stroke={AMBER} strokeWidth={2} strokeLinejoin="round" pathLength={1} strokeDasharray="1" style={anim("draw", 900, 150 + points.length * 22, "std")} />}
           {sel && !sel.result.efficient && !clipped(sel.unit.x1) && (
             <g pointerEvents="none">
               <line x1={x(0)} y1={y(0)} x2={x(sel.unit.x1)} y2={y(sel.unit.x2)} stroke="var(--ink-2)" strokeDasharray="3 4" opacity={0.6} />
@@ -117,8 +122,10 @@ export function Scatter({
             .sort((a, b) => b.mw - a.mw)
             .map((p) => {
               const isSel = p.unit.id === selected;
+              const order = popOrder.get(p.unit.id) ?? 0;
+              const pop = { transformBox: "fill-box" as const, transformOrigin: "center", ...anim("pop", 500, 150 + order * 22, "back") };
               return (
-                <g key={p.unit.id} className="cursor-pointer" onClick={() => onSelect(isSel ? "" : p.unit.id)} onMouseEnter={() => setHover(p)} onMouseLeave={() => setHover(null)}>
+                <g key={`${p.unit.id}-${run}`} className="cursor-pointer" onClick={() => onSelect(isSel ? "" : p.unit.id)} onMouseEnter={() => setHover(p)} onMouseLeave={() => setHover(null)}>
                   <circle cx={x(p.unit.x1)} cy={y(p.unit.x2)} r={Math.max(r(p.mw) + 4, 10)} fill="transparent" />
                   {clipped(p.unit.x1) ? (
                     <path
@@ -127,6 +134,7 @@ export function Scatter({
                       fillOpacity={p.mw > 0 ? 0.9 : 0.45}
                       stroke={isSel ? "var(--ink)" : "var(--surface)"}
                       strokeWidth={isSel ? 2.5 : 1.5}
+                      style={pop}
                     />
                   ) : (
                     <circle
@@ -137,6 +145,7 @@ export function Scatter({
                       fillOpacity={p.mw > 0 ? 0.9 : 0.45}
                       stroke={isSel ? "var(--ink)" : "var(--surface)"}
                       strokeWidth={isSel ? 2.5 : 1.5}
+                      style={pop}
                     />
                   )}
                   {labelled.has(p.unit.id) && (
@@ -181,9 +190,12 @@ export function Scatter({
           </div>
         )}
       </div>
-      <button type="button" onClick={() => setTable((t) => !t)} aria-expanded={table} className="mt-2 text-xs font-medium text-brand-ink underline underline-offset-2 print:hidden">
-        {table ? "Hide table" : "Show as a table"}
-      </button>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <button type="button" onClick={() => setTable((t) => !t)} aria-expanded={table} className="text-xs font-medium text-brand-ink underline underline-offset-2 print:hidden">
+          {table ? "Hide table" : "Show as a table"}
+        </button>
+        <Replay onClick={() => setRun((v) => v + 1)} />
+      </div>
       {table && (
         <div className="mt-2 max-h-80 overflow-auto rounded-lg border border-line">
           <table className="w-full text-left font-mono text-xs">

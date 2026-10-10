@@ -41,6 +41,7 @@ function Block({ n, title, children }: { n: number; title: string; children: Rea
  */
 export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNode }) {
   const landing = useInView<HTMLDivElement>();
+  const checks = useInView<HTMLUListElement>();
   return (
     <>
       {c.demo && <p className="mt-6 rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm leading-6 text-ink-2">{c.demo}</p>}
@@ -66,9 +67,9 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
 
       <Block n={3} title="What would change my mind">
         {c.checksIntro && <p className="mb-2">{c.checksIntro}</p>}
-        <ul className="space-y-2">
-          {c.checks.map((k) => (
-            <li key={k.label} className="flex gap-2.5">
+        <ul ref={checks.ref} className={`space-y-2 ${checks.paused}`}>
+          {c.checks.map((k, i) => (
+            <li key={k.label} className="flex gap-2.5" style={anim("slideR", 600, i * 120, "back")}>
               {k.holds ? <Check className="mt-1.5 size-4 shrink-0 text-brand" aria-label="Holds" /> : <X className="mt-1.5 size-4 shrink-0 text-ink" aria-label="Changes the answer" />}
               <span>
                 {k.label}: {k.holds ? "the recommendation holds." : k.outcome}

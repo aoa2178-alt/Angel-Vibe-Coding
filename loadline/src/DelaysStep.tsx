@@ -1,4 +1,5 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
+import { anim, useInView } from "@/components/Motion";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Hedge } from "@/components/Hedge";
 import { Card, NumberField, PHASE_COLOR, Stat } from "@/components/ui";
@@ -11,6 +12,9 @@ export function DelaysStep() {
   const campus = campusById(s.campusId);
   const plans = plan(campus, s.settings, s.slips);
   const risks = resolveFirst(campus, s.settings, s.slips).slice(0, 5);
+  // Staggered Bar Rise: each milestone's cost bar grows in, biggest first.
+  const ranking = useInView<HTMLOListElement>();
+  const worst = Math.max(...risks.map((r) => r.cost), 1);
   const totalCost = plans.reduce((n, p) => n + p.delayCost, 0);
   const slipped = Object.values(s.slips).some((v) => v > 0);
   const set = (patch: Partial<Settings>) => setS({ ...s, settings: { ...s.settings, ...patch } });
@@ -43,13 +47,23 @@ export function DelaysStep() {
               <p className="mt-1 text-ink-2">
                 Three more months here would move go-live {top.delay.toFixed(1)} months and cost {formatMoney(top.cost)}.
               </p>
-              <ol className="mt-4 divide-y divide-line border-t border-line text-sm">
+              <ol ref={ranking.ref} className={`mt-4 divide-y divide-line border-t border-line text-sm ${ranking.paused}`}>
                 {risks.map((r, k) => (
-                  <li key={`${r.phaseId}.${r.milestone}`} className="flex items-center justify-between gap-3 py-2.5">
-                    <span>
-                      <span className="font-mono text-muted">{k + 1}.</span> {r.phaseName} · {MILESTONES.find((m) => m.id === r.milestone)!.label}
+                  <li key={`${r.phaseId}.${r.milestone}`} className="py-2.5" style={anim("slideR", 500, k * 120, "back")}>
+                    <span className="flex items-center justify-between gap-3">
+                      <span>
+                        <span className="font-mono text-muted">{k + 1}.</span> {r.phaseName} · {MILESTONES.find((m) => m.id === r.milestone)!.label}
+                      </span>
+                      <span className="text-right font-mono">{r.cost > 0 ? formatMoney(r.cost) : `${r.slack.toFixed(1)} mo slack`}</span>
                     </span>
-                    <span className="text-right font-mono">{r.cost > 0 ? formatMoney(r.cost) : `${r.slack.toFixed(1)} mo slack`}</span>
+                    {r.cost > 0 && (
+                      <span className="mt-1.5 block h-1.5 rounded-full bg-sunken">
+                        <span
+                          className="block h-full rounded-full bg-ink"
+                          style={{ width: `${(r.cost / worst) * 100}%`, transformOrigin: "left", ...anim("growX", 700, 150 + k * 120, "back") }}
+                        />
+                      </span>
+                    )}
                   </li>
                 ))}
               </ol>

@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Waterfall } from "@/components/Waterfall";
 import { LineChart } from "@/components/LineChart";
 import { Card, Kicker, Stat } from "@/components/ui";
 import { MONTH_NAMES, formatCount, formatDriver, formatMoney, pct, signed } from "@/lib/model";
@@ -145,9 +147,18 @@ export function StatusTag({ status }: { status: Status }) {
 /** The variance bridge as diverging bars: each driver's effect on year-to-date revenue, from plan to actual. */
 function Bridge({ r }: { r: Run }) {
   const max = Math.max(...r.bridge.map((b) => Math.abs(b.effect)), 1);
+  const [list, setList] = useState(false);
   return (
     <Card>
       <Kicker method="Variance bridge">Why year to date is {r.ytd.actual >= r.ytd.plan ? "ahead" : "behind"}</Kicker>
+      <div className="mt-3">
+        <Waterfall key={`${r.n}-${r.ytd.actual}`} start={r.ytd.plan} end={r.ytd.actual} steps={r.bridge} />
+      </div>
+      <button type="button" onClick={() => setList((v) => !v)} aria-expanded={list} className="mt-2 text-xs font-medium text-brand-ink underline underline-offset-2 print:hidden">
+        {list ? "Hide the list" : "Show as a list"}
+      </button>
+      {list && (
+      <>
       <p className="mt-2 flex justify-between font-mono text-sm">
         <span className="text-muted">Plan</span>
         <span className="font-semibold">{formatMoney(r.ytd.plan)}</span>
@@ -174,6 +185,8 @@ function Bridge({ r }: { r: Run }) {
         <span className="text-muted">Actual</span>
         <span className="font-semibold">{formatMoney(r.ytd.actual)}</span>
       </p>
+      </>
+      )}
       <p className="mt-3 text-xs leading-5 text-muted">
         Sequential substitution: swap one driver at a time from plan to actual, in this order, and record how far revenue moves. The steps add up exactly to the gap.
       </p>

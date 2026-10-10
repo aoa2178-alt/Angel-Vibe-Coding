@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
 import type { ReactNode } from "react";
+import { Cascade, anim, useInView } from "./Motion";
 
 export interface CallCheck {
   label: string;
@@ -39,13 +40,14 @@ function Block({ n, title, children }: { n: number; title: string; children: Rea
  * it worked, and the judgment calls. The same six blocks in every app.
  */
 export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNode }) {
+  const landing = useInView<HTMLDivElement>();
   return (
     <>
       {c.demo && <p className="mt-6 rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm leading-6 text-ink-2">{c.demo}</p>}
-      <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6">
+      <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
         <p className="kicker">1 · My recommendation</p>
         <p className="mt-1 text-sm text-muted">{c.decision}</p>
-        <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{c.headline}</p>
+        <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{typeof c.headline === "string" ? <Cascade text={c.headline} delay={150} /> : c.headline}</p>
         <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
           {c.bullets.map((b) => (
             <li key={b.label}>
@@ -77,9 +79,9 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
       </Block>
 
       <Block n={4} title="How to land it">
-        <div className="grid gap-3 sm:grid-cols-3">
-          {c.landing.map((col) => (
-            <div key={col.when} className="rounded-xl border border-line p-4">
+        <div ref={landing.ref} className={`grid gap-3 sm:grid-cols-3 ${landing.paused}`}>
+          {c.landing.map((col, i) => (
+            <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
               <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-ink">{col.when}</p>
               <ul className="mt-2 list-disc space-y-1 pl-4 text-sm leading-6">
                 {col.what.map((w) => (

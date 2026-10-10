@@ -1,4 +1,5 @@
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { anim, useInView } from "@/components/Motion";
 import { LineChart } from "@/components/LineChart";
 import { Card, Kicker, SourceLink, Stat } from "@/components/ui";
 import { ranked, shouldCost } from "@/lib/analysis";
@@ -25,7 +26,9 @@ export function ShouldCostStep() {
     const byMonth = new Map(pts.map((p) => [p.month, (p.value / base) * 100]));
     return { label: x.label, color: x.color, width: x.width, values: months.map((m) => byMonth.get(m) ?? null) };
   });
-  const max = Math.max(...sc.lines.map((l) => l.cost));
+  // A sideways waterfall: each line starts where the one before ended, so the bars add up across to the should-cost.
+  const starts = sc.lines.map((_, i) => sc.lines.slice(0, i).reduce((a, l) => a + l.cost, 0));
+  const build = useInView<HTMLUListElement>();
 
   return (
     <Frame route="should-cost" s={s} setS={setS}>
@@ -45,23 +48,37 @@ export function ShouldCostStep() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
         <Card>
           <Kicker method="Cost build-up">One 80 MVA transformer</Kicker>
-          <ul className="mt-4 grid gap-2.5">
-            {sc.lines.map((l) => (
+          <ul ref={build.ref} className={`mt-4 grid gap-2.5 ${build.paused}`}>
+            {sc.lines.map((l, i) => (
               <li key={l.id}>
                 <div className="flex items-baseline justify-between gap-2 text-sm">
                   <span className={l.id === "margin" ? "text-ink-2" : "font-semibold"}>{l.label}</span>
                   <span className="font-mono">{formatMoney(l.cost)}</span>
                 </div>
-                <div className="mt-1 h-2 rounded-r-[3px] bg-sunken">
-                  <div className="h-full rounded-r-[3px]" style={{ width: `${(l.cost / max) * 100}%`, background: l.id === "copper" ? "var(--part-5)" : "var(--brand)", opacity: l.id === "margin" ? 0.45 : 1 }} />
+                <div className="relative mt-1 h-2 rounded-[3px] bg-sunken">
+                  <div
+                    className="absolute inset-y-0 rounded-[3px]"
+                    style={{
+                      left: `${(starts[i]! / sc.total) * 100}%`,
+                      width: `${(l.cost / sc.total) * 100}%`,
+                      background: l.id === "copper" ? "var(--part-5)" : "var(--brand)",
+                      opacity: l.id === "margin" ? 0.45 : 1,
+                      transformOrigin: "left",
+                      ...anim("growX", 600, 150 + i * 120, "back"),
+                    }}
+                  />
                 </div>
                 <p className="mt-0.5 text-xs text-muted">{l.basis}</p>
               </li>
             ))}
           </ul>
-          <p className="mt-4 flex items-baseline justify-between border-t border-line pt-3 font-semibold">
-            Should-cost <span className="font-mono">{formatMoney(sc.total)}</span>
-          </p>
+          <div className="mt-4 border-t border-line pt-3">
+            <p className="flex items-baseline justify-between font-semibold">
+              Should-cost <span className="font-mono">{formatMoney(sc.total)}</span>
+            </p>
+            <div className="mt-1 h-2 rounded-[3px] bg-ink" style={{ transformOrigin: "left", ...anim("growX", 700, 150 + sc.lines.length * 120, "back") }} />
+            <p className="mt-1 text-xs text-muted">Each bar starts where the one above ends, so together they add up to the full should-cost.</p>
+          </div>
         </Card>
 
         <Card>

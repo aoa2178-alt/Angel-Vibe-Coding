@@ -37,6 +37,7 @@ export function ForecastStep() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <Card>
           <LineChart
+            animate
             title={`${product.name}: monthly demand, units`}
             xLabels={labels}
             series={[

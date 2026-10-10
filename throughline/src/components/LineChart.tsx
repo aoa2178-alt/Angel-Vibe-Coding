@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Replay, anim, useInView } from "./Motion";
 
 export interface LineSeries {
   label: string;
@@ -30,6 +31,7 @@ export function LineChart({
   height = 280,
   tableEvery = 1,
   ariaLabel,
+  animate = false,
 }: {
   title: string;
   xLabels: string[];
@@ -40,11 +42,15 @@ export function LineChart({
   height?: number;
   tableEvery?: number;
   ariaLabel: string;
+  /** Projection Fan: sweep the plot in from the left, history first, the forecast band last */
+  animate?: boolean;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(720);
   const [hover, setHover] = useState<number | null>(null);
   const [table, setTable] = useState(false);
+  const view = useInView<HTMLDivElement>();
+  const [run, setRun] = useState(0);
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -113,6 +119,7 @@ export function LineChart({
           )}
         </span>
       </figcaption>
+      <div ref={view.ref} className={animate ? view.paused : undefined}>
       <div ref={wrapRef} className="relative mt-3 w-full min-w-0">
         <svg
           width="100%"
@@ -144,6 +151,7 @@ export function LineChart({
               </text>
             ) : null,
           )}
+          <g key={run} style={animate ? anim("wipe", 1600, 150, "std") : undefined}>
           {bandPath && <path d={bandPath} fill={band!.color} opacity={0.18} />}
           {refs.map((r) => (
             <g key={r.label}>
@@ -156,6 +164,7 @@ export function LineChart({
           {series.map((s) => (
             <path key={s.label} d={path(s.values)} fill="none" stroke={s.color} strokeWidth={s.width ?? 2} strokeDasharray={s.dashed ? "5 4" : undefined} strokeLinejoin="round" />
           ))}
+          </g>
           {hover !== null && (
             <g>
               <line x1={x(hover)} x2={x(hover)} y1={m.top} y2={m.top + ph} stroke="var(--ink-2)" opacity={0.35} />
@@ -183,9 +192,13 @@ export function LineChart({
           </div>
         )}
       </div>
-      <button type="button" onClick={() => setTable((t) => !t)} aria-expanded={table} className="mt-2 text-xs font-medium text-brand-ink underline underline-offset-2">
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3">
+      <button type="button" onClick={() => setTable((t) => !t)} aria-expanded={table} className="text-xs font-medium text-brand-ink underline underline-offset-2">
         {table ? "Hide table" : "Show as a table"}
       </button>
+        {animate && <Replay onClick={() => setRun((v) => v + 1)} />}
+      </div>
       {table && (
         <div className="mt-2 max-h-72 overflow-auto rounded-lg border border-line">
           <table className="w-full text-left font-mono text-xs">

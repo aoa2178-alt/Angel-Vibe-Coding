@@ -1,4 +1,5 @@
-import { Bars, Stack } from "@/components/Bars";
+import { Bars } from "@/components/Bars";
+import { Crowd } from "@/components/Crowd";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Card, Kicker, Stat } from "@/components/ui";
 import { byIso, pct, people, share, shortName, v, yearOf } from "@/lib/data";
@@ -36,9 +37,9 @@ export function GapStep() {
           <Stat label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
         </div>
         <div className="mt-6">
-          <Stack
+          <Crowd
+            key={c.iso3}
             ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
-            total={g.pop}
             format={people}
             parts={[
               { label: "Online", value: g.pop - g.offline, color: GREEN },

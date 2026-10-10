@@ -4,6 +4,7 @@ import { ladder } from "./AffordStep";
 import { buildPlan } from "./BuildStep";
 import { Bars } from "@/components/Bars";
 import { Frame, StepHeading, href, linkClick, useScenario } from "@/components/Frame";
+import { Cascade, anim, useInView } from "@/components/Motion";
 import { afford } from "@/lib/afford";
 import { DATA_TARGET, HANDSET_TARGET } from "@/lib/assumptions";
 import { leverOptions, measures, ranked, sensitivities, type LeverOption } from "@/lib/call";
@@ -39,6 +40,7 @@ export function Call() {
   const targetOnline = m.online !== null ? Math.min(100, m.online + ((lead.people + (lead.id === "towers" ? 0 : towers.people)) / g.pop) * 100) : null;
   const phoneBinds = today.binding === "phone";
   const r = afford(c, s.afford);
+  const landing = useInView<HTMLDivElement>();
 
   return (
     <Frame route="call" s={s} setS={setS}>
@@ -58,11 +60,14 @@ export function Call() {
         </header>
 
         {/* 1. The recommendation, answer first */}
-        <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6">
+        <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
           <p className="kicker">1 · My recommendation</p>
           <p className="mt-2 text-xl font-bold leading-snug tracking-tight sm:text-2xl">
-            {lead.id === "towers" ? "Build coverage first" : `Start with ${lead.label.toLowerCase()}`}: it gets {people(lead.people)} people online for about {per(lead)} of public money each
-            {multiple && multiple > 1.2 ? `, ${multiple.toFixed(1)}× less per person than building towers` : ""}.
+            <Cascade
+              key={`${c.iso3}-${lead.id}`}
+              delay={150}
+              text={`${lead.id === "towers" ? "Build coverage first" : `Start with ${lead.label.toLowerCase()}`}: it gets ${people(lead.people)} people online for about ${per(lead)} of public money each${multiple && multiple > 1.2 ? `, ${multiple.toFixed(1)}× less per person than building towers` : ""}.`}
+            />
           </p>
           <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
             {lead.id !== "package" && pkg.people > lead.people && Number.isFinite(pkg.perPerson) && (
@@ -153,7 +158,7 @@ export function Call() {
         {/* 4. How to land it */}
         <section className="mt-8">
           <p className="kicker">4 · How to land it</p>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div ref={landing.ref} className={`mt-3 grid gap-3 sm:grid-cols-3 ${landing.paused}`}>
             {[
               {
                 when: "First 30 days",
@@ -176,8 +181,8 @@ export function Call() {
                     ? ["First sites contracted", "Pair each site with an affordability offer", "Report cost per connection"]
                     : ["Go or no-go on national scale-up", `Review data taxes, the next barrier`, "Commission the coverage auction for the remaining no-signal areas"],
               },
-            ].map((col) => (
-              <div key={col.when} className="rounded-xl border border-line p-4">
+            ].map((col, i) => (
+              <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
                 <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-ink">{col.when}</p>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-sm leading-6 text-ink-2">
                   {col.what.map((w) => (

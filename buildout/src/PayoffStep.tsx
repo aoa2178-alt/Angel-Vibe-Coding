@@ -18,7 +18,7 @@ export function PayoffStep() {
   return (
     <Frame route="payoff" s={s} setS={setS}>
       <StepHeading route="payoff">
-        Spending is only half the story. Is revenue keeping up, how much cash is left after the build, and what does all this capex do to future costs?
+        Capex against revenue, free cash flow after the build, and the depreciation still to come.
       </StepHeading>
 
       <Pills label="Company" options={SPENDERS.map((x) => ({ id: x.ticker, label: x.short }))} value={s.company} onChange={(company: string) => setS({ ...s, company })} />

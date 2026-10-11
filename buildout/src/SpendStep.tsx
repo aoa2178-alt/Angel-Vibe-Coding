@@ -15,7 +15,7 @@ export function SpendStep() {
   return (
     <Frame route="spend" s={s} setS={setS}>
       <StepHeading route="spend">
-        Capital expenditure (cash spent on data centers, servers and other long-lived assets) straight from each company's 10-Q and 10-K, quarter by quarter.
+        Cash spent on data centers, servers and other long-lived assets, from each company's filings.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -37,10 +37,7 @@ export function SpendStep() {
             format={formatMillions}
             ariaLabel={`Quarterly capex for six companies from Q1 2019 to ${formatQuarter(h.quarter)}, reaching ${formatMillions(h.capex)} in the latest quarter.`}
           />
-          <p className="mt-3 text-xs leading-5 text-muted">
-            Calendar quarters by period end; fiscal years differ (Microsoft's year ends in June, Oracle's in May). Amazon reports purchases of property and equipment
-            before finance leases.
-          </p>
+          <p className="mt-3 text-xs leading-5 text-muted">Calendar quarters by period end; see the FAQ for fiscal years.</p>
         </Card>
         <Card>
           <Kicker>{formatQuarter(h.quarter)}, by company</Kicker>

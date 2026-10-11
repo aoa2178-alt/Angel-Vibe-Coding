@@ -16,7 +16,7 @@ export function ReceiversStep() {
   return (
     <Frame route="receivers" s={s} setS={setS}>
       <StepHeading route="receivers">
-        Every dollar of capex is someone else's revenue. Four suppliers sit downstream of the spend: chips (NVIDIA, Broadcom) and power and cooling (Vertiv, Eaton).
+        Revenue at four suppliers downstream of the spend: NVIDIA, Broadcom, Vertiv and Eaton.
       </StepHeading>
 
       <Pills label="Compare since" options={BASES.map((b) => ({ id: b.id, label: b.label }))} value={s.base} onChange={(base: string) => setS({ ...s, base })} />
@@ -67,10 +67,7 @@ export function ReceiversStep() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs leading-5 text-muted">
-            The read-through is illustrative: these suppliers also sell to other customers, and the spenders also buy from many others. It shows direction and scale, not a
-            contract-level match.
-          </p>
+          <p className="mt-3 text-xs leading-5 text-muted">Illustrative: direction and scale, not a contract-level match.</p>
         </Card>
       </div>
     </Frame>

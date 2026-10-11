@@ -75,8 +75,8 @@ export function NoteStep() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">The call · Buildout quarterly note</p>
-            <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">AI capex, {formatQuarter(h.quarter)}</h1>
+            <p className="kicker">Quarterly note · Buildout</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">AI capex, {formatQuarter(h.quarter)}</h1>
             <p className="mt-1 text-sm text-muted">From SEC filings retrieved {DATA.retrieved} · calendar quarters</p>
           </div>
           <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-2 text-sm font-semibold transition hover:border-brand print:hidden">

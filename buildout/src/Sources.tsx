@@ -19,7 +19,7 @@ export function Sources() {
     <Frame route="sources" s={s} setS={setS}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">Straight from the filings</h1>
+        <h1 className="mt-2 text-3xl font-semibold leading-[1.1] tracking-[-0.04em] sm:text-4xl">Straight from the filings</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           Every number comes from the SEC's free XBRL API (<SourceLink href="https://www.sec.gov/edgar/sec-api-documentation">EDGAR APIs</SourceLink>), the machine-readable version of
           each company's 10-Q and 10-K. Retrieved {DATA.retrieved}; refreshed after each earnings season.

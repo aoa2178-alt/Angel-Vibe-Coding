@@ -201,7 +201,7 @@ export const projects: Project[] = [
   {
     id: "ops-room",
     name: "The Ops Room",
-    url: "https://ops-room.vercel.app",
+    url: "https://ops-room-phi.vercel.app",
     start: "/",
     tags: ["Simulation", "Leadership decisions", "Live"],
     pitch: "Can you make the call when the information is incomplete, the team disagrees, and no option is free?",

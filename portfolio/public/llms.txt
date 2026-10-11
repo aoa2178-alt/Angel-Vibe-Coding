@@ -35,7 +35,7 @@ Eight working decision tools, each ending in a recommendation ("the call"): what
 
 Plus a leadership simulator and a consumer app:
 
-- The Ops Room (https://ops-room.vercel.app): a leadership decision simulator. Five cases tied to the apps above (a late supplier, a late transformer, a GPU supply cut, a mid-year business review, whether to use AI in support); two calls each, a memo, a debrief that maps every path, and thirty endings to find.
+- The Ops Room (https://ops-room-phi.vercel.app): a leadership decision simulator. Five cases tied to the apps above (a late supplier, a late transformer, a GPU supply cut, a mid-year business review, whether to use AI in support); two calls each, a memo, a debrief that maps every path, and thirty endings to find.
 - Walkin' Here! (https://walkinhere.vercel.app): teaches newcomers New York's unwritten rules (subway etiquette, bodega orders, sidewalk pace, slang, tipping) in three-minute daily lessons with quizzes, XP and a streak. Sign in with Google or email.
 
 Code: https://github.com/aoa2178-alt/Angel-Vibe-Coding

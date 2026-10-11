@@ -668,7 +668,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 <span className="live-status">Live</span>
               </div>
               <h3>
-                <a className="ai-build-card__link" href="https://ops-room.vercel.app" target="_blank" rel="noreferrer">
+                <a className="ai-build-card__link" href="https://ops-room-phi.vercel.app" target="_blank" rel="noreferrer">
                   <span className="sr-only">The Ops Room — </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>

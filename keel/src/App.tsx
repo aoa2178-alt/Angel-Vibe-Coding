@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Brief } from "./Brief";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { PlanStep } from "./PlanStep";
 import { PrioritizeStep } from "./PrioritizeStep";
 import { ReviewStep } from "./ReviewStep";
 import { Sources } from "./Sources";
 
-type View = "landing" | "plan" | "review" | "prioritize" | "brief" | "sources";
-const VIEWS: View[] = ["plan", "review", "prioritize", "brief", "sources"];
+type View = "landing" | "plan" | "review" | "prioritize" | "brief" | "sources" | "faq";
+const VIEWS: View[] = ["plan", "review", "prioritize", "brief", "sources", "faq"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -16,11 +17,12 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Keel · Are we on plan?",
-  plan: "Keel · 1. Plan",
-  review: "Keel · 2. Review",
-  prioritize: "Keel · 3. Prioritize",
-  brief: "Keel · The call",
+  plan: "Keel · Annual plan",
+  review: "Keel · Business review",
+  prioritize: "Keel · Funding",
+  brief: "Keel · Recommendation",
   sources: "Keel · Sources",
+  faq: "Keel · FAQ",
 };
 
 export default function App() {
@@ -48,6 +50,8 @@ export default function App() {
       return <Brief key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

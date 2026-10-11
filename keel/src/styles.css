@@ -1,11 +1,16 @@
 @import "tailwindcss";
 
 /*
- * Keel: "Boardroom". Warm white like a board deck, deep navy for structure and buttons, brass for labels.
+ * Keel: "Cadence". Cool white, deep teal for structure and buttons, and one mint accent for the rhythm of the year.
  * No glows, gradients or colored shadows. Status colors always come with a word (on track, watch, off track).
  */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 7px;
+  --radius-3xl: 8px;
+  --color-accent: var(--accent);
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 
   --color-bg: var(--bg);
@@ -28,21 +33,23 @@
 
 :root {
   color-scheme: light;
-  --bg: #f7f5f0;
+  --bg: #f3f7f7;
   --surface: #ffffff;
-  --sunken: #f0ede5;
-  --line: #e3dfd5;
-  --ink: #16213a;
-  --ink-2: #3d4659;
-  --muted: #5f6677;
-  --brand: #1f3a68;
-  --brand-ink: #1f3a68;
-  --brand-soft: #e8edf5;
+  --sunken: #e9f0f0;
+  --line: #dbe6e6;
+  --ink: #0f2629;
+  --ink-2: #3a5053;
+  --muted: #53676a;
+  --brand: #0e3b43;
+  --brand-ink: #17806d;
+  --brand-soft: #dcf3ee;
   --on-brand: #ffffff;
-  --brass: #8a6a2a;
-  --panel: #16213a;
-  --panel-ink: #f6f3ec;
-  --panel-muted: #b3b9c8;
+  --accent: #2bb39a;
+  /* Label colour (was brass): the deep mint text tone */
+  --brass: #17806d;
+  --panel: #0e3b43;
+  --panel-ink: #f1f7f6;
+  --panel-muted: #a9c4c2;
   --risk: #b42318;
   /* Status (always shown with a word, never color alone) */
   --green: #1d7a50;
@@ -60,6 +67,15 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Geist throughout, JetBrains Mono for figures. Corners stay small (5–8px). */
+.font-extrabold {
+  font-weight: 600;
+}
+a.rounded-full,
+button.rounded-full {
+  border-radius: 6px;
 }
 
 :focus-visible {
@@ -91,6 +107,31 @@ input[type="range"] {
     background: #ffffff;
   }
 }
+
+/* Keel landing: the tilted wall of thin month slabs, drifting slowly. */
+.keel-wall { transform-style: preserve-3d; transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg); transform-origin: 50% 40%; animation: keel-drift 14s ease-in-out infinite alternate; }
+@keyframes keel-drift { to { transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg) translate(-26px, 14px); } }
+.kt { position: relative; height: 150px; transform-style: preserve-3d; transition: filter 0.2s; }
+.kt-done { cursor: pointer; }
+.kt-done:hover, .kt-now:hover { filter: brightness(1.04); }
+.kt > span { position: absolute; }
+.kt > .kt-side, .kt > .kt-shadow { display: block; }
+.kt-top { inset: 0; border-radius: 10px; transform: translateZ(var(--h)); }
+.kt-shadow { inset: 4px; border-radius: 10px; background: rgb(29 48 39 / 0.18); filter: blur(8px); }
+.kt-side { transform-style: preserve-3d; }
+.kt-s { left: 4px; right: 4px; top: 100%; height: var(--h); transform-origin: top; transform: rotateX(90deg); }
+.kt-n { left: 4px; right: 4px; bottom: 100%; height: var(--h); transform-origin: bottom; transform: rotateX(-90deg); }
+.kt-e { top: 4px; bottom: 4px; left: 100%; width: var(--h); transform-origin: left; transform: rotateY(-90deg); }
+.kt-w { top: 4px; bottom: 4px; right: 100%; width: var(--h); transform-origin: right; transform: rotateY(90deg); }
+.kt-done .kt-top { background: #fbfbf7; }
+.kt-done .kt-s, .kt-done .kt-n { background: #b9c7b0; }
+.kt-done .kt-e, .kt-done .kt-w { background: #a3b499; }
+.kt-now .kt-top { background: var(--brand); color: #fff; }
+.kt-now .kt-s, .kt-now .kt-n { background: #0a2e34; }
+.kt-now .kt-e, .kt-now .kt-w { background: #072328; }
+.kt-fc .kt-top { background: rgb(251 251 247 / 0.45); border: 1.5px dashed #9fb196; }
+.kt-fc .kt-s, .kt-fc .kt-n, .kt-fc .kt-e, .kt-fc .kt-w { background: rgb(185 199 176 / 0.35); }
+.kt-fc .kt-shadow { opacity: 0.4; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

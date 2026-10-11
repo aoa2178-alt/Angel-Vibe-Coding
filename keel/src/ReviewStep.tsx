@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Waterfall } from "@/components/Waterfall";
 import { LineChart } from "@/components/LineChart";
 import { Card, Kicker, Stat } from "@/components/ui";
@@ -22,24 +23,24 @@ export function ReviewStep() {
   return (
     <Frame route="review" s={s} setS={setS}>
       <StepHeading route="review">
-        The monthly business review for {r.monthName}. Actuals here are fictional but fixed: change the plan in step 1 and the gap moves, not the actuals.
+        Plan vs actual for {r.monthName}, the drivers behind the gap, and the re-forecast.
       </StepHeading>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Year to date, through {r.monthName}</p>
           <div className="mt-3 grid grid-cols-3 gap-4">
-            <Stat dark label="Plan" value={formatMoney(r.ytd.plan)} />
-            <Stat dark label="Actual" value={formatMoney(r.ytd.actual)} />
-            <Stat dark label="Gap" value={signed(ytdGap, formatMoney)} sub={signed(ytdGap / r.ytd.plan, (v) => pct(v, 1))} />
+            <Stat trust="modeled" dark label="Plan" value={formatMoney(r.ytd.plan)} />
+            <Stat trust="assumption" dark label="Actual" value={formatMoney(r.ytd.actual)} />
+            <Stat trust="modeled" dark label="Gap" value={signed(ytdGap, formatMoney)} sub={signed(ytdGap / r.ytd.plan, (v) => pct(v, 1))} />
           </div>
         </div>
         <div className="rounded-2xl border border-line bg-surface p-5 sm:p-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Full year</p>
           <div className="mt-3 grid grid-cols-3 gap-4">
-            <Stat label="Plan" value={formatMoney(r.fy.plan)} />
-            <Stat label="Re-forecast" value={formatMoney(r.fy.forecast)} sub="actuals + today's run-rate" />
-            <Stat label="Gap to close" value={formatMoney(Math.max(0, r.fy.gap))} sub={r.fy.gap > 0 ? "see step 3" : "ahead of plan"} />
+            <Stat trust="modeled" label="Plan" value={formatMoney(r.fy.plan)} />
+            <Stat trust="modeled" label="Re-forecast" value={formatMoney(r.fy.forecast)} sub="actuals + today's run-rate" />
+            <Stat trust="modeled" label="Gap to close" value={formatMoney(Math.max(0, r.fy.gap))} sub={r.fy.gap > 0 ? "see Funding" : "ahead of plan"} />
           </div>
         </div>
       </div>
@@ -90,12 +91,11 @@ export function ReviewStep() {
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-muted">On track = within 5% of plan (or better); watch = within 10%; off track = more than 10% worse. Churn is better when lower.</p>
+          <p className="mt-3 text-xs leading-5 text-muted">On track: within 5% of plan. Watch: within 10%. Off track: more than 10% worse.</p>
         </Card>
 
         <div className="grid gap-4">
-          <Card>
-            <Kicker>Alerts</Kicker>
+          <Fold id="alerts" title={`Alerts (${alerts.length})`} sub="Drivers more than 5% off plan, with their revenue effect">
             {alerts.length === 0 ? (
               <p className="mt-2 text-sm text-ink-2">Every driver is within 5% of plan.</p>
             ) : (
@@ -111,7 +111,7 @@ export function ReviewStep() {
                 ))}
               </ul>
             )}
-          </Card>
+          </Fold>
           <Card>
             <Kicker>OKR scorecard (re-forecast vs target)</Kicker>
             <ul className="mt-3 grid gap-2.5 text-sm">
@@ -187,9 +187,7 @@ function Bridge({ r }: { r: Run }) {
       </p>
       </>
       )}
-      <p className="mt-3 text-xs leading-5 text-muted">
-        Sequential substitution: swap one driver at a time from plan to actual, in this order, and record how far revenue moves. The steps add up exactly to the gap.
-      </p>
+      <p className="mt-3 text-xs leading-5 text-muted">Sequential substitution: the driver effects add up exactly to the gap.</p>
     </Card>
   );
 }

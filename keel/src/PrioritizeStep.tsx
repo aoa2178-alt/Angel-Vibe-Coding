@@ -1,4 +1,5 @@
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, Slider, Stat } from "@/components/ui";
 import { formatMoney, pct } from "@/lib/model";
 import { run } from "@/lib/run";
@@ -16,7 +17,7 @@ export function PrioritizeStep() {
   return (
     <Frame route="prioritize" s={s} setS={setS}>
       <StepHeading route="prioritize">
-        Eight proposals, one budget. Each is valued by the revenue it adds to the rest of the year if it works, times the chance it does.
+        Fund the initiatives with the most expected value within the remaining budget and headcount.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start">
@@ -31,10 +32,10 @@ export function PrioritizeStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Funded portfolio</p>
             <div className="mt-3 grid grid-cols-2 gap-4">
-              <Stat dark label="Expected revenue" value={formatMoney(p.expected)} sub="this year, risk-weighted" />
-              <Stat dark label="Of the gap" value={gap > 0 ? pct(closed) : "n/a"} sub={gap > 0 ? `of ${formatMoney(gap)}` : "already ahead of plan"} />
-              <Stat dark label="Spend" value={formatMoney(p.cost)} sub={`of ${formatMoney(s.budget)}`} />
-              <Stat dark label="People" value={`${p.headcount}`} sub={`of ${s.people}`} />
+              <Stat trust="modeled" dark label="Expected revenue" value={formatMoney(p.expected)} sub="this year, risk-weighted" />
+              <Stat trust="modeled" dark label="Of the gap" value={gap > 0 ? pct(closed) : "n/a"} sub={gap > 0 ? `of ${formatMoney(gap)}` : "already ahead of plan"} />
+              <Stat trust="modeled" dark label="Spend" value={formatMoney(p.cost)} sub={`of ${formatMoney(s.budget)}`} />
+              <Stat trust="modeled" dark label="People" value={`${p.headcount}`} sub={`of ${s.people}`} />
             </div>
           </div>
         </div>
@@ -90,8 +91,7 @@ export function PrioritizeStep() {
           </Card>
 
           {zero.length > 0 && (
-            <Card>
-              <Kicker>Worth knowing</Kicker>
+            <Fold id="no-value" title="Initiatives with no value this year" sub="Why some proposals add nothing before year end">
               <ul className="mt-2 grid gap-2 text-sm leading-6 text-ink-2">
                 {zero.map((x) => (
                   <li key={x.initiative.id}>
@@ -104,7 +104,7 @@ export function PrioritizeStep() {
                   </li>
                 ))}
               </ul>
-            </Card>
+            </Fold>
           )}
         </div>
       </div>

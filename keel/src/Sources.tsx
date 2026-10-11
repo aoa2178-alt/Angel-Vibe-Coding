@@ -32,7 +32,7 @@ export function Sources() {
     <Frame route="sources" s={s} setS={setS}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">A fictional company, real methods</h1>
+        <h1 className="mt-2 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl">A fictional company, real methods</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           Halcyon AI, its plan, its actuals and its initiatives are all made up, so no company's confidential numbers are used. The methods are the standard ones an
           operations team runs every month.

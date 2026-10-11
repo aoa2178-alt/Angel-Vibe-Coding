@@ -22,6 +22,12 @@ export function Brief() {
     headline: call.gap > 0
       ? `Fund ${p.funded.length} initiatives for ${formatMoney(p.cost)} and ${p.headcount} people: they should recover about ${formatMoney(p.expected)} (${pct(call.closed)} of the gap). Reset the forecast for the other ${formatMoney(call.residual)} now, not in November.`
       : `We're on plan: keep the ${formatMoney(s.budget)} in reserve and fund only what clears its cost.`,
+    numbers: [
+      { label: "Full-year gap to plan", value: formatMoney(Math.max(0, call.gap)), sub: "forecast against the annual plan", trust: "modeled" },
+      { label: "Recovered by funded work", value: formatMoney(p.expected), sub: `${pct(call.closed)} of the gap · ${p.funded.length} initiatives`, trust: "modeled" },
+      { label: "Left to reset", value: formatMoney(Math.max(0, call.residual)), sub: "the gap funding can't close", trust: "modeled" },
+    ],
+    evidenceSub: "OKR scorecard, the variance bridge and the funding portfolio",
     bullets: [
       ...(call.drag && call.drag.effect < 0 ? [{ label: "What caused it", text: `${lowerFirst(call.drag.label)}: ${signed(call.drag.effect, formatMoney)} of revenue to date, the biggest single driver.` }] : []),
       { label: "Fund", text: p.funded.length ? p.funded.map((x) => `${lowerFirst(x.initiative.name)} (${x.initiative.owner}, ${formatMoney(x.expected)} expected)`).join("; ") : "nothing: no initiative fits what's left." },
@@ -56,7 +62,7 @@ export function Brief() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">The call · {COMPANY} commercial</p>
+            <p className="kicker">Recommendation · {COMPANY} commercial</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{r.monthName} business review</h1>
             <p className="mt-1 text-sm text-muted">Month {r.n} of 12 · a fictional company; illustrative numbers</p>
           </div>
@@ -64,12 +70,6 @@ export function Brief() {
             <Printer className="size-4" aria-hidden /> Print or save PDF
           </button>
         </header>
-
-        <p className="mt-6 text-xl font-semibold leading-8 tracking-tight">
-          {r.fy.gap > 0
-            ? `We're ${formatMoney(Math.abs(r.ytd.actual - r.ytd.plan))} ${r.ytd.actual < r.ytd.plan ? "behind" : "ahead of"} plan year to date and forecast ${formatMoney(r.fy.gap)} short for the year. The funded initiatives below should recover about ${formatMoney(p.expected)} of it.`
-            : `We're ${formatMoney(Math.abs(r.ytd.actual - r.ytd.plan))} ${r.ytd.actual < r.ytd.plan ? "behind" : "ahead of"} plan year to date and forecast to finish ${formatMoney(-r.fy.gap)} ahead.`}
-        </p>
 
         <CallBlocks c={content}>
         <section className="mt-7">

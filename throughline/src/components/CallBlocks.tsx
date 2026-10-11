@@ -25,12 +25,10 @@ export interface CallContent {
   judgment: { label: string; text: ReactNode }[];
 }
 
-function Block({ n, title, children }: { n: number; title: string; children: ReactNode }) {
+function Block({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section data-call-text className="mt-8">
-      <p className="kicker">
-        {n} · {title}
-      </p>
+      <p className="kicker">{title}</p>
       <div className="mt-3 text-[15px] leading-7 text-ink-2">{children}</div>
     </section>
   );
@@ -69,7 +67,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
         </>
       )}
 
-      <Block n={3} title="What would change my mind">
+      <Block title="What would change the recommendation">
         {c.checksIntro && <p className="mb-2">{c.checksIntro}</p>}
         <ul ref={checks.ref} className={`space-y-2 ${checks.paused}`}>
           {c.checks.map((k, i) => (
@@ -83,7 +81,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
         </ul>
       </Block>
 
-      <Block n={4} title="How to land it">
+      <Block title="Implementation">
         <div ref={landing.ref} className={`grid gap-3 sm:grid-cols-3 ${landing.paused}`}>
           {c.landing.map((col, i) => (
             <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
@@ -99,7 +97,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
         <p className="mt-3">{c.people}</p>
       </Block>
 
-      <Block n={5} title="How we'd know it worked">
+      <Block title="Success measures">
         <div className="overflow-auto rounded-lg border border-line">
           <table className="w-full text-left text-sm">
             <thead className="bg-sunken text-xs text-muted">
@@ -123,7 +121,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
         {c.measuresNote && <p className="mt-2 text-xs text-muted">{c.measuresNote}</p>}
       </Block>
 
-      <Block n={6} title="My judgment calls">
+      <Block title="Judgment calls">
         <ul className="list-disc space-y-2 pl-5">
           {c.judgment.map((j) => (
             <li key={j.label}>

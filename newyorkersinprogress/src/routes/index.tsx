@@ -23,13 +23,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Bite-sized daily lessons on OMNY and subway rules, sidewalk cadence, bodega culture, bagel orders and NYC tipping. Build a streak, earn XP, stop feeling new.",
+          "Bite-sized daily lessons on OMNY and subway rules, buses and ferries, sidewalk cadence, bodega culture, bagel orders, neighborhood names, apartment hunting, the weather and NYC tipping. Build a streak, earn XP, stop feeling new.",
       },
       { property: "og:title", content: "Walkin' Here! — Learn NYC in 3 Minutes a Day" },
       {
         property: "og:description",
         content:
-          "Daily micro-lessons for people who just moved to New York City: subway, sidewalks, bodegas, bagels, the street grid and tipping.",
+          "Daily micro-lessons for people who just moved to New York City: subway, buses and ferries, sidewalks, bodegas, bagels, the street grid, neighborhoods, apartments, weather and tipping.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -199,23 +199,28 @@ function AmbientCity() {
 }
 
 function AtlasMap({ completed, onStart }: { completed: string[]; onStart: (lesson: Lesson) => void }) {
+  // Manhattan from the bottom up to the Bronx, then a second leg through Queens and back down to Brooklyn.
   const points = [
     [198, 326], [218, 280], [230, 230], [238, 177], [245, 124], [256, 70],
+    [302, 128], [372, 158], [336, 236], [284, 306],
   ];
   const labelOffsets = [
     [-22, 26], [26, 16], [-26, -10], [-26, -12], [-26, -12], [24, -14],
+    [16, -14], [16, -14], [18, 4], [18, 16],
   ];
+  const minutes = LESSONS.reduce((n, l) => n + l.minutes, 0);
   const next = LESSONS.findIndex((lesson) => !completed.includes(lesson.id));
   return (
     <div className="atlas-paper relative min-h-[440px] overflow-hidden border border-border bg-surface p-5 sm:p-8">
-      <div className="absolute right-5 top-5 z-10 text-right"><p className="atlas-kicker">Weekly line</p><p className="mt-1 text-xs text-muted-foreground">6 stops · 18 minutes</p></div>
-      <svg viewBox="0 0 500 410" className="h-full min-h-[390px] w-full" role="img" aria-label="Illustrated map of New York City showing Manhattan, Brooklyn, Queens, the Bronx, Staten Island, and six lesson stops">
+      <div className="absolute right-5 top-5 z-10 text-right"><p className="atlas-kicker">Weekly line</p><p className="mt-1 text-xs text-muted-foreground">{LESSONS.length} stops · {minutes} minutes</p></div>
+      <svg viewBox="0 0 500 410" className="h-full min-h-[390px] w-full" role="img" aria-label={`Illustrated map of New York City showing Manhattan, Brooklyn, Queens, the Bronx, Staten Island, and ${LESSONS.length} lesson stops`}>
         <path d="M246 21 C268 28 283 42 286 61 C286 77 275 91 257 102 L224 111 L207 91 L212 61 L228 35 Z" fill="color-mix(in oklab,var(--mint) 22%,var(--surface))" stroke="var(--border)" strokeWidth="2" />
         <path d="M226 91 C239 99 244 116 244 139 C244 176 239 212 235 249 C232 275 223 297 211 315 L191 308 C198 282 203 255 207 225 C212 188 214 151 212 115 Z" fill="color-mix(in oklab,var(--signal) 20%,var(--surface))" stroke="var(--border)" strokeWidth="2" />
         <path d="M217 282 C251 270 283 271 316 288 L343 317 L329 350 L285 372 L218 365 L174 342 L178 311 Z" fill="color-mix(in oklab,var(--primary) 22%,var(--surface))" stroke="var(--border)" strokeWidth="2" />
         <path d="M254 119 C294 99 347 97 399 119 L458 150 L451 211 L408 242 L361 270 L315 280 L272 261 L244 222 Z" fill="color-mix(in oklab,var(--lilac) 16%,var(--surface))" stroke="var(--border)" strokeWidth="2" />
         <path d="M48 302 L95 278 L145 288 L166 326 L144 366 L91 382 L48 356 L35 327 Z" fill="color-mix(in oklab,var(--destructive) 12%,var(--surface))" stroke="var(--border)" strokeWidth="2" />
         <path d="M198 326 C213 302 219 279 225 248 C232 213 237 176 242 139 C247 108 251 85 256 70" fill="none" stroke="var(--primary)" strokeWidth="8" strokeLinecap="round" className="atlas-route" />
+        <path d="M256 70 C276 92 290 112 302 128 C326 140 350 150 372 158 C360 186 348 212 336 236 C318 262 300 286 284 306" fill="none" stroke="var(--signal)" strokeWidth="6" strokeLinecap="round" strokeDasharray="1 0" opacity=".85" />
         <path d="M292 75 C354 67 411 79 469 105" stroke="var(--border)" strokeWidth="1" strokeDasharray="2 9" opacity=".45" />
         <path d="M202 76 L210 74" stroke="var(--border)" strokeWidth="1" />
         <text x="198" y="80" textAnchor="end" fill="var(--foreground)" fontSize="10" fontWeight="800" opacity=".8" letterSpacing="1">THE BRONX</text>
@@ -332,6 +337,8 @@ function Index() {
   const [streak, setStreak] = useState(4);
   const [completed, setCompleted] = useState<string[]>(["cadence"]);
   const [active, setActive] = useState<Lesson | null>(null);
+  // XP from the free lesson played before signing up, shown as a nudge on the sign-up page.
+  const [trialXp, setTrialXp] = useState<number | undefined>(undefined);
   const [celebrate, setCelebrate] = useState(0);
   const [tab, setTab] = useState<"learn" | "do" | "slang" | "account">("learn");
   const [profileOpen, setProfileOpen] = useState(false);
@@ -373,8 +380,11 @@ function Index() {
     loadProgressFn()
       .then((progress) => {
         if (cancelled) return;
-        setXp(progress.xp);
-        setStreak(progress.streak);
+        // A brand-new account keeps what was earned before signing up (the free lesson); otherwise the saved numbers win.
+        if (progress.xp > 0 || progress.lessons.length) {
+          setXp(progress.xp);
+          setStreak(progress.streak);
+        }
         if (progress.lessons.length) setCompleted(progress.lessons);
         else if (completed.length) save(saveLessonsFn({ data: { lessons: completed.map((lessonId) => ({ lessonId, earnedXp: 0 })) } }));
         if (Object.keys(progress.spots).length) setMarks(progress.spots);
@@ -444,6 +454,7 @@ function Index() {
     setActive(null);
     setCelebrate((n) => n + 1);
     if (user) save(saveLessonsFn({ data: { lessons: [{ lessonId: lesson.id, earnedXp: earned }] } }));
+    else setTrialXp(earned);
   }
 
   if (sessionPending && !sessionLoadedOnce.current) {
@@ -451,7 +462,14 @@ function Index() {
   }
 
   if (!user) {
-    return <main className="min-h-screen overflow-x-hidden bg-background"><AuthPanel user={null} onSignedOut={() => undefined} /></main>;
+    // Signed out: the course is visible and lesson 1 plays without an account; finishing it nudges toward sign-up.
+    // The lesson is kept locally and saved to the account on sign-up (see the progress sync above).
+    return (
+      <main className="min-h-screen overflow-x-hidden bg-background">
+        <AuthPanel user={null} onSignedOut={() => undefined} onTryLesson={setActive} trialXp={trialXp} />
+        {active && <LessonPlayer lesson={active} onClose={() => setActive(null)} onFinish={finishLesson} />}
+      </main>
+    );
   }
 
   return (
@@ -636,7 +654,7 @@ function Index() {
             <section className="relative mt-10">
               <h2 className="text-2xl font-semibold">This week's path</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Six lessons. Do them in any order.
+                {LESSONS.length} lessons. Do them in any order.
               </p>
 
               <ul className="mt-6 border-t border-border">

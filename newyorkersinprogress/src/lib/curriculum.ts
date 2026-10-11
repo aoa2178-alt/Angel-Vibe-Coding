@@ -257,4 +257,177 @@ export const LESSONS: Lesson[] = [
       },
     ],
   },
+  {
+    id: "transit",
+    title: "Buses, Bikes & Ferries",
+    blurb: "Boarding the bus, the free transfer, Citi Bike and the free boat.",
+    emoji: "🚌",
+    minutes: 3,
+    xp: 30,
+    questions: [
+      {
+        prompt: "A local bus pulls up. How do you get on and pay?",
+        context: "M14A, First Avenue",
+        options: [
+          "Board at the front and tap OMNY by the driver",
+          "Board at the back and pay when you get off",
+          "Wave cash at the driver for change",
+        ],
+        answer: 0,
+        explain:
+          "On a local bus you board at the front and tap the OMNY reader. Exit through the back doors so people can get on.",
+      },
+      {
+        prompt: "You tap into the subway, then need a bus for the last mile. What does it cost?",
+        options: ["Another full fare", "Nothing: the transfer is free", "Half a fare"],
+        answer: 1,
+        explain:
+          "Tap the same card or phone and a subway-to-bus transfer within two hours is free. Tapping a different card starts a new fare.",
+      },
+      {
+        prompt: "You want to see the Statue of Liberty without paying for a tour.",
+        options: ["Take the Staten Island Ferry", "Buy a harbor cruise", "Walk the Brooklyn Bridge"],
+        answer: 0,
+        explain:
+          "The Staten Island Ferry is free and runs around the clock. Stand on the right-hand side going out for the statue view.",
+      },
+      {
+        prompt: "You've finished a Citi Bike ride. What ends it?",
+        options: ["Locking it to any pole", "Docking it at a station until it clicks in", "Leaving it on the sidewalk"],
+        answer: 1,
+        explain:
+          "A ride only ends when the bike is docked at a station. Rides have a time limit, so check the app before a long trip.",
+      },
+    ],
+  },
+  {
+    id: "neighborhoods",
+    title: "Neighborhood Names",
+    blurb: "SoHo, Tribeca, DUMBO, and how to say Houston.",
+    emoji: "🗺️",
+    minutes: 2,
+    xp: 25,
+    questions: [
+      {
+        prompt: "How do New Yorkers say Houston Street?",
+        options: ["HYOO-ston, like the city in Texas", "HOW-stun", "HOOS-ton"],
+        answer: 1,
+        explain:
+          "It's HOW-stun. Saying it like the Texas city is the fastest way to sound new.",
+      },
+      {
+        prompt: "What does the name SoHo mean?",
+        options: ["South of Houston Street", "Soho, after the London neighborhood", "South Hoboken"],
+        answer: 0,
+        explain:
+          "SoHo is South of Houston Street. NoHo, just north, is North of Houston.",
+      },
+      {
+        prompt: "Tribeca is short for…",
+        options: ["Triangle Below Canal Street", "Tribe of Ecuador", "Three Bridges Area"],
+        answer: 0,
+        explain:
+          "The Triangle Below Canal. A lot of neighborhood names are acronyms that started as real-estate branding.",
+      },
+      {
+        prompt: "DUMBO, in Brooklyn, stands for…",
+        options: [
+          "Down Under the Manhattan Bridge Overpass",
+          "Downtown Under Manhattan's Bay Outlook",
+          "It's named after the elephant",
+        ],
+        answer: 0,
+        explain:
+          "Down Under the Manhattan Bridge Overpass. Go at golden hour for the famous Washington Street view of the bridge.",
+      },
+    ],
+  },
+  {
+    id: "apartment",
+    title: "Apartment Hunting",
+    blurb: "The 40× rule, guarantors, broker fees and application fees.",
+    emoji: "🔑",
+    minutes: 3,
+    xp: 30,
+    questions: [
+      {
+        prompt: "The listing says applicants must earn 40× the rent. Rent is $3,000 a month. What income do they want?",
+        options: ["$40,000 a year", "$120,000 a year", "$3,000 a week"],
+        answer: 1,
+        explain:
+          "40 times the monthly rent, as a yearly salary: $3,000 × 40 = $120,000. It's the most common screening rule in the city.",
+      },
+      {
+        prompt: "You don't hit the income rule. What do landlords usually accept instead?",
+        options: [
+          "A guarantor who earns about 80× the rent, or a guarantor company",
+          "A handwritten promise to pay",
+          "Nothing, you can't rent",
+        ],
+        answer: 0,
+        explain:
+          "A guarantor co-signs the lease. Landlords often want them to earn around 80× the rent; paid guarantor companies are the common fallback.",
+      },
+      {
+        prompt: "The landlord hired the broker who listed the apartment. Who pays the broker fee?",
+        options: ["You, the tenant", "The landlord", "It's split 50/50"],
+        answer: 1,
+        explain:
+          "Under the FARE Act (in effect since June 2025), whoever hires the broker pays the fee. If the landlord hired them, the landlord pays.",
+      },
+      {
+        prompt: "An agent asks for a $150 application fee. Is that normal?",
+        options: ["Yes, that's standard", "No: New York caps it at $20", "Only for luxury buildings"],
+        answer: 1,
+        explain:
+          "State law caps the background and credit check fee at $20, and you can skip it if you bring a recent report yourself.",
+      },
+    ],
+  },
+  {
+    id: "weather",
+    title: "Weather & Seasons",
+    blurb: "Umbrella etiquette, slush corners, hot platforms and layers.",
+    emoji: "🌦️",
+    minutes: 2,
+    xp: 25,
+    questions: [
+      {
+        prompt: "Rainy sidewalk, packed with umbrellas. Someone's coming toward you.",
+        options: [
+          "Hold yours straight and make them duck",
+          "Tilt or lift yours so the umbrellas pass",
+          "Close it and run",
+        ],
+        answer: 1,
+        explain:
+          "The taller person lifts, the other tilts away. Nobody gets an umbrella spoke in the eye.",
+      },
+      {
+        prompt: "It snowed yesterday. You reach the corner and the curb looks wet. What's there?",
+        options: ["Probably nothing", "A slush lake that's deeper than it looks", "A heated sidewalk"],
+        answer: 1,
+        explain:
+          "Melting snow pools at every corner and hides how deep it is. Waterproof boots are a winter essential, not a fashion choice.",
+      },
+      {
+        prompt: "August afternoon, headed into the subway. What should you expect on the platform?",
+        options: [
+          "Air conditioning, like the trains",
+          "Hotter than the street; the trains are the cool part",
+          "Cooler air from underground",
+        ],
+        answer: 1,
+        explain:
+          "Platforms trap heat in summer while most trains are air-conditioned. Carry water, and wait near the stairs for any breeze.",
+      },
+      {
+        prompt: "It's 25°F outside and you're heading to work in an old building. How do you dress?",
+        options: ["One very heavy sweater", "Layers you can take off inside", "Light clothes; it's warm indoors"],
+        answer: 1,
+        explain:
+          "Old buildings are heated by radiators that run hot. Layers let you survive the walk and the overheated office.",
+      },
+    ],
+  },
 ];

@@ -243,4 +243,110 @@ export const SLANG: SlangTerm[] = [
       answer: 1,
     },
   },
+  {
+    id: "online",
+    term: "On Line",
+    phonetic: "/ɒn laɪn/",
+    category: "everyday",
+    short: "Waiting in a queue",
+    definition:
+      "New Yorkers wait 'on line', not 'in line'. It means standing in a queue, at the deli, the DMV or a sample sale.",
+    example: "“I was on line at the bagel place for twenty minutes.”",
+    warning:
+      "Completely safe. Most of the country says 'in line', so this is one of the easiest ways to sound local.",
+    cringe: 1,
+    quiz: {
+      prompt: "“I'm on line” at a bakery means…",
+      options: ["You're on your phone", "You're waiting in the queue", "You ordered ahead", "You're on a call"],
+      answer: 1,
+    },
+  },
+  {
+    id: "hero",
+    term: "Hero",
+    phonetic: "/ˈhɪə.roʊ/",
+    category: "food",
+    short: "A long sandwich (a sub)",
+    definition:
+      "A long sandwich on an Italian roll. The rest of the country says sub or hoagie; delis here write 'hero' on the board.",
+    example: "“Chicken cutlet hero with mozz and vodka sauce.”",
+    warning: "Safe at any deli counter. Saying 'hoagie' will mark you as from Philly.",
+    cringe: 1,
+    quiz: {
+      prompt: "You order a hero at the deli. You get…",
+      options: ["A cape", "A long sandwich on a roll", "A large coffee", "A slice of pizza"],
+      answer: 1,
+    },
+  },
+  {
+    id: "stoop",
+    term: "Stoop",
+    phonetic: "/stuːp/",
+    category: "classics",
+    short: "The front steps of a building",
+    definition:
+      "The steps up to a brownstone's front door, from the Dutch 'stoep'. Stoops are where neighbors sit, talk and leave free stuff.",
+    example: "“Meet you on the stoop, it's too nice to stay inside.”",
+    warning:
+      "Safe. A 'stoop sale' is a yard sale on the front steps, and a box marked 'free' on a stoop really is free.",
+    cringe: 1,
+    quiz: {
+      prompt: "Something is left on a stoop with a sign saying “free.” It's…",
+      options: ["On a doctor's steps", "On a building's front steps, free to take", "In the subway", "At a bus stop"],
+      answer: 1,
+    },
+  },
+  {
+    id: "showtime",
+    term: "Showtime",
+    phonetic: "/ˈʃoʊ.taɪm/",
+    category: "streets",
+    short: "Subway dancers about to perform",
+    definition:
+      "What performers shout before a pole-dancing, acrobatic routine in a subway car. Expect flips, music and a hat passed around after.",
+    example: "“What time is it?” “SHOWTIME!”",
+    warning: "Don't stand in the middle of the car when you hear it, and hold onto your coffee.",
+    cringe: 2,
+    quiz: {
+      prompt: "Someone yells “Showtime!” on the train. What happens next?",
+      options: ["The train stops", "A dance routine in the car", "A ticket check", "A movie starts on the screens"],
+      answer: 1,
+    },
+  },
+  {
+    id: "slice",
+    term: "Slice",
+    phonetic: "/slaɪs/",
+    category: "food",
+    short: "One piece of pizza, folded",
+    definition:
+      "A single piece of a big New York pie, eaten folded in half lengthwise so the tip doesn't flop. A 'plain slice' is cheese.",
+    example: "“Two plain slices and a Coke.”",
+    warning:
+      "Fold it. A knife and fork on a slice gets noticed.",
+    cringe: 1,
+    quiz: {
+      prompt: "You order “a plain slice.” You get…",
+      options: ["Plain bread", "A cheese slice", "A slice with no sauce", "A gluten-free crust"],
+      answer: 1,
+    },
+  },
+  {
+    id: "bridgetunnel",
+    term: "Bridge and Tunnel",
+    phonetic: "/brɪdʒ ənd ˈtʌn.əl/",
+    category: "classics",
+    short: "People who come into Manhattan for the night",
+    definition:
+      "A Manhattan dig at visitors from New Jersey, Long Island and the suburbs who come in by bridge or tunnel to go out.",
+    example: "“That bar turns into a bridge-and-tunnel scene after 11.”",
+    warning:
+      "It's a snobby label. Know what it means; think twice before using it, especially if you just moved here.",
+    cringe: 4,
+    quiz: {
+      prompt: "“Bridge and tunnel” describes…",
+      options: ["A traffic report", "Visitors from outside Manhattan out for the night", "Construction workers", "A subway line"],
+      answer: 1,
+    },
+  },
 ];

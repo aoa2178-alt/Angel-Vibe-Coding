@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, Link2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Link2, RotateCcw } from "lucide-react";
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { CASES, COUNTRIES, RETRIEVED, byIso, shortName } from "@/lib/data";
 import { readScenario, scenarioQuery, type Scenario } from "@/lib/scenario";
@@ -94,6 +94,23 @@ function Tracker({ route, s, compact = false }: { route: PageRoute; s: Scenario;
   );
 }
 
+/** Back to the example case: shown only once something differs from it. */
+export function ResetScenario({ s }: { s: Scenario }) {
+  if (!scenarioQuery(s)) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => window.location.assign(window.location.pathname)}
+      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink transition hover:border-brand"
+      aria-label="Reset to the example case"
+      title="Reset to the example case"
+    >
+      <RotateCcw className="size-3.5" aria-hidden />
+      <span className="hidden md:inline">Reset</span>
+    </button>
+  );
+}
+
 export function CopyLink() {
   const [copied, setCopied] = useState(false);
   async function copy() {
@@ -179,7 +196,10 @@ export function Frame({ route, s, setS, children }: { route: PageRoute; s: Scena
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-3 pr-2 sm:pl-4">
           <Logo />
           <Tracker route={route} s={s} />
-          <CopyLink />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ResetScenario s={s} />
+            <CopyLink />
+          </div>
         </div>
         <div className="mx-auto mt-2 max-w-[1200px] rounded-2xl border border-line bg-surface p-1 lg:hidden">
           <Tracker route={route} s={s} compact />

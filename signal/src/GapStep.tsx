@@ -31,10 +31,10 @@ export function GapStep() {
 
       <Card>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Population" value={people(g.pop)} sub={`${yearOf(c, "pop")}`} />
-          <Stat label="Online" value={pct(g.online)} sub={`World Bank, ${yearOf(c, "internet")}`} />
-          <Stat label="Offline" value={people(g.offline)} />
-          <Stat label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
+          <Stat trust="data" label="Population" value={people(g.pop)} sub={`${yearOf(c, "pop")}`} />
+          <Stat trust="data" label="Online" value={pct(g.online)} sub={`World Bank, ${yearOf(c, "internet")}`} />
+          <Stat trust="data" label="Offline" value={people(g.offline)} />
+          <Stat trust="modeled" label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
         </div>
         <div className="mt-6">
           <Crowd
@@ -113,10 +113,10 @@ export function GapStep() {
       <Card className="mt-6">
         <Kicker>The wider picture</Kicker>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Has electricity" value={pct(share(c, "electricity"))} sub={`${yearOf(c, "electricity") ?? ""}`} />
-          <Stat label="Mobile money account" value={pct(share(c, "mobileMoney"))} sub="adults, Findex 2025" />
-          <Stat label="Any account" value={pct(share(c, "account"))} sub="bank or mobile money" />
-          <Stat label="Mobile subscriptions" value={v(c, "mobileSubs") === null ? "–" : `${Math.round(v(c, "mobileSubs")!)} per 100`} sub="SIMs, not people" />
+          <Stat trust="data" label="Has electricity" value={pct(share(c, "electricity"))} sub={`${yearOf(c, "electricity") ?? ""}`} />
+          <Stat trust="data" label="Mobile money account" value={pct(share(c, "mobileMoney"))} sub="adults, Findex 2025" />
+          <Stat trust="data" label="Any account" value={pct(share(c, "account"))} sub="bank or mobile money" />
+          <Stat trust="data" label="Mobile subscriptions" value={v(c, "mobileSubs") === null ? "–" : `${Math.round(v(c, "mobileSubs")!)} per 100`} sub="SIMs, not people" />
         </div>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
           Mobile money shows what a phone can do for people with low incomes (M-Pesa in Kenya is the classic case). The same pay-as-you-go rails can finance the phone itself, which step 2 tests.

@@ -1,8 +1,9 @@
 import { Check, Printer, X } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { ladder } from "./AffordStep";
 import { buildPlan } from "./BuildStep";
 import { Bars } from "@/components/Bars";
+import { CallShare, HowSolid } from "@/components/CallTools";
 import { Frame, StepHeading, href, linkClick, useScenario } from "@/components/Frame";
 import { Cascade, anim, useInView } from "@/components/Motion";
 import { afford } from "@/lib/afford";
@@ -41,6 +42,7 @@ export function Call() {
   const phoneBinds = today.binding === "phone";
   const r = afford(c, s.afford);
   const landing = useInView<HTMLDivElement>();
+  const root = useRef<HTMLElement>(null);
 
   return (
     <Frame route="call" s={s} setS={setS}>
@@ -50,7 +52,7 @@ export function Call() {
         </button>
       </StepHeading>
 
-      <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
+      <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
           <p className="kicker">The call · {name}</p>
           <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where should {name}'s next dollar for connectivity go?</h2>
@@ -60,7 +62,7 @@ export function Call() {
         </header>
 
         {/* 1. The recommendation, answer first */}
-        <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
+        <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
           <p className="kicker">1 · My recommendation</p>
           <p className="mt-2 text-xl font-bold leading-snug tracking-tight sm:text-2xl">
             <Cascade
@@ -97,6 +99,8 @@ export function Call() {
             )}
           </ul>
         </section>
+        <HowSolid checks={sens} />
+        <CallShare root={root} />
 
         {/* 2. Why: the comparison */}
         <section className="mt-8">
@@ -141,7 +145,7 @@ export function Call() {
         </section>
 
         {/* 3. What would change my mind */}
-        <section className="mt-8">
+        <section data-call-text className="mt-8">
           <p className="kicker">3 · What would change my mind</p>
           <ul className="mt-3 space-y-2 text-[15px] leading-7 text-ink-2">
             {sens.map((x) => (
@@ -156,7 +160,7 @@ export function Call() {
         </section>
 
         {/* 4. How to land it */}
-        <section className="mt-8">
+        <section data-call-text className="mt-8">
           <p className="kicker">4 · How to land it</p>
           <div ref={landing.ref} className={`mt-3 grid gap-3 sm:grid-cols-3 ${landing.paused}`}>
             {[
@@ -199,7 +203,7 @@ export function Call() {
         </section>
 
         {/* 5. How we'd know it worked */}
-        <section className="mt-8">
+        <section data-call-text className="mt-8">
           <p className="kicker">5 · How we'd know it worked</p>
           <div className="mt-3 overflow-auto rounded-lg border border-line">
             <table className="w-full text-left text-sm">
@@ -245,7 +249,7 @@ export function Call() {
         </section>
 
         {/* 6. Judgment calls */}
-        <section className="mt-8">
+        <section data-call-text className="mt-8">
           <p className="kicker">6 · My judgment calls</p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-7 text-ink-2">
             <li>

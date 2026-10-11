@@ -44,10 +44,10 @@ export function AffordStep() {
         <div className="grid content-start gap-6">
           <Card>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label="Can afford a phone and data" value={pct(r.share)} sub={`${people(r.people)} people`} />
-              <Stat label="At today's prices" value={pct(base.share)} sub={`${people(base.people)} people`} />
-              <Stat label="Added by your levers" value={`+${people(r.people - base.people)}`} />
-              <Stat label="What holds people back" value={r.binding === "phone" ? "The phone" : "The data"} sub={`needs ${usd(r.need)} a month of income`} />
+              <Stat trust="modeled" label="Can afford a phone and data" value={pct(r.share)} sub={`${people(r.people)} people`} />
+              <Stat trust="modeled" label="At today's prices" value={pct(base.share)} sub={`${people(base.people)} people`} />
+              <Stat trust="modeled" label="Added by your levers" value={`+${people(r.people - base.people)}`} />
+              <Stat trust="modeled" label="What holds people back" value={r.binding === "phone" ? "The phone" : "The data"} sub={`needs ${usd(r.need)} a month of income`} />
             </div>
             <div className="mt-6">
               <Bars

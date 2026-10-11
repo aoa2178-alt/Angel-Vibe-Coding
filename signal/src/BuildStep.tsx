@@ -44,10 +44,10 @@ export function BuildStep() {
         <div className="grid content-start gap-6">
           <Card>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat label="People without a signal" value={people(unc.total)} sub={`${people(unc.out.remote)} remote · ${people(unc.out.rural)} rural`} />
-              <Stat label="Cost to cover all of them" value={usd(full)} sub={`connects ${people(allUsers)} at ${pct(b.adoption)} adoption`} />
-              <Stat label="Your budget" value={usd(plan.spend)} sub={`${pct(b.fund)} of the full cost`} />
-              <Stat label="People it connects" value={people(plan.users)} sub={`${pct(plan.users / (allUsers || 1))} of the most it could`} />
+              <Stat trust="modeled" label="People without a signal" value={people(unc.total)} sub={`${people(unc.out.remote)} remote · ${people(unc.out.rural)} rural`} />
+              <Stat trust="modeled" label="Cost to cover all of them" value={usd(full)} sub={`connects ${people(allUsers)} at ${pct(b.adoption)} adoption`} />
+              <Stat trust="assumption" label="Your budget" value={usd(plan.spend)} sub={`${pct(b.fund)} of the full cost`} />
+              <Stat trust="modeled" label="People it connects" value={people(plan.users)} sub={`${pct(plan.users / (allUsers || 1))} of the most it could`} />
             </div>
             <div className="mt-6">
               <LineChart

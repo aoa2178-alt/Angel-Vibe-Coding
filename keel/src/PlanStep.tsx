@@ -20,7 +20,7 @@ export function PlanStep() {
   return (
     <Frame route="plan" s={s} setS={setS}>
       <StepHeading route="plan">
-        The year's plan, built from the drivers each team controls. Change a driver and the revenue, headcount, opex and OKR targets all move with it.
+        A driver-based plan: revenue, headcount, opex and OKR targets move with each driver.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
@@ -77,7 +77,7 @@ export function PlanStep() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs leading-5 text-muted">Targets come straight from the plan's drivers, so every key result traces to a number someone owns.</p>
+            <p className="mt-3 text-xs leading-5 text-muted">Each key result traces to a plan driver.</p>
           </Card>
         </div>
 

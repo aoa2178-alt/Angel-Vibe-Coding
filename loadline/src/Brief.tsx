@@ -31,6 +31,14 @@ export function Brief() {
     headline: top
       ? `Chase ${top.phaseName}: ${label(top.milestone)} first. In this scenario every month it slips costs about ${formatMoney(monthly)}. That's the ceiling on what pulling it in is worth, not a budget: fund a fix at its cost times the chance it actually saves the month.`
       : "Every milestone has more than three months of slack: hold the plan and watch the grid date.",
+    numbers: top
+      ? [
+          { label: "Cost of a month's slip", value: formatMoney(monthly), sub: `${top.phaseName}, the critical path`, trust: "modeled" },
+          { label: `${top.phaseName} goes live`, value: call.topPlan ? formatMonth(call.topPlan.now.live) : "–", sub: `waiting on ${label(top.milestone)}`, trust: "modeled" },
+          { label: "Spare transformers to hold", value: String(hedge.best), sub: `one short costs ${formatMoney(hedge.underage)}`, trust: "modeled" },
+        ]
+      : undefined,
+    evidenceSub: "When each phase goes live, and what it is waiting on",
     bullets: [
       ...call.risks.slice(1, 3).map((r, k) => ({ label: k === 0 ? "Second" : "Third", text: `${r.phaseName}: ${label(r.milestone)} (three more months would cost ${formatMoney(r.cost)}).` })),
       { label: "Hedge", text: `hold ${hedge.best} spare transformer${hedge.best === 1 ? "" : "s"} across the campus's ${hedge.units}: one short costs about ${formatMoney(hedge.underage)}, an unused spare ${formatMoney(hedge.overage)}.` },

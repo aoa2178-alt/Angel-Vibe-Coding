@@ -24,6 +24,13 @@ export function NoteStep() {
     headline: tripped.length <= 1
       ? `Plan for growth, hedge for a slowdown: capex is still up ${h.yoy === null ? "–" : signedPct(h.yoy)} on a year, but ${tripped.length ? `one of ${call.indicators.length} warning lights is already on (${tripped[0]!.label.toLowerCase()})` : "no warning light is on yet"}, and the weakest balance sheets will cut first.`
       : `Plan for a slowdown: ${tripped.length} of ${call.indicators.length} warning lights are on, even with capex still up ${h.yoy === null ? "–" : signedPct(h.yoy)}.`,
+    kicker: "Quarterly note",
+    numbers: [
+      { label: `Capex, ${formatQuarter(h.quarter)}`, value: formatMillions(h.capex), sub: "six spenders, from the filings", trust: "data" },
+      { label: "Year on year", value: h.yoy === null ? "–" : signedPct(h.yoy), sub: "same quarter last year", trust: "modeled" },
+      { label: "Warning lights on", value: `${tripped.length} of ${call.indicators.length}`, sub: tripped.length ? tripped.map((i) => i.label.toLowerCase()).join("; ") : "none yet", trust: "modeled" },
+    ],
+    evidenceSub: "Spend, payoff and suppliers this quarter, and the filings behind it",
     bullets: [
       { label: "If you sell into the build-out", text: `add capacity, but on contracts with deposits or take-or-pay terms, and watch customer concentration: ${call.negative.length ? call.negative.map((x) => x.c.short).join(" and ") + " already spend more than their operating cash" : "every spender still funds capex from cash"}.` },
       { label: "If you buy AI capacity", text: "don't lock in long: GPU rental prices have been falling about a quarter a year (Breakeven's tracker), so short commitments keep the option to pay less." },

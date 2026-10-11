@@ -4137,3 +4137,70 @@ blockquote {
 .project-art--ops > strong span {
   color: #2453ff;
 }
+
+/* Smaller app cards (2026-10-11): five per row on wide screens, three on tablets, two on phones.
+   The artwork is square, and each card's big title scales with the card's own width (container units). */
+.ai-build-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2.5rem 1rem;
+}
+
+.ai-build-card .project-art {
+  aspect-ratio: 1 / 1;
+  container-type: inline-size;
+}
+
+.ai-build-card__body {
+  min-height: 0;
+  padding: 0.7rem 0.8rem 0.85rem;
+}
+
+.ai-build-card__body > p {
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.ai-build-card .breakeven-word { font-size: 21cqi; }
+.ai-build-card .loadline-word { font-size: 17cqi; }
+.ai-build-card .throughline-word { font-size: 16cqi; }
+.ai-build-card .keel-word { font-size: 25cqi; }
+.ai-build-card .project-art--tender > strong { font-size: 21cqi; }
+.ai-build-card .project-art--buildout > strong { font-size: 23cqi; }
+.ai-build-card .project-art--where-ai-lives > strong { font-size: 19cqi; }
+.ai-build-card .project-art--signal > strong { font-size: 22cqi; }
+.ai-build-card .project-art--walkin > strong { font-size: 19cqi; }
+.ai-build-card .project-art--ops > strong { font-size: 20cqi; }
+
+@media (max-width: 1100px) {
+  .ai-build-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ai-build-card .project-art {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .ai-build-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 0.75rem;
+  }
+
+  .ai-build-card__body {
+    padding: 0.6rem 0.6rem 0.7rem;
+  }
+
+  .ai-build-card__body > p {
+    font-size: 0.7rem;
+  }
+}
+
+/* Phone cards are too narrow for the small bottom captions inside the artwork. */
+@media (max-width: 640px) {
+  .ai-build-card .art-caption,
+  .ai-build-card .card-art-caption,
+  .ai-build-card .flow-note {
+    display: none;
+  }
+}

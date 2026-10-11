@@ -13,17 +13,20 @@ const STEPS = [
 ];
 
 /**
- * The year as a tilted wall of twelve month tiles that drifts slowly: actuals up to the review month (lit), dashed
- * re-forecasts after it. Each closed month is a button that makes it the review month.
+ * The year as a tilted wall of twelve month blocks that drifts slowly: each block stands as tall as that month's revenue,
+ * and the blocks float in a slow wave. Actuals up to the review month (lit), glassy re-forecasts after it. Each closed
+ * month is a button that makes it the review month.
  */
 function MonthWall({ r, onPick }: { r: Run; onPick: (m: number) => void }) {
+  const max = Math.max(...r.actual.slice(0, r.n).map((m) => m.revenue), ...r.forecast.map((m) => m.revenue));
   return (
-    <div className="keel-wall grid grid-cols-4 gap-[18px]">
+    <div className="keel-wall grid grid-cols-4 gap-[22px]">
       {r.plan.map((p, i) => {
         const done = i < r.n;
         const now = i === r.n - 1;
         const v = done ? r.actual[i]!.revenue : r.forecast[i]!.revenue;
         const d = v / p.revenue - 1;
+        const kind = now ? "kt-now" : done ? "kt-done" : "kt-fc";
         return (
           <button
             key={i}
@@ -31,18 +34,24 @@ function MonthWall({ r, onPick }: { r: Run; onPick: (m: number) => void }) {
             tabIndex={-1}
             disabled={!done}
             onClick={() => onPick(i + 1)}
-            className={`flex h-[150px] flex-col justify-between rounded-[10px] p-3.5 text-left transition ${
-              now ? "bg-brand text-white shadow-[6px_10px_0_#082a30]" : done ? "bg-[#fbfbf7] shadow-[6px_10px_0_#b9c7b0] hover:-translate-y-1" : "border-[1.5px] border-dashed border-[#b9c7b0]"
-            }`}
+            className={`kt ${kind}`}
+            style={{ ["--h" as string]: `${Math.round(14 + (v / max) * 40)}px`, animationDelay: `${-(i % 4) * 0.45 - Math.floor(i / 4) * 0.7}s` }}
           >
-            <span className={`text-[11px] tracking-[0.24em] ${now ? "text-[#bfe9df]" : "text-muted"}`}>
-              {MONTH_NAMES[i]!.toUpperCase()}
-              {done ? "" : " · FORECAST"}
-            </span>
-            <span className="font-mono text-[22px] font-semibold">{formatMoney(v)}</span>
-            <span className={`text-xs ${now ? "text-[#bfe9df]" : d < 0 ? "text-risk" : "text-muted"}`}>{signed(d * 100, (x) => `${x.toFixed(1)}%`)} vs plan</span>
-            <span className="block h-[5px] overflow-hidden rounded-[3px] bg-[#cfd9c8]">
-              <i className="block h-full bg-accent" style={{ width: `${Math.min(100, (v / p.revenue) * 100)}%` }} />
+            <span className="kt-shadow" />
+            <span className="kt-side kt-n" />
+            <span className="kt-side kt-w" />
+            <span className="kt-side kt-s" />
+            <span className="kt-side kt-e" />
+            <span className="kt-top flex flex-col justify-between p-3.5 text-left">
+              <span className={`text-[11px] tracking-[0.24em] ${now ? "text-[#bfe9df]" : "text-muted"}`}>
+                {MONTH_NAMES[i]!.toUpperCase()}
+                {done ? "" : " · FORECAST"}
+              </span>
+              <span className="font-mono text-[22px] font-semibold">{formatMoney(v)}</span>
+              <span className={`text-xs ${now ? "text-[#bfe9df]" : d < 0 ? "text-risk" : "text-muted"}`}>{signed(d * 100, (x) => `${x.toFixed(1)}%`)} vs plan</span>
+              <span className="block h-[5px] overflow-hidden rounded-[3px] bg-[#cfd9c8]">
+                <i className="block h-full bg-accent" style={{ width: `${Math.min(100, (v / p.revenue) * 100)}%` }} />
+              </span>
             </span>
           </button>
         );

@@ -108,9 +108,31 @@ input[type="range"] {
   }
 }
 
-/* Keel landing: the tilted wall of month tiles, drifting slowly. */
-.keel-wall { transform: rotateX(52deg) rotateZ(-32deg); transform-origin: 50% 40%; animation: keel-drift 14s ease-in-out infinite alternate; }
-@keyframes keel-drift { to { transform: rotateX(52deg) rotateZ(-32deg) translate(-26px, 14px); } }
+/* Keel landing: the tilted wall of month blocks. The wall drifts; each block floats in a slow wave. */
+.keel-wall { transform-style: preserve-3d; transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg); transform-origin: 50% 40%; animation: keel-drift 14s ease-in-out infinite alternate; }
+@keyframes keel-drift { to { transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg) translate(-26px, 14px); } }
+.kt { position: relative; height: 150px; transform-style: preserve-3d; animation: keel-bob 4.5s ease-in-out infinite; transition: filter 0.2s; }
+@keyframes keel-bob { 50% { transform: translateZ(16px); } }
+.kt-done { cursor: pointer; }
+.kt-done:hover, .kt-now:hover { filter: brightness(1.04); }
+.kt > span { position: absolute; }
+.kt > .kt-side, .kt > .kt-shadow { display: block; }
+.kt-top { inset: 0; border-radius: 10px; transform: translateZ(var(--h)); }
+.kt-shadow { inset: 6px; border-radius: 10px; background: rgb(29 48 39 / 0.22); filter: blur(10px); }
+.kt-side { transform-style: preserve-3d; }
+.kt-s { left: 6px; right: 6px; top: 100%; height: var(--h); transform-origin: top; transform: rotateX(90deg); }
+.kt-n { left: 6px; right: 6px; bottom: 100%; height: var(--h); transform-origin: bottom; transform: rotateX(-90deg); }
+.kt-e { top: 6px; bottom: 6px; left: 100%; width: var(--h); transform-origin: left; transform: rotateY(-90deg); }
+.kt-w { top: 6px; bottom: 6px; right: 100%; width: var(--h); transform-origin: right; transform: rotateY(90deg); }
+.kt-done .kt-top { background: #fbfbf7; }
+.kt-done .kt-s, .kt-done .kt-n { background: #b9c7b0; }
+.kt-done .kt-e, .kt-done .kt-w { background: #a3b499; }
+.kt-now .kt-top { background: var(--brand); color: #fff; }
+.kt-now .kt-s, .kt-now .kt-n { background: #0a2e34; }
+.kt-now .kt-e, .kt-now .kt-w { background: #072328; }
+.kt-fc .kt-top { background: rgb(251 251 247 / 0.45); border: 1.5px dashed #9fb196; }
+.kt-fc .kt-s, .kt-fc .kt-n, .kt-fc .kt-e, .kt-fc .kt-w { background: rgb(185 199 176 / 0.35); }
+.kt-fc .kt-shadow { opacity: 0.4; }
 
 @media (prefers-reduced-motion: reduce) {
   *,

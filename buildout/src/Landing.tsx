@@ -42,7 +42,7 @@ export function Landing() {
             <div>
               <p className="kicker">AI capital spending</p>
               <h1 className="mt-4 max-w-3xl text-[2.3rem] font-semibold leading-[1.08] tracking-[-0.05em] sm:text-[3.4rem]">
-                How much is Big Tech <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">spending</span>?
+                How much is Big Tech <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">investing</span> in AI?
               </h1>
               <p className="mt-5 max-w-xl text-lg leading-8 text-ink-2">Quarterly capex for six companies, straight from 10-Q and 10-K filings.</p>
             </div>

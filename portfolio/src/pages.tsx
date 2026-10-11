@@ -253,6 +253,31 @@ function SignalProject() {
   );
 }
 
+function WalkinProject() {
+  return (
+    <div className="project-art project-art--walkin" aria-hidden="true">
+      <span className="card-art-label">NEW YORK CITY</span>
+      <div className="walkin-stripes">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="walkin-grid">
+        {Array.from({ length: 12 }, (_, index) => (
+          <i key={index} />
+        ))}
+      </div>
+      <strong>
+        WALKIN&rsquo;
+        <br />
+        HERE!
+      </strong>
+      <span className="card-art-caption">Subway · Bodegas · Slang</span>
+    </div>
+  );
+}
+
 // The intro splash plays once per visit, not every time someone comes back to the home page.
 let introShown = false;
 
@@ -409,11 +434,12 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             <h2 id="ai-builds-heading">AI Builds</h2>
             <div className="portfolio-intro">
               <p>
-                Eight working products built to turn dense questions across AI
+                Nine working products: eight that turn dense questions across AI
                 infrastructure, strategy, operations, and supply chains into
-                clear, practical decisions.
+                clear, practical decisions, and one consumer app for learning a
+                city.
               </p>
-              <a href="#ai-builds-grid">Explore all eight below ↓</a>
+              <a href="#ai-builds-grid">Explore all nine below ↓</a>
             </div>
           </div>
         </div>
@@ -608,6 +634,30 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 costs, and who should pay.
               </p>
               <TagPills id="signal" />
+            </div>
+          </article>
+
+          <article className="ai-build-card">
+            <div className="ai-build-card__media">
+              <WalkinProject />
+              <img className="ai-build-card__shot" src="/shots/walkin-here.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
+            <div className="ai-build-card__body">
+              <div className="ai-build-card__meta">
+                <span>09 / City learning</span>
+                <span className="live-status">Live</span>
+              </div>
+              <h3>
+                <a className="ai-build-card__link" href="https://walkinhere.vercel.app" target="_blank" rel="noreferrer">
+                  <span className="sr-only">Walkin' Here! — </span>
+                  Explore <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>
+                Teaches newcomers New York's unwritten rules in three-minute
+                daily lessons, with quizzes and a streak.
+              </p>
+              <TagPills id="walkin-here" />
             </div>
           </article>
         </div>

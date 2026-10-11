@@ -20,7 +20,7 @@ Email: angel_ade-oduntan@berkeley.edu
 - Columbia Business School, MBA exchange: operations, AI, and technology.
 - University of Ibadan, BSc Mathematics: top 5% of the class.
 
-## AI builds (all live)
+## Builds (all live)
 
 Eight working decision tools, each ending in a recommendation ("the call"): what to do, the evidence, what would change the answer, a 30/60/90-day plan, and how success would be measured. Figures marked as modeled come from illustrative scenarios; every data source is cited in each app.
 
@@ -32,6 +32,10 @@ Eight working decision tools, each ending in a recommendation ("the call"): what
 - Buildout (https://buildout-three.vercel.app): Big Tech's AI capital spending quarter by quarter from SEC filings, whether it is paying off, and which suppliers receive the money.
 - Where AI Lives (https://where-ai-lives.vercel.app): maps 77 US AI data centers against power prices and grid-connection waits, and scores states for the next site with Data Envelopment Analysis.
 - Signal (https://signal-zeta-five.vercel.app): digital access on World Bank data: who is offline, what would make being online affordable, what connecting everyone costs, and who should pay.
+
+And one consumer app:
+
+- Walkin' Here! (https://walkinhere.vercel.app): teaches newcomers New York's unwritten rules (subway etiquette, bodega orders, sidewalk pace, slang, tipping) in three-minute daily lessons with quizzes, XP and a streak. Sign in with Google or email.
 
 Code: https://github.com/aoa2178-alt/Angel-Vibe-Coding
 

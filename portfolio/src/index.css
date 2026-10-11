@@ -4024,3 +4024,54 @@ blockquote {
   color: var(--ink);
   opacity: 0.85;
 }
+
+/* Walkin' Here! card art: the app's four-colour stripe over a street grid */
+.project-art--walkin {
+  color: var(--ink);
+  background: #fbf8ef;
+}
+
+.walkin-stripes {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  height: 10px;
+}
+
+.walkin-stripes i {
+  flex: 1;
+}
+
+.walkin-stripes i:nth-child(1) { background: #f5c518; }
+.walkin-stripes i:nth-child(2) { background: #2f9e5b; }
+.walkin-stripes i:nth-child(3) { background: #9b6fc8; }
+.walkin-stripes i:nth-child(4) { background: #d8343a; }
+
+.walkin-grid {
+  position: absolute;
+  inset: 18% 8% 34% 40%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.walkin-grid i {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.walkin-grid i:nth-child(6) {
+  background: #f5c518;
+  border-color: #f5c518;
+}
+
+.project-art--walkin > strong {
+  position: absolute;
+  z-index: 2;
+  left: 1rem;
+  bottom: 2.4rem;
+  font-size: clamp(2.4rem, 4vw, 4.4rem);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}

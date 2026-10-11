@@ -1,4 +1,4 @@
-/** The eight AI builds: what the detail panel shows when a card is clicked. */
+/** The nine builds: what the detail panel shows when a card is clicked. */
 export type Project = {
   id: string;
   name: string;
@@ -197,5 +197,26 @@ export const projects: Project[] = [
     ],
     builtWith:
       "React · TypeScript · Vite · Tailwind · Vitest · Vercel · World Bank WDI and Global Findex (CC BY 4.0), ITU and GSMA published figures",
+  },
+  {
+    id: "walkin-here",
+    name: "Walkin' Here!",
+    url: "https://walkinhere.vercel.app",
+    start: "/",
+    tags: ["Consumer app", "City learning", "Live"],
+    pitch: "How do you learn to move like a New Yorker, three minutes a day?",
+    why: "Newcomers learn a city the hard way: the wrong subway etiquette, a fumbled bodega order, a tourist's sidewalk pace. Walkin' Here turns the unwritten rules into short daily lessons with a streak, so the habit sticks.",
+    what: [
+      "Six three-minute lessons: OMNY and subway rules, sidewalk cadence, bodega culture, ordering a bagel and coffee, street navigation, and tipping norms.",
+      "Quizzes that earn XP, and a daily city streak that brings people back.",
+      "A slang guide and a list of local spots to try.",
+      "Sign in with Google or email; progress is saved to your account.",
+    ],
+    tryThis: [
+      "Sign up with Google or an email and password.",
+      "Take the first lesson, OMNY & Subway Rules, and answer its quiz to start your streak.",
+      "Open the slang guide and the spots list from the menu.",
+    ],
+    builtWith: "Lovable · React · TanStack Start · TypeScript · Tailwind · Better Auth (Google sign-in) · Neon Postgres · Vercel",
   },
 ];

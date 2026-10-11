@@ -16,7 +16,7 @@ export function ReceiversStep() {
   return (
     <Frame route="receivers" s={s} setS={setS}>
       <StepHeading route="receivers">
-        Every dollar of capex is someone else's revenue. Four suppliers sit downstream of the spend: chips (NVIDIA, Broadcom) and power and cooling (Vertiv, Eaton).
+        Revenue at four suppliers downstream of the spend: NVIDIA, Broadcom, Vertiv and Eaton.
       </StepHeading>
 
       <Pills label="Compare since" options={BASES.map((b) => ({ id: b.id, label: b.label }))} value={s.base} onChange={(base: string) => setS({ ...s, base })} />
@@ -26,10 +26,10 @@ export function ReceiversStep() {
           Last 12 months to {formatQuarter(r.quarter)} vs to {formatQuarter(r.base)}
         </p>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Spenders' capex" value={signedPct(r.capexGrowth)} sub={`+${formatMillions(r.addedCapex)} a year`} />
-          <Stat dark label="Receivers' revenue" value={signedPct(r.revenueGrowth)} sub={`+${formatMillions(r.addedRevenue)} a year`} />
-          <Stat dark label="Read-through" value={r.perDollar === null ? "–" : `$${r.perDollar.toFixed(2)}`} sub="extra supplier revenue per extra $1 of capex" />
-          <Stat dark label="Biggest winner" value={[...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.c.short} sub={signedPct([...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.growth ?? 0)} />
+          <Stat trust="data" dark label="Spenders' capex" value={signedPct(r.capexGrowth)} sub={`+${formatMillions(r.addedCapex)} a year`} />
+          <Stat trust="data" dark label="Receivers' revenue" value={signedPct(r.revenueGrowth)} sub={`+${formatMillions(r.addedRevenue)} a year`} />
+          <Stat trust="modeled" dark label="Read-through" value={r.perDollar === null ? "–" : `$${r.perDollar.toFixed(2)}`} sub="extra supplier revenue per extra $1 of capex" />
+          <Stat trust="data" dark label="Biggest winner" value={[...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.c.short} sub={signedPct([...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.growth ?? 0)} />
         </div>
       </div>
 
@@ -67,10 +67,7 @@ export function ReceiversStep() {
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs leading-5 text-muted">
-            The read-through is illustrative: these suppliers also sell to other customers, and the spenders also buy from many others. It shows direction and scale, not a
-            contract-level match.
-          </p>
+          <p className="mt-3 text-xs leading-5 text-muted">Illustrative: direction and scale, not a contract-level match.</p>
         </Card>
       </div>
     </Frame>

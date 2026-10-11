@@ -62,10 +62,34 @@ export function Slider({ label, value, display, min, max, step = 1, onChange }: 
   );
 }
 
-export function Stat({ label, value, sub, dark = false }: { label: string; value: ReactNode; sub?: ReactNode; dark?: boolean }) {
+
+export type Trust = "data" | "modeled" | "assumption";
+
+const TRUST: Record<Trust, { label: string; title: string }> = {
+  data: { label: "Data", title: "Data: straight from a public source, cited on the Sources page" },
+  modeled: { label: "Modeled", title: "Modeled: calculated by this app from data and assumptions" },
+  assumption: { label: "Assumption", title: "Assumption: an input, default or illustrative figure, not from a public source" },
+};
+
+/** A small tag saying how much to trust a number. */
+export function TrustTag({ kind }: { kind: Trust }) {
+  const t = TRUST[kind];
+  return (
+    <span title={t.title} className="ml-1.5 inline-block whitespace-nowrap rounded border border-current px-1 align-[1px] text-[8.5px] leading-[1.5] tracking-[0.08em] opacity-75">
+      <span className="sr-only">(</span>
+      {t.label}
+      <span className="sr-only">)</span>
+    </span>
+  );
+}
+
+export function Stat({ label, value, sub, dark = false, trust }: { label: string; value: ReactNode; sub?: ReactNode; dark?: boolean; trust?: Trust }) {
   return (
     <div className="min-w-0">
-      <p className={`font-mono text-[10px] uppercase tracking-[0.12em] ${dark ? "text-panel-muted" : "text-muted"}`}>{label}</p>
+      <p className={`font-mono text-[10px] uppercase tracking-[0.12em] ${dark ? "text-panel-muted" : "text-muted"}`}>
+        {label}
+        {trust && <TrustTag kind={trust} />}
+      </p>
       <p className="mt-1 font-mono text-xl font-semibold tracking-tight sm:text-2xl">{value}</p>
       {sub && <p className={`mt-0.5 text-xs ${dark ? "text-panel-muted" : "text-muted"}`}>{sub}</p>}
     </div>

@@ -1,69 +1,85 @@
 import { ArrowRight } from "lucide-react";
-import { Footer, Logo, href, linkClick } from "@/components/Frame";
-import { formatMillions, formatQuarter, pct, signedPct } from "@/lib/data";
-import { headline, readThrough } from "@/lib/metrics";
+import { Footer, Header, href, linkClick } from "@/components/Frame";
+import { FilingsIde } from "@/components/FilingsIde";
 import { DEFAULT_SCENARIO } from "@/lib/scenario";
 
 const STEPS = [
-  { n: 1, title: "Spend", body: "Quarterly capex for Microsoft, Alphabet, Amazon, Meta, Apple and Oracle, from their filings." },
-  { n: 2, title: "Payoff", body: "Capex as a share of revenue, free cash flow after the build, and the depreciation wave to come." },
-  { n: 3, title: "Receivers", body: "How much of the spend shows up as revenue at NVIDIA, Broadcom, Vertiv and Eaton." },
+  { title: "Capex", body: "Quarterly capital spending, straight from the filings." },
+  { title: "Returns", body: "Capex intensity, free cash flow and depreciation." },
+  { title: "Suppliers", body: "How much of the spend lands at the suppliers." },
 ];
 
 export function Landing() {
   const start = href("spend", DEFAULT_SCENARIO);
-  const h = headline();
-  const r = readThrough("2022Q4");
+  const faq = "/faq";
+
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 px-3 pt-3">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-4 pr-2">
-          <Logo />
-          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:opacity-90">
+      <Header
+        actions={
+          <>
+            <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-muted md:flex">
+              <a href="#how" className="transition hover:text-ink">
+                Approach
+              </a>
+              <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-ink">
+                Sources
+              </a>
+              <a href={faq} onClick={linkClick(faq)} className="transition hover:text-ink">
+                FAQ
+              </a>
+            </nav>
+            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3.5 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
+              Start <ArrowRight className="size-4" aria-hidden />
+            </a>
+          </>
+        }
+      />
+
+      <main>
+        <section className="mx-auto max-w-[1320px] px-4 pb-8 pt-12 sm:px-8 sm:pt-16">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="kicker">AI capital spending</p>
+              <h1 className="mt-4 max-w-3xl text-[2.3rem] font-semibold leading-[1.08] tracking-[-0.05em] sm:text-[3.4rem]">
+                How much is Big Tech <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">investing</span> in AI?
+              </h1>
+              <p className="mt-5 max-w-xl text-lg leading-8 text-ink-2">Quarterly capex for six companies, straight from 10-Q and 10-K filings.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
+                View analysis <ArrowRight className="size-4" aria-hidden />
+              </a>
+              <a href={faq} onClick={linkClick(faq)} className="inline-flex items-center gap-1.5 font-semibold text-ink transition hover:text-brand-ink">
+                See the method <ArrowRight className="size-4" aria-hidden />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-[1320px] px-4 sm:px-8" aria-label="Filings explorer">
+          <FilingsIde />
+        </section>
+
+        <section id="how" className="mt-16 scroll-mt-20 bg-panel text-panel-ink">
+          <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-8">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em]">Approach</h2>
+            <ol className="mt-8 grid gap-8 md:grid-cols-3">
+              {STEPS.map((st) => (
+                <li key={st.title} className="border-t border-white/20 pt-4">
+                  <h3 className="text-lg font-semibold">{st.title}</h3>
+                  <p className="mt-1.5 text-[15px] leading-6 text-panel-muted">{st.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-6 px-4 py-16 sm:px-8">
+          <h2 className="text-3xl font-semibold tracking-[-0.05em]">Read the latest quarter.</h2>
+          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
             Start <ArrowRight className="size-4" aria-hidden />
           </a>
-        </div>
-      </header>
-      <main>
-        <section className="mx-auto max-w-[1200px] px-4 pb-14 pt-16 sm:px-6 sm:pt-24">
-          <p className="kicker">AI infrastructure · market intelligence · SEC filings</p>
-          <h1 className="mt-5 max-w-4xl text-[3rem] font-extrabold leading-[0.98] tracking-[-0.05em] text-balance sm:text-7xl">
-            How much is Big Tech spending on AI, and <span className="text-brand">who's getting the money?</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-2 sm:text-xl sm:leading-9">
-            Buildout tracks the AI build-out quarter by quarter from official filings: what six giants spend, whether it's paying off, and where the dollars land.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-              See the spend <ArrowRight className="size-4" aria-hidden />
-            </a>
-          </div>
-          <dl className="mt-10 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-            {[
-              [`Capex, ${formatQuarter(h.quarter)}`, formatMillions(h.capex)],
-              ["Year on year", h.yoy === null ? "–" : signedPct(h.yoy)],
-              ["Capex ÷ revenue", pct(h.intensity, 1)],
-              ["Supplier $ per capex $", r.perDollar === null ? "–" : `$${r.perDollar.toFixed(2)}`],
-            ].map(([k, v]) => (
-              <div key={k} className="bg-surface p-4">
-                <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">{k}</dt>
-                <dd className="mt-1 font-mono text-lg font-semibold">{v}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-        <section className="mx-auto max-w-[1200px] px-4 pb-24 pt-8 sm:px-6">
-          <p className="kicker">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Three steps, one quarterly note.</h2>
-          <ol className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-3">
-            {STEPS.map((st) => (
-              <li key={st.n} className="bg-surface p-7">
-                <span className="grid size-8 place-items-center rounded-full bg-brand font-mono text-sm font-semibold text-on-brand">{st.n}</span>
-                <h3 className="mt-6 text-xl font-bold tracking-tight">{st.title}</h3>
-                <p className="mt-2 text-[15px] leading-7 text-ink-2">{st.body}</p>
-              </li>
-            ))}
-          </ol>
         </section>
       </main>
       <Footer />

@@ -15,16 +15,16 @@ export function SpendStep() {
   return (
     <Frame route="spend" s={s} setS={setS}>
       <StepHeading route="spend">
-        Capital expenditure (cash spent on data centers, servers and other long-lived assets) straight from each company's 10-Q and 10-K, quarter by quarter.
+        Cash spent on data centers, servers and other long-lived assets, from each company's filings.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Six spenders, {formatQuarter(h.quarter)}</p>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Capex this quarter" value={<CountUp value={h.capex} format={formatMillions} />} sub={`${h.yoy === null ? "" : signedPct(h.yoy)} on a year ago`} />
-          <Stat dark label="Annual pace" value={<CountUp value={h.runRate} format={formatMillions} delay={150} />} sub="this quarter × 4" />
-          <Stat dark label="Last 12 months" value={formatMillions(h.ttmCapex)} sub={`${h.ttmGrowth === null ? "" : signedPct(h.ttmGrowth)} on the 12 before`} />
-          <Stat dark label="Share of operating cash" value={pct(h.capexShareOfOcf)} sub="capex ÷ cash from operations" />
+          <Stat trust="data" dark label="Capex this quarter" value={<CountUp value={h.capex} format={formatMillions} />} sub={`${h.yoy === null ? "" : signedPct(h.yoy)} on a year ago`} />
+          <Stat trust="modeled" dark label="Annual pace" value={<CountUp value={h.runRate} format={formatMillions} delay={150} />} sub="this quarter × 4" />
+          <Stat trust="data" dark label="Last 12 months" value={formatMillions(h.ttmCapex)} sub={`${h.ttmGrowth === null ? "" : signedPct(h.ttmGrowth)} on the 12 before`} />
+          <Stat trust="data" dark label="Share of operating cash" value={pct(h.capexShareOfOcf)} sub="capex ÷ cash from operations" />
         </div>
       </div>
 
@@ -37,10 +37,7 @@ export function SpendStep() {
             format={formatMillions}
             ariaLabel={`Quarterly capex for six companies from Q1 2019 to ${formatQuarter(h.quarter)}, reaching ${formatMillions(h.capex)} in the latest quarter.`}
           />
-          <p className="mt-3 text-xs leading-5 text-muted">
-            Calendar quarters by period end; fiscal years differ (Microsoft's year ends in June, Oracle's in May). Amazon reports purchases of property and equipment
-            before finance leases.
-          </p>
+          <p className="mt-3 text-xs leading-5 text-muted">Calendar quarters by period end; see the FAQ for fiscal years.</p>
         </Card>
         <Card>
           <Kicker>{formatQuarter(h.quarter)}, by company</Kicker>

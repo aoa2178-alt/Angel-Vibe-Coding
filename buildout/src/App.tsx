@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { NoteStep } from "./NoteStep";
 import { PayoffStep } from "./PayoffStep";
@@ -6,8 +7,8 @@ import { ReceiversStep } from "./ReceiversStep";
 import { Sources } from "./Sources";
 import { SpendStep } from "./SpendStep";
 
-type View = "landing" | "spend" | "payoff" | "receivers" | "note" | "sources";
-const VIEWS: View[] = ["spend", "payoff", "receivers", "note", "sources"];
+type View = "landing" | "spend" | "payoff" | "receivers" | "note" | "sources" | "faq";
+const VIEWS: View[] = ["spend", "payoff", "receivers", "note", "sources", "faq"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -16,11 +17,12 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Buildout · AI capex, from the filings",
-  spend: "Buildout · 1. Spend",
-  payoff: "Buildout · 2. Payoff",
-  receivers: "Buildout · 3. Receivers",
-  note: "Buildout · The call",
+  spend: "Buildout · Capex",
+  payoff: "Buildout · Returns",
+  receivers: "Buildout · Suppliers",
+  note: "Buildout · Quarterly note",
   sources: "Buildout · Sources",
+  faq: "Buildout · FAQ",
 };
 
 export default function App() {
@@ -48,6 +50,8 @@ export default function App() {
       return <NoteStep key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

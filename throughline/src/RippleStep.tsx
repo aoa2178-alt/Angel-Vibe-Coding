@@ -22,8 +22,7 @@ export function RippleStep() {
   return (
     <Frame route="ripple" s={s} setS={setS}>
       <StepHeading route="ripple" product={product}>
-        Every company in the chain orders a little extra to cover its lead time from a forecast of the orders it sees. Small swings in what customers
-        buy turn into big swings at the factory and its suppliers. This is the bullwhip effect, the lesson of the beer game.
+        How small swings in customer demand grow into large swings at the factory and its suppliers.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">

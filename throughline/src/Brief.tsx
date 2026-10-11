@@ -31,6 +31,13 @@ export function Brief() {
     demo: `Method demo: ${product.name} and ${product.company} are fictional; the demand pattern is real US Census data and the delivery benchmark is 180,519 real orders. Prices, costs and regional splits are labeled assumptions.`,
     decision: "Decision: what supply plan do we sign this month, and what's our rule if supply falls short?",
     headline: `Sign the plan at a ${sl(call.best.serviceLevel)} service level: ${formatMoney(call.best.total)} a year all-in${saving > 1000 ? `, ${formatMoney(saving)} less than at ${sl(s.settings.serviceLevel)}` : ""}. Agree now that any shortage is shared fairly, and share demand data with suppliers.`,
+    kicker: "Weekly plan update",
+    numbers: [
+      { label: "Service level to sign", value: sl(call.best.serviceLevel), sub: `${formatMoney(call.best.total)} a year all-in`, trust: "modeled" },
+      { label: "Safety stock", value: formatUnits(plan.safetyStock), sub: "units held against forecast error", trust: "modeled" },
+      { label: "Lowest region fill if short", value: pct(call.rule.pick.minFill), sub: `${call.rule.pick.rule.label.toLowerCase()} rule`, trust: "modeled" },
+    ],
+    evidenceSub: "Demand, supply, allocation, ripple and delivery, a paragraph each",
     bullets: [
       { label: "The plan", text: `hold ${formatUnits(plan.safetyStock)} units of safety stock, order ${plan.rawEoq < plan.monthlyDemand ? "every month" : `${formatUnits(plan.eoq)} at a time`}, and build ${formatUnits(launch.quantity)} for the next model's launch quarter (newsvendor).` },
       {
@@ -76,7 +83,7 @@ export function Brief() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">The call · {product.company}</p>
+            <p className="kicker">Weekly plan update · {product.company}</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{product.name}</h1>
             <p className="mt-1 text-sm text-muted">
               Prepared {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · data through {formatMonth(r.lastMonth)}

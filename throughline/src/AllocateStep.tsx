@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Card, Kicker, Pills, Slider, Stat } from "@/components/ui";
 import { RULES, allocate, type Rule } from "@/lib/allocate";
@@ -25,7 +26,7 @@ export function AllocateStep() {
   return (
     <Frame route="allocate" s={s} setS={setS}>
       <StepHeading route="allocate" product={product}>
-        A supplier comes up short for {formatMonth(r.futureMonths[0]!)}. Every rule for splitting what's left is a choice about which customers matter most.
+        Supply falls short for {formatMonth(r.futureMonths[0]!)}. Compare allocation rules by margin and fill rate.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start">
@@ -74,9 +75,9 @@ export function AllocateStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">{RULES.find((x) => x.id === s.rule)!.label}</p>
             <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <Stat dark label="Revenue" value={formatMoney(a.revenue)} />
-              <Stat dark label="Margin" value={formatMoney(a.margin)} />
-              <Stat dark label="Margin lost to the cut" value={formatMoney(a.marginLost)} />
+              <Stat trust="modeled" dark label="Revenue" value={formatMoney(a.revenue)} />
+              <Stat trust="modeled" dark label="Margin" value={formatMoney(a.margin)} />
+              <Stat trust="modeled" dark label="Margin lost to the cut" value={formatMoney(a.marginLost)} />
             </div>
           </div>
 
@@ -105,8 +106,7 @@ export function AllocateStep() {
             </ul>
           </Card>
 
-          <Card>
-            <Kicker>The three rules side by side</Kicker>
+          <Fold id="rules" title="Allocation rules compared" sub="Margin and lowest regional fill rate under each rule">
             <table className="mt-3 w-full text-left text-sm">
               <thead className="text-xs text-muted">
                 <tr>
@@ -129,7 +129,7 @@ export function AllocateStep() {
               {bestMargin.rule.label} earns the most ({formatMoney(bestMargin.result.margin)}), but it can leave a region with nothing, and that customer remembers.
               Fair share protects every relationship and gives up {formatMoney(bestMargin.result.margin - compare[0]!.result.margin)} of margin to do it.
             </p>
-          </Card>
+          </Fold>
         </div>
       </div>
     </Frame>

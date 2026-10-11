@@ -81,25 +81,23 @@ function RoiStep({
 
   return (
     <div className="grid gap-6">
-      <div>
-        <p className="text-sm font-semibold">Start from a template</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="Templates">
-          {ROI_TEMPLATES.map((t) => {
-            const active = t.id === templateId;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => onTemplate(t.id)}
-                className={`rounded-2xl border p-4 text-left transition ${active ? "border-brand bg-brand text-white" : "border-line bg-surface hover:border-brand"}`}
-              >
-                <span className="block font-semibold">{t.label}</span>
-                <span className={`mt-1 block text-sm leading-6 ${active ? "text-white/85" : "text-ink-2"}`}>{t.blurb}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="max-w-md">
+        <label htmlFor="roi-template" className="text-sm font-semibold">
+          Start from a template
+        </label>
+        <select
+          id="roi-template"
+          value={templateId}
+          onChange={(e) => onTemplate(e.target.value as TemplateId)}
+          className="mt-2 w-full rounded-[5px] border border-line bg-surface px-3 py-2.5 text-[15px] text-ink focus:border-brand"
+        >
+          {ROI_TEMPLATES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1.5 text-sm text-muted">{template.blurb}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">

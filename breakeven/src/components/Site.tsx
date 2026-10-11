@@ -105,10 +105,10 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
 }
 
 const FOOTER_LINKS: NavItem[] = [
-  { href: "/worth-it", label: "1 · Is it worth it?" },
-  { href: "/run-it", label: "2 · How to run it" },
-  { href: "/power-it", label: "3 · Can we power it?" },
-  { href: "/result", label: "Your result" },
+  { href: "/worth-it", label: "1 · Evaluate AI ROI" },
+  { href: "/run-it", label: "2 · Compare compute costs" },
+  { href: "/power-it", label: "3 · Power planning" },
+  { href: "/result", label: "Recommendation" },
   { href: "/sources", label: "Sources" },
 ];
 

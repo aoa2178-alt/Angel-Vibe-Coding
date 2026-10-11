@@ -137,6 +137,7 @@ export function Landing() {
                   Jump to the calculator
                 </CtaLink>
               </div>
+              <p className="mt-3 text-sm text-muted">Opens on a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
             </div>
 
             <div className={`theme-${startupWinner} relative`}>

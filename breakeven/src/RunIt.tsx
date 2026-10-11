@@ -406,7 +406,15 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">
+        {label}
+        <span
+          title="Modeled: calculated by this app from data and assumptions"
+          className="ml-1.5 inline-block whitespace-nowrap rounded border border-current px-1 align-[1px] text-[8.5px] leading-[1.5] tracking-[0.08em] opacity-75"
+        >
+          <span className="sr-only">(</span>Modeled<span className="sr-only">)</span>
+        </span>
+      </p>
       <p className="mt-1.5 text-lg font-semibold sm:text-2xl">{children}</p>
     </div>
   );

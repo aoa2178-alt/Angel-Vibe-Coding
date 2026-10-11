@@ -13,7 +13,7 @@ const lowerFirst = (t: string) => (/^[A-Z]{2}/.test(t) ? t : t.charAt(0).toLower
 
 function Block({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <section className="mt-8">
+    <section data-call-text className="mt-8">
       <p className="kicker">
         {n} · {title}
       </p>
@@ -28,7 +28,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
   const rec = costs[recommended];
   const currentLabel = CURRENTS.find((c) => c.id === current)?.label;
   return (
-    <section className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`} style={anim("rise", 600, 0, "back")}>
+    <section data-call-text className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`} style={anim("rise", 600, 0, "back")}>
       <p className="kicker">1 · My recommendation</p>
       <p className="mt-2 flex items-start gap-2.5 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">
         <span className={`mt-2 size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />

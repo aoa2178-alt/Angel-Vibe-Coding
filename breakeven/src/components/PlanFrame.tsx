@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Check, Link2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Link2, RotateCcw } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
 import { OPTIONS } from "./options";
@@ -87,6 +87,23 @@ export function WorkloadStrip({ plan, route }: { plan: Plan; route: PageRoute })
   );
 }
 
+/** Back to the example case: shown only once something differs from it. */
+export function ResetPlan({ plan }: { plan: Plan }) {
+  if (!planQuery(plan)) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => window.location.assign(window.location.pathname)}
+      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink transition hover:border-brand"
+      aria-label="Reset to the example case"
+      title="Reset to the example case"
+    >
+      <RotateCcw className="size-3.5" aria-hidden />
+      <span className="hidden md:inline">Reset</span>
+    </button>
+  );
+}
+
 /** Copies the current URL, which always holds the whole plan. */
 export function CopyLinkButton({ label = "Save plan" }: { label?: string }) {
   const [copied, setCopied] = useState(false);
@@ -147,7 +164,12 @@ export function PlanFrame({
       <PillBar
         logoTagline
         center={<StepTracker route={route} plan={plan} />}
-        actions={actions ?? <CopyLinkButton />}
+        actions={
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ResetPlan plan={plan} />
+            {actions ?? <CopyLinkButton />}
+          </div>
+        }
         below={
           <div className="mx-auto mt-2 max-w-[1200px] rounded-2xl border border-line bg-surface p-1 lg:hidden print:hidden">
             <StepTracker route={route} plan={plan} compact />

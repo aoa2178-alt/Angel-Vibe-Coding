@@ -1,8 +1,9 @@
 import { ArrowRight, Printer } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
 import { DecisionReport } from "@/components/DecisionReport";
+import { CallShare, HowSolid } from "@/components/CallTools";
 import { CallChecks, CallJudgment, CallLanding, CallMeasures, CallRecommendation } from "@/components/TheCall";
 import { callOf } from "@/lib/call";
 import { OPTIONS } from "@/components/options";
@@ -41,6 +42,7 @@ export function Result() {
   const retire = retirement(assumptions, plan.ops);
   const ownsGpus = recommended === "own" || split.best === "split";
 
+  const root = useRef<HTMLElement>(null);
   return (
     <PlanFrame
       route="result"
@@ -60,7 +62,7 @@ export function Result() {
         </>
       }
     >
-      <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
+      <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
           <p className="kicker">The call · Breakeven</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">{title}</h1>
@@ -83,6 +85,8 @@ export function Result() {
         </dl>
 
         <CallRecommendation call={call} plan={plan} setPlan={setPlan} />
+        <HowSolid checks={call.checks} />
+        <CallShare root={root} />
 
         <p className="kicker mt-10">2 · Why: the evidence</p>
 

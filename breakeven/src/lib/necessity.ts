@@ -165,29 +165,29 @@ export function necessity(inputs: RoiInputs, alt: Alternatives, a: Assumptions, 
   if (bestAlt && bestAlt.cases.base.npv > 0 && bestAlt.cases.base.npv > ai.base.npv) {
     verdict = "no-ai";
     instead = bestAlt.id;
-    reason = `${bestAlt.label} creates more three-year value than AI in the base case, at lower risk.`;
+    reason = `${bestAlt.label} delivers more three-year value than AI.`;
   } else if (ai.conservative.npv > 0) {
     verdict = "invest";
-    reason = "AI has the highest value and stays positive even in the conservative case.";
+    reason = "AI leads and stays positive in the conservative case.";
   } else if (ai.base.npv > 0) {
     verdict = "pilot";
-    reason = "AI has the highest value in the base case but turns negative in the conservative case: confirm the resolution rate in a controlled pilot first.";
+    reason = "AI leads in the base case but not the conservative case. Pilot to confirm the resolution rate.";
   } else if (ai.optimistic.npv > 0) {
     verdict = "defer";
-    reason = "AI only pays off in the optimistic case. Revisit when costs fall or the resolution rate is proven higher.";
+    reason = "AI pays off only in the optimistic case.";
   } else {
     verdict = "reject";
-    reason = "AI destroys value in every case at these inputs.";
+    reason = "AI is negative in every case.";
   }
 
   // Evidence still resting on template defaults.
   const t = templateById(templateId ?? "support").inputs;
   const altBase = altDefaults(templateId);
   const missing: { label: string; how: string }[] = [];
-  if (inputs.aiSuccess === t.aiSuccess) missing.push({ label: "AI resolution rate is a template estimate", how: "measure it on a sample of real tasks in a pilot" });
-  if (inputs.reviewMinutes === t.reviewMinutes) missing.push({ label: "Review time is a template estimate", how: "time reviewers on AI output during the pilot" });
-  if (alt.rulesCoverage === altBase.rulesCoverage && alt.rulesCoverage > 0) missing.push({ label: "Rules coverage is a template estimate", how: "test the rules against last month's tasks" });
-  if (alt.cashShare === altBase.cashShare) missing.push({ label: "Cash share of freed hours is assumed", how: "agree with finance how freed time turns into savings (hiring plan, attrition)" });
+  if (inputs.aiSuccess === t.aiSuccess) missing.push({ label: "AI resolution rate", how: "measure in a pilot" });
+  if (inputs.reviewMinutes === t.reviewMinutes) missing.push({ label: "Review time", how: "time reviewers in the pilot" });
+  if (alt.rulesCoverage === altBase.rulesCoverage && alt.rulesCoverage > 0) missing.push({ label: "Rules coverage", how: "test on last month's tasks" });
+  if (alt.cashShare === altBase.cashShare) missing.push({ label: "Cash share", how: "agree with finance" });
 
   return { options, verdict, instead, reason, missing };
 }

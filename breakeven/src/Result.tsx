@@ -122,7 +122,7 @@ export function Result() {
             {need && (
               <p className="mt-3">
                 <span className="font-semibold text-ink">AI necessity test: {VERDICT_LABELS[need.verdict]}.</span> {need.reason}
-                {need.missing.length > 0 && ` Evidence to confirm: ${need.missing.map((m) => (/^[A-Z]{2}/.test(m.label) ? m.label : m.label.charAt(0).toLowerCase() + m.label.slice(1))).join("; ")}.`}
+                {need.missing.length > 0 && ` To confirm: ${need.missing.map((m) => (/^[A-Z]{2}/.test(m.label) ? m.label : m.label.charAt(0).toLowerCase() + m.label.slice(1))).join(", ")}.`}
               </p>
             )}
             </>

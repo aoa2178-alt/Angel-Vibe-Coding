@@ -70,9 +70,9 @@ describe("necessity test", () => {
 
   it("lists only the evidence still at template defaults", () => {
     const labels = (r: ReturnType<typeof run>) => r.missing.map((m) => m.label);
-    expect(labels(run())).toContain("AI resolution rate is a template estimate");
-    expect(labels(run({ ...support, aiSuccess: 0.7 }))).not.toContain("AI resolution rate is a template estimate");
-    expect(labels(run(support, { ...altDefaults("support"), cashShare: 0.3 }))).not.toContain("Cash share of freed hours is assumed");
+    expect(labels(run())).toContain("AI resolution rate");
+    expect(labels(run({ ...support, aiSuccess: 0.7 }))).not.toContain("AI resolution rate");
+    expect(labels(run(support, { ...altDefaults("support"), cashShare: 0.3 }))).not.toContain("Cash share");
   });
 
   it("round-trips the alternatives through the URL, writing only changes", () => {

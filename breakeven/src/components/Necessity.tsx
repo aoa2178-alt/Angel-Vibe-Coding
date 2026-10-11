@@ -85,30 +85,19 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
           </table>
         </div>
 
-        <p className="mt-4 text-sm leading-6 text-ink-2">
-          Cash benefit counts {Math.round(plan.alt.cashShare * 100)}% of freed people-hours as savings.
-          {ai.cases.base.capacityHours > 0 && (
-            <>
-              {" "}
-              AI also releases {Math.round(ai.cases.base.capacityHours).toLocaleString("en-US")} hours a month ({fte.toFixed(1)} FTE) of capacity, not counted as cash.
-            </>
-          )}{" "}
+        <p className="mt-4 text-sm text-muted">
+          Cash counts {Math.round(plan.alt.cashShare * 100)}% of freed hours
+          {ai.cases.base.capacityHours > 0 && <> · Capacity released: {Math.round(ai.cases.base.capacityHours).toLocaleString("en-US")} hrs/mo ({fte.toFixed(1)} FTE)</>} ·{" "}
           <a href={faq} onClick={linkClick(faq)} className="font-semibold text-brand-ink underline underline-offset-2">
-            How the decision is made
+            Method
           </a>
         </p>
 
         {r.missing.length > 0 && (
-          <div className="mt-4 border-t border-line pt-4">
-            <p className="text-sm font-semibold">Evidence to confirm before investing</p>
-            <ul className="mt-2 grid gap-1.5 text-sm leading-6 text-ink-2">
-              {r.missing.map((m) => (
-                <li key={m.label}>
-                  {m.label}: {m.how}.
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="mt-3 border-t border-line pt-3 text-sm text-ink-2">
+            <span className="font-semibold text-ink">To confirm before investing: </span>
+            {r.missing.map((m) => `${m.label} (${m.how})`).join(" · ")}
+          </p>
         )}
       </div>
 
@@ -126,10 +115,10 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
             />
           ))}
         </div>
-        <p className="mt-4 text-xs leading-5 text-muted">
-          Conservative: AI resolution rate 15 points lower, review time +50%, rules coverage ×0.75, redesign effect ×0.5, compute +25%, one-time
-          costs +30%. Optimistic: resolution +10 points, review −25%, coverage ×1.15, redesign ×1.25, compute −20%, one-time −10%. Values over{" "}
-          {HORIZON_MONTHS / 12} years at a 10% discount rate.
+        <p className="mt-4 text-xs text-muted">
+          <a href={faq} onClick={linkClick(faq)} className="underline underline-offset-2">
+            Scenario definitions
+          </a>
         </p>
       </Fold>
     </section>

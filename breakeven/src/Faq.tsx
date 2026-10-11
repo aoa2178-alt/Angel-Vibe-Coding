@@ -85,7 +85,7 @@ export const FAQ_GROUPS: { title: string; items: { id: string; q: string; a: str
       {
         id: "necessity",
         q: "How is the AI decision made?",
-        a: "Each option is valued on cash benefit over three years at a 10% discount rate, in a conservative, base and optimistic case. If a non-AI option creates more value in the base case, the decision is Don't use AI. Otherwise: Invest if AI stays positive in the conservative case, Pilot if it is positive only in the base case, Defer if only the optimistic case pays, and Reject if none does. Inputs still at template defaults are listed as evidence to confirm.",
+        a: "Each option is valued on cash benefit over three years at a 10% discount rate, in a conservative, base and optimistic case. If a non-AI option creates more value in the base case, the decision is Don't use AI. Otherwise: Invest if AI stays positive in the conservative case, Pilot if it is positive only in the base case, Defer if only the optimistic case pays, and Reject if none does. Inputs still at template defaults are listed as evidence to confirm. The conservative case lowers the AI resolution rate by 15 points and raises review time 50%, compute 25% and one-time costs 30%, with rules coverage ×0.75 and redesign effect ×0.5; the optimistic case moves them the other way (+10 points, −25%, −20%, −10%, ×1.15, ×1.25).",
       },
       {
         id: "cash-capacity",

@@ -167,58 +167,117 @@ export function CostPod() {
   );
 }
 
-/** The pages, as the menu device lists them. */
+/** Breakeven's four pages, for the Approach list. */
 export const PAGES = [
-  { tab: "ROI", href: "/worth-it", label: "Evaluate AI ROI", sub: "Is AI worth it?", body: "Savings, payback and 12-month ROI, and whether AI beats rules or a process fix." },
-  { tab: "Cost", href: "/run-it", label: "Compare compute costs", sub: "API, rent or own", body: "API, rented or owned GPUs on total cost, and the volumes where the answer changes." },
-  { tab: "Power", href: "/power-it", label: "Power planning", sub: "kW and grid delay", body: "How much power owning needs, and the cheapest way to bridge a late grid connection." },
-  { tab: "Call", href: "/result", label: "Recommendation", sub: "the call", body: "One page: the call, what would change it, and how to land it. Printable." },
+  { href: "/worth-it", label: "Evaluate AI ROI", body: "Savings, payback and 12-month ROI, and whether AI beats rules or a process fix." },
+  { href: "/run-it", label: "Compare compute costs", body: "API, rented or owned GPUs on total cost, and the volumes where the answer changes." },
+  { href: "/power-it", label: "Power planning", body: "How much power owning needs, and the cheapest way to bridge a late grid connection." },
+  { href: "/result", label: "Recommendation", body: "One page: the call, what would change it, and how to land it. Printable." },
 ];
 
+const PRESETS: [string, number][] = [
+  ["10M", 10],
+  ["100M", 100],
+  ["1B", 1_000],
+  ["2B", 2_000],
+  ["10B", 10_000],
+  ["50B", 50_000],
+  ["100B", 100_000],
+];
+const SHORT: Record<OptionId, string> = { api: "API", rent: "Rent", own: "Own" };
+
 /**
- * The same handheld as a menu: the wheel moves through Breakeven's four pages, the screen describes the one selected,
- * and the centre button opens it.
+ * The pocket calculator: a green LCD reads the volume and the cheapest way to run it, preset keys jump to a volume, the
+ * dial fine-tunes it (drag it round), and OPEN takes that volume to the cost comparison.
  */
-export function MenuPod() {
-  const [i, setI] = useState(0);
-  const page = PAGES[i]!;
-  const move = (d: 1 | -1) => setI((x) => (x + d + PAGES.length) % PAGES.length);
-  const go = () => navigate(page.href);
+export function CalcPod() {
+  const [i, setI] = useState(nearest(DEFAULT_WORKLOAD.tokensM));
+  const tokensM = STEPS[i]!;
+  const costs = compare({ ...DEFAULT_WORKLOAD, tokensM }, DEFAULT_ASSUMPTIONS);
+  const win = cheapest(costs);
+  const open = `/run-it?v=${Math.round(tokensM)}`;
+  const dial = useRef<HTMLDivElement>(null);
+  const last = useRef<number | null>(null);
+  const angle = (e: React.PointerEvent) => {
+    const r = dial.current!.getBoundingClientRect();
+    return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2));
+  };
+  const key = "rounded-[10px] py-3.5 font-mono text-[13px] font-semibold shadow-[0_3px_0_#121b26] transition active:translate-y-px";
+
   return (
-    <Body className="mx-auto">
-      <div className={`${screen} h-[236px]`} aria-live="polite">
-        <div className="mb-2 flex gap-1">
-          {PAGES.map((p, k) => (
-            <span key={p.tab} className={`flex-1 rounded py-1 text-center font-mono text-[10px] ${k === i ? "bg-[#2d3d50] text-white" : "text-[#8fa3b3]"}`}>
-              {p.tab}
-            </span>
+    <div className="mx-auto w-[360px] max-w-full rounded-[26px] bg-[#1d2a3a] p-5 shadow-[0_30px_60px_rgb(0_0_0/0.35),inset_0_2px_0_#2c3d52] ring-1 ring-white/10">
+      <div className="rounded-lg bg-[#c9d7cf] px-3.5 py-3 font-mono text-[#1d2a26] shadow-[inset_0_2px_6px_rgb(0_0_0/0.25)]" aria-live="polite">
+        <div className="flex justify-between text-[11px] tracking-[0.06em]">
+          <span>TOKENS / MONTH</span>
+          <span>CHEAPEST</span>
+        </div>
+        <p className="text-right text-[32px] font-semibold tracking-[-0.02em]">
+          {formatTokensM(tokensM)} → {SHORT[win].toUpperCase()}
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-1.5 text-[11px]">
+          {IDS.map((id) => (
+            <div key={id} className={`rounded border px-1.5 py-1 ${id === win ? "border-[#1d2a26] bg-[#1d2a26] text-[#c9d7cf]" : "border-[#9fb1a8]"}`}>
+              {SHORT[id]}
+              <br />
+              {formatUsd(costs[id].monthly)}/mo
+            </div>
           ))}
         </div>
-        {PAGES.map((p, k) => (
-          <button
-            key={p.href}
-            type="button"
-            onClick={() => setI(k)}
-            onDoubleClick={go}
-            className={`flex w-full justify-between rounded-md px-2.5 py-1.5 text-left text-[13px] ${k === i ? "bg-[#2f7366] text-white" : "text-[#e9f0f2]"}`}
-          >
-            <span>{p.label}</span>
-            <small className={`font-mono text-[11px] ${k === i ? "text-[#d5ece6]" : "text-[#8fa3b3]"}`}>{p.sub} ›</small>
-          </button>
-        ))}
-        <p className="mt-2.5 text-[12px] leading-[1.45] text-[#a9c9c2]">{page.body}</p>
       </div>
-      <Wheel
-        onTurn={move}
-        onPress={go}
-        pressLabel="OPEN"
-        labels={{
-          top: ["▲", () => move(-1)],
-          left: ["◂", () => move(-1)],
-          right: ["▸", () => move(1)],
-          bottom: ["▼", () => move(1)],
-        }}
-      />
-    </Body>
+      <div className="mt-4 grid grid-cols-4 gap-2.5">
+        {PRESETS.map(([label, m]) => {
+          const k = nearest(m);
+          return (
+            <button key={label} type="button" onClick={() => setI(k)} aria-pressed={k === i} className={`${key} ${k === i ? "bg-[#2f7366] text-white" : "bg-[#2c3d52] text-[#e7eef2] hover:bg-[#34485f]"}`}>
+              {label}
+            </button>
+          );
+        })}
+        <button type="button" onClick={() => navigate(open)} className={`${key} bg-[#79aa9f] text-[#172027] hover:bg-[#8bbab0]`}>
+          OPEN
+        </button>
+      </div>
+      <div className="mt-4 flex items-center justify-center gap-4">
+        <button type="button" onClick={() => setI((x) => clamp(x - 1))} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white" aria-label="Lower volume">
+          −
+        </button>
+        <div
+          ref={dial}
+          role="slider"
+          tabIndex={0}
+          aria-label="Monthly token volume"
+          aria-valuemin={0}
+          aria-valuemax={STEPS.length - 1}
+          aria-valuenow={i}
+          aria-valuetext={`${formatTokensM(tokensM)} tokens a month`}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowUp") setI((x) => clamp(x + 1));
+            if (e.key === "ArrowLeft" || e.key === "ArrowDown") setI((x) => clamp(x - 1));
+          }}
+          onPointerDown={(e) => {
+            last.current = angle(e);
+            dial.current!.setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            if (last.current === null) return;
+            let d = angle(e) - last.current;
+            if (d > Math.PI) d -= 2 * Math.PI;
+            if (d < -Math.PI) d += 2 * Math.PI;
+            if (Math.abs(d) > 0.3) {
+              setI((x) => clamp(x + (d > 0 ? 1 : -1)));
+              last.current = angle(e);
+            }
+          }}
+          onPointerUp={() => (last.current = null)}
+          onPointerCancel={() => (last.current = null)}
+          className="relative size-[74px] cursor-grab touch-none rounded-[999px] bg-[radial-gradient(circle_at_40%_35%,#46586e,#22303f)] shadow-[0_4px_0_#121b26] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#79aa9f] active:cursor-grabbing"
+        >
+          <i className="absolute left-1/2 top-2 block h-4 w-[3px] -translate-x-1/2 rounded-sm bg-[#79aa9f]" style={{ transformOrigin: "50% 29px", transform: `translateX(-50%) rotate(${(i / (STEPS.length - 1)) * 300 - 150}deg)` }} />
+        </div>
+        <button type="button" onClick={() => setI((x) => clamp(x + 1))} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white" aria-label="Higher volume">
+          +
+        </button>
+      </div>
+    </div>
   );
 }

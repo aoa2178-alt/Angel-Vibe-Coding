@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
-import { CostPod, MenuPod, PAGES } from "@/components/Handheld";
+import { CalcPod, CostPod, PAGES } from "@/components/Handheld";
 import { PillBar, SiteFooter } from "@/components/Site";
 
 const NAV = [
@@ -66,7 +66,7 @@ export function Landing() {
           <CostPod />
         </section>
 
-        {/* Approach: the four pages, browsed on the same handheld. */}
+        {/* Approach: the four pages, with the pocket calculator. */}
         <section id="how" className="dark-scope scroll-mt-20">
           <div className="mx-auto grid max-w-[1320px] items-center gap-12 px-4 py-20 sm:px-8 sm:py-24 lg:grid-cols-[1.1fr_1fr]">
             <div>
@@ -83,7 +83,7 @@ export function Landing() {
                 ))}
               </ol>
             </div>
-            <MenuPod />
+            <CalcPod />
           </div>
         </section>
 

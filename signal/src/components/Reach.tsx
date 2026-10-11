@@ -9,7 +9,7 @@ export interface ReachPart {
 
 /**
  * Signal reach: a tower with the population drawn as arcs around it. The bands inside the signal are people who are
- * online, then people with a signal who aren't; the faded band beyond the black arc is people with no signal at all.
+ * online, then people with a signal who aren't; the lilac band beyond the black arc is people with no signal at all.
  * Each band's area is proportional to its share of the population. Parts are expected in that order (inside out).
  */
 export function Reach({ parts, format, ariaLabel }: { parts: ReachPart[]; format: (v: number) => string; ariaLabel: string }) {
@@ -44,8 +44,7 @@ export function Reach({ parts, format, ariaLabel }: { parts: ReachPart[]; format
             fill="none"
             stroke={band.color}
             strokeWidth={Math.max(12, band.outer - band.inner - 8)}
-            strokeOpacity={i === last ? 0.45 : 1}
-            style={anim("fade", 450, 150 + i * 300)}
+                        style={anim("fade", 450, 150 + i * 300)}
           />
         ))}
         {/* Where the signal ends */}
@@ -59,12 +58,12 @@ export function Reach({ parts, format, ariaLabel }: { parts: ReachPart[]; format
         {bands.map((b, i) => {
           const r = (b.inner + b.outer) / 2;
           const angle = Math.PI * (0.3 + i * 0.12);
-          // The outer (no-signal) label sits just outside the faded band.
+          // The outer (no-signal) label sits just outside the lilac band.
           const x = i === last ? cx - b.outer - 22 : cx + r * Math.cos(Math.PI - angle);
           const y = i === last ? cy - 30 : cy - r * Math.sin(Math.PI - angle);
-          // White on the deep teal band; dark ink on the light yellow band and outside.
+          // White on the two teal bands; dark ink for the label outside the lilac band.
           return (
-            <text key={b.label} x={x} y={y} textAnchor={i === last ? "end" : "middle"} fontSize="17" fontWeight="600" fill={i === 0 ? "#ffffff" : "var(--ink)"} fontFamily="var(--font-sans)" style={anim("fade", 400, 700 + i * 260)}>
+            <text key={b.label} x={x} y={y} textAnchor={i === last ? "end" : "middle"} fontSize="17" fontWeight="600" fill={i === last ? "var(--ink)" : "#ffffff"} fontFamily="var(--font-sans)" style={anim("fade", 400, 700 + i * 260)}>
               {Math.round((b.value / total) * 100)}%
             </text>
           );
@@ -75,7 +74,7 @@ export function Reach({ parts, format, ariaLabel }: { parts: ReachPart[]; format
           <span key={p.label} className="flex items-start gap-1.5" style={anim("rise", 400, 1100 + k * 120, "back")}>
             <span
               className="mt-0.5 size-3 shrink-0 rounded-sm"
-              style={{ background: p.color, opacity: k === last ? 0.45 : 1 }}
+              style={{ background: p.color }}
               aria-hidden
             />
             <span>

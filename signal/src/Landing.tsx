@@ -79,9 +79,9 @@ export function Landing() {
               ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
               format={people}
               parts={[
-                { label: "Online", value: g.pop - g.offline, color: "var(--s-green)" },
-                { label: "Has a signal, not online", value: g.covered, color: "var(--s-coral)" },
-                { label: "No signal", value: g.noSignal, color: "var(--s-blue)" },
+                { label: "Online", value: g.pop - g.offline, color: "#0b4f5c" },
+                { label: "Has a signal, not online", value: g.covered, color: "#4fa3b0" },
+                { label: "No signal", value: g.noSignal, color: "#c4b5e6" },
               ]}
             />
           </div>

@@ -119,7 +119,7 @@ export function FlipStory() {
         {chapters.map((c) => `${c.title}, from ${formatTokensM(c.fromM)}: ${c.body}`).join(" ")}
       </p>
       <div className="sticky top-0 flex h-dvh items-center pb-4 pt-20">
-        <div className="mx-auto grid w-full max-w-[1200px] items-center gap-5 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
+        <div className="mx-auto grid w-full max-w-[1320px] items-center gap-5 px-4 sm:px-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-14">
           <div className="min-w-0">
             {/* Volume rail: where the reader is, and where each chapter starts */}
             <div className="relative h-10">

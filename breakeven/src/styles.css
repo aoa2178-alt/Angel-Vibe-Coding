@@ -1,13 +1,21 @@
 @import "tailwindcss";
 
+/* Light only, like the design: dark: utilities apply only inside an explicit .dark ancestor, which the app never sets. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
- * Design tokens: flat lavender-white paper, solid purple brand, small monospace labels. No glows or gradients;
- * the results take the winning option's color instead. Series colors (one per option, validated light and dark, all pairs):
- *   API = teal, Rent = amber, Own = violet. Text never uses a series color.
+ * Design tokens, from the Figma "Build Breakeven Website" design: cool white paper, navy actions, teal accents, Inter
+ * throughout, small radii, light only. Series colors (one per option, validated light, all pairs; the design's muted
+ * hues strengthened so they pass): API = lavender, Rent = deep blue, Own = teal. Text never uses a series color.
  */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --font-mono: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 7px;
+  --radius-3xl: 8px;
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -42,56 +50,30 @@
 
 :root {
   color-scheme: light;
-  --bg: #f6f3fc;
-  --surface: #fdfcff;
-  --sunken: #eee9f8;
-  --line: #e3dcf1;
-  --ink: #1c1530;
-  --ink-2: #463c5e;
-  --muted: #716882;
-  --brand: #8b2cf5;
-  --brand-ink: #7419d6;
-  --brand-soft: #f1e6ff;
-  --panel: #1e1338;
-  --panel-ink: #f6f1ff;
-  --panel-muted: #b8aad6;
-  --panel-line: #3a2c60;
-  --series-api: #0e9f8e;
-  --series-rent: #e8850f;
-  --series-own: #8b3cf0;
+  --bg: #f6f8f9;
+  --surface: #ffffff;
+  --sunken: #eef2f3;
+  --line: #dfe4e6;
+  --ink: #172027;
+  --ink-2: #3d4a53;
+  --muted: #65717a;
+  --brand: #182536;
+  --brand-ink: #2f7366;
+  --brand-soft: #edf7f4;
+  --panel: #182536;
+  --panel-ink: #f5f7f8;
+  --panel-muted: #a9b6bf;
+  --panel-line: #2d3d50;
+  --series-api: #a77bdb;
+  --series-rent: #24508c;
+  --series-own: #3aa17a;
   /* Deep shades of each option, for panels with white text (all ≥ 7:1). */
-  --api-deep: #0b5e54;
-  --rent-deep: #8a4705;
-  --own-deep: #4b1e9c;
+  --api-deep: #4f3381;
+  --rent-deep: #1b3a66;
+  --own-deep: #1b5a43;
   --tint: 10%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --bg: #100b1e;
-    --surface: #1a1430;
-    --sunken: #221a3b;
-    --line: #33284f;
-    --ink: #f3effc;
-    --ink-2: #cbc3e0;
-    --muted: #9a90b5;
-    --brand: #a259f7;
-    --brand-ink: #c39bff;
-    --brand-soft: #2c1d4d;
-    --panel: #261848;
-    --panel-ink: #f6f1ff;
-    --panel-muted: #b8aad6;
-    --panel-line: #43356a;
-    --series-api: #12998a;
-    --series-rent: #c9750c;
-    --series-own: #8f4ff0;
-    --api-deep: #0c4f47;
-    --rent-deep: #7a3f06;
-    --own-deep: #3f1a85;
-    --tint: 16%;
-  }
-}
 
 body {
   margin: 0;
@@ -111,10 +93,10 @@ input[type="range"] {
 }
 
 .kicker {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--brand-ink);
 }
@@ -183,18 +165,18 @@ input[type="range"] {
 /* Sections that sit on the (always light) illustration keep light-mode colors in dark mode too. */
 .light-scope {
   /* Tailwind color utilities read --color-*, which resolve once at :root, so override those directly. */
-  --color-surface: #fdfcff;
-  --color-sunken: #eee9f8;
-  --color-line: #e3dcf1;
-  --color-ink: #1c1530;
-  --color-ink-2: #463c5e;
-  --color-muted: #716882;
-  --color-brand-ink: #7419d6;
-  --surface: #fdfcff;
-  --line: #e3dcf1;
-  --ink: #1c1530;
-  --brand-ink: #7419d6;
-  color: #1c1530;
+  --color-surface: #ffffff;
+  --color-sunken: #eef2f3;
+  --color-line: #dfe4e6;
+  --color-ink: #172027;
+  --color-ink-2: #3d4a53;
+  --color-muted: #65717a;
+  --color-brand-ink: #2f7366;
+  --surface: #ffffff;
+  --line: #dfe4e6;
+  --ink: #172027;
+  --brand-ink: #2f7366;
+  color: #172027;
 }
 
 /*
@@ -203,23 +185,23 @@ input[type="range"] {
  */
 .dark-scope {
   color-scheme: dark;
-  --bg: #120a26;
-  --surface: #1c1336;
-  --sunken: #261b45;
-  --line: #372a5c;
-  --ink: #f3effc;
-  --ink-2: #cbc3e0;
-  --muted: #9d93b8;
-  --brand: #a259f7;
-  --brand-ink: #c39bff;
-  --brand-soft: #2c1d4d;
-  --panel: #261848;
-  --series-api: #12998a;
-  --series-rent: #c9750c;
-  --series-own: #8f4ff0;
-  --api-deep: #0c4f47;
-  --rent-deep: #7a3f06;
-  --own-deep: #3f1a85;
+  --bg: #182536;
+  --surface: #1f2f43;
+  --sunken: #243650;
+  --line: #2d3d50;
+  --ink: #f5f7f8;
+  --ink-2: #cfd7dc;
+  --muted: #a9b6bf;
+  --brand: #ffffff;
+  --brand-ink: #8fd0c2;
+  --brand-soft: #22413f;
+  --panel: #13202f;
+  --series-api: #b892e6;
+  --series-rent: #6f9be0;
+  --series-own: #4dbb91;
+  --api-deep: #4f3381;
+  --rent-deep: #1b3a66;
+  --own-deep: #1b5a43;
   --tint: 16%;
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -245,42 +227,28 @@ input[type="range"] {
  */
 :root,
 .light-scope {
-  --iso-edge: rgb(28 21 48 / 0.14);
-  --iso-base-top: #f2ecfc;
-  --iso-base-left: #e1d6f7;
-  --iso-base-right: #cfc0f1;
-  --iso-rack-top: #5b3aa6;
-  --iso-rack-left: #3a2275;
-  --iso-rack-right: #2b1859;
-  --iso-blade-top: #9a82e0;
-  --iso-blade-left: #6d52c2;
-  --iso-blade-right: #563da6;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --iso-edge: rgb(0 0 0 / 0.3);
-    --iso-base-top: #2d2350;
-    --iso-base-left: #241b42;
-    --iso-base-right: #1c1535;
-    --iso-rack-top: #7556cc;
-    --iso-rack-left: #523aa0;
-    --iso-rack-right: #402c85;
-    --iso-blade-top: #b7a3f5;
-    --iso-blade-left: #8b72dd;
-    --iso-blade-right: #735bc4;
-  }
+  --iso-edge: rgb(23 32 39 / 0.14);
+  --iso-base-top: #eef2f3;
+  --iso-base-left: #dfe6e9;
+  --iso-base-right: #cfd8dc;
+  --iso-rack-top: #2c4058;
+  --iso-rack-left: #1d2c3f;
+  --iso-rack-right: #152131;
+  --iso-blade-top: #7fb8ab;
+  --iso-blade-left: #4f9588;
+  --iso-blade-right: #3d7a6e;
 }
 .dark-scope {
   --iso-edge: rgb(0 0 0 / 0.3);
-  --iso-base-top: #2d2350;
-  --iso-base-left: #241b42;
-  --iso-base-right: #1c1535;
-  --iso-rack-top: #7556cc;
-  --iso-rack-left: #523aa0;
-  --iso-rack-right: #402c85;
-  --iso-blade-top: #b7a3f5;
-  --iso-blade-left: #8b72dd;
-  --iso-blade-right: #735bc4;
+  --iso-base-top: #2a3b52;
+  --iso-base-left: #223247;
+  --iso-base-right: #1b293b;
+  --iso-rack-top: #3c5573;
+  --iso-rack-left: #2c4058;
+  --iso-rack-right: #223247;
+  --iso-blade-top: #9fd0c4;
+  --iso-blade-left: #6fae9f;
+  --iso-blade-right: #5a9688;
 }
 .iso-tones {
   --iso-brand-top: color-mix(in oklab, var(--brand) 62%, white);
@@ -337,27 +305,19 @@ input[type="range"] {
  */
 :root,
 .light-scope {
-  --bridge-wait: #e8850f;
-  --bridge-service: #2b5fd9;
-  --bridge-engines: #c22f63;
-  --bridge-flex: #5cc0e8;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bridge-wait: #c9750c;
-    --bridge-service: #5b6ff0;
-    --bridge-engines: #d64a7d;
-    --bridge-flex: #2b9ec2;
-  }
+  --bridge-wait: #24508c;
+  --bridge-service: #c9851f;
+  --bridge-engines: #b8325f;
+  --bridge-flex: #4fb3d9;
 }
 .dark-scope {
-  --bridge-wait: #c9750c;
-  --bridge-service: #5b6ff0;
-  --bridge-engines: #d64a7d;
-  --bridge-flex: #2b9ec2;
+  --bridge-wait: #6f9be0;
+  --bridge-service: #d9a04a;
+  --bridge-engines: #d6537f;
+  --bridge-flex: #4fb3d9;
 }
-.bridge-wait { --win: var(--bridge-wait); --win-deep: #8a4705; }
-.bridge-service { --win: var(--bridge-service); --win-deep: #1e3f94; }
+.bridge-wait { --win: var(--bridge-wait); --win-deep: #1b3a66; }
+.bridge-service { --win: var(--bridge-service); --win-deep: #7a4c0c; }
 .bridge-engines { --win: var(--bridge-engines); --win-deep: #8a1d43; }
 .bridge-flex { --win: var(--bridge-flex); --win-deep: #0b5874; }
 
@@ -367,13 +327,6 @@ input[type="range"] {
   --provider-anthropic: #c8603a;
   --provider-openai: #14916e;
   --provider-google: #2b5fd9;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --provider-anthropic: #d9734c;
-    --provider-openai: #1fa37f;
-    --provider-google: #5b7ff2;
-  }
 }
 
 /*
@@ -408,3 +361,59 @@ input[type="range"] {
 
 /* Animations wait until their section scrolls into view (see useInView). */
 .mb-paused [style*="mb-"] { animation-play-state: paused; }
+
+/* Buttons and button links take the design's small radius; round dots and badges stay round. */
+a.rounded-full,
+button.rounded-full,
+label.rounded-full {
+  border-radius: 6px;
+}
+.font-mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/*
+ * Result panels in the design's style: a white card with the winner's color as a top edge, dark text,
+ * and soft teal badges, instead of a panel filled with the winner's deep shade. The markup still says
+ * text-white / white-alpha, so those are remapped inside the panel.
+ */
+.win-panel {
+  background-color: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--win);
+  box-shadow: 0 10px 35px rgb(26 39 48 / 0.06);
+  transition: border-color 0.6s ease;
+}
+.win-panel.text-white,
+.win-panel .text-white {
+  color: var(--ink);
+}
+.win-panel [class*="text-white/"] {
+  color: var(--muted);
+}
+.win-panel [class*="border-white"] {
+  border-color: var(--line);
+}
+.win-panel [class*="bg-white/"] {
+  background-color: var(--brand-soft);
+  color: var(--brand-ink);
+  border-color: transparent;
+}
+.win-panel [class*="ring-white"] {
+  --tw-ring-color: var(--line);
+}
+.win-tint {
+  background-color: var(--surface);
+  border-color: var(--line);
+}
+.win-pill,
+.win-pill.text-white {
+  background-color: var(--brand-soft);
+  color: var(--brand-ink);
+}
+/* The design's headings are semibold, not extra-bold. */
+.font-extrabold {
+  font-weight: 600;
+}

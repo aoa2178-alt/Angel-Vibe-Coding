@@ -19,16 +19,12 @@ export function linkClick(to: string) {
 export function Logo({ tagline = true }: { tagline?: boolean }) {
   return (
     <a href="/" onClick={linkClick("/")} className="flex min-w-0 items-center gap-3 rounded-xl" aria-label="Breakeven home">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand" aria-hidden>
-        <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round">
-          <path d="M3 18 L21 6" />
-          <path d="M3 9 C9 9 13 13 21 14" />
-          <circle cx="12.1" cy="11.9" r="2" fill="white" stroke="none" />
-        </svg>
-      </span>
+      <svg viewBox="0 0 32 28" width="30" height="26" fill="none" className="shrink-0 text-ink" aria-hidden>
+        <path d="M2 25V3m0 19 8-8 6 5L29 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
       <span className="leading-tight">
-        <span className="block text-lg font-extrabold tracking-tight">Breakeven</span>
-        {tagline && <span className="kicker hidden !text-[10px] sm:block">AI compute cost of ownership</span>}
+        <span className="block text-[19px] font-bold tracking-[-0.04em]">breakeven</span>
+        {tagline && <span className="sr-only">AI compute cost of ownership</span>}
       </span>
     </a>
   );

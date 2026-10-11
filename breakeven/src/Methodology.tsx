@@ -28,7 +28,7 @@ export function Methodology() {
   return (
     <PlanFrame route="sources" plan={plan} strip={false} bare>
         <section className="border-b border-line bg-bg">
-          <div className="mx-auto max-w-[1200px] px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mx-auto max-w-[1320px] px-4 py-16 sm:px-6 sm:py-20">
             <p className="kicker">Sources</p>
             <h1 className="mt-3 max-w-3xl text-4xl font-extrabold leading-[1.05] tracking-[-0.035em] text-balance sm:text-6xl">
               Where every number comes from
@@ -51,7 +51,7 @@ export function Methodology() {
         </section>
 
         <section id="model" className="scroll-mt-24 py-16 sm:py-20">
-          <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
+          <div className="mx-auto grid max-w-[1320px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
             <div>
               <p className="kicker">The model</p>
               <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">{FORMULAS.length} formulas, no black box</h2>
@@ -72,7 +72,7 @@ export function Methodology() {
         </section>
 
         <section id="defaults" className="scroll-mt-24 border-y border-line bg-bg py-16 sm:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
             <div className="max-w-2xl">
               <p className="kicker">Defaults & sources</p>
               <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">
@@ -96,7 +96,7 @@ export function Methodology() {
         </section>
 
         <section id="running" className="scroll-mt-24 border-b border-line py-16 sm:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
               <div>
                 <p className="kicker">Running it well · product mode</p>
@@ -137,7 +137,7 @@ export function Methodology() {
         </section>
 
         <section id="speed-to-power" className="scroll-mt-24 py-16 sm:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
               <div>
                 <p className="kicker">Speed-to-Power</p>
@@ -168,7 +168,7 @@ export function Methodology() {
         </section>
 
         <section id="price-history" className="scroll-mt-24 border-y border-line bg-bg py-16 sm:py-20">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
             <div className="max-w-2xl">
               <p className="kicker">Price history</p>
               <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">The prices behind the answer, over time</h2>
@@ -183,7 +183,7 @@ export function Methodology() {
         </section>
 
         <section id="limits" className="scroll-mt-24 py-16 sm:py-20">
-          <div className="mx-auto grid max-w-[1200px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
+          <div className="mx-auto grid max-w-[1320px] gap-10 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] lg:gap-16">
             <div>
               <p className="kicker">What's not included</p>
               <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Know the edges</h2>
@@ -201,7 +201,7 @@ export function Methodology() {
         </section>
 
         <section className="px-4 pb-20 sm:px-6">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-center gap-5 rounded-3xl bg-[#2a1458] px-6 py-14 text-center text-white">
+          <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-5 rounded-3xl bg-[#2a1458] px-6 py-14 text-center text-white">
             <h2 className="max-w-xl text-3xl font-extrabold tracking-[-0.03em] text-balance sm:text-4xl">Use your own numbers.</h2>
             <a
               href={stepHref("run-it", plan)}

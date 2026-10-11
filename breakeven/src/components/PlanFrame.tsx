@@ -23,7 +23,7 @@ export const formatKw = (kw: number) => (kw >= 1000 ? `${(kw / 1000).toFixed(kw 
 function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan: Plan; compact?: boolean }) {
   const sources = `/sources${planQuery(plan)}`;
   return (
-    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-1 lg:flex"}>
+    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-6 self-stretch lg:flex"}>
       {STEPS.map((s, i) => {
         const href = stepHref(s.route, plan);
         const current = s.route === route;
@@ -34,12 +34,16 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
             href={href}
             onClick={linkClick(href)}
             aria-current={current ? "step" : undefined}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition ${
-              current ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"
-            }`}
+            className={
+              compact
+                ? `flex shrink-0 items-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition ${current ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+                : `relative flex h-full shrink-0 items-center gap-1.5 text-sm transition ${
+                    current ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"
+                  }`
+            }
           >
             {n && (
-              <span className={`grid size-5 place-items-center rounded-full font-mono text-[11px] font-semibold ${current ? "bg-brand text-white" : "bg-sunken text-ink-2"}`}>
+              <span className={`grid size-5 place-items-center rounded-full font-mono text-[11px] font-semibold ${current ? "bg-brand text-white" : "bg-sunken text-muted"}`}>
                 {n}
               </span>
             )}
@@ -47,12 +51,16 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
           </a>
         );
       })}
-      <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden />
+      <span className="h-5 w-px shrink-0 self-center bg-line" aria-hidden />
       <a
         href={sources}
         onClick={linkClick(sources)}
         aria-current={route === "sources" ? "page" : undefined}
-        className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium transition ${route === "sources" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`}
+        className={
+          compact
+            ? `shrink-0 rounded px-3 py-2 text-sm font-medium transition ${route === "sources" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+            : `relative flex h-full shrink-0 items-center text-sm transition ${route === "sources" ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"}`
+        }
       >
         Sources
       </a>
@@ -69,7 +77,7 @@ export function WorkloadStrip({ plan, route }: { plan: Plan; route: PageRoute })
   const kw = owned * facilityKwPerGpu(plan.assumptions);
   const edit = stepHref("run-it", plan);
   return (
-    <div className="mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm">
+    <div className="mx-auto mt-2 flex max-w-[1320px] flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm">
       <span className="font-mono text-ink">
         {formatTokensM(plan.workload.tokensM)} tokens/mo <span className="text-muted">→</span> {rented} GPU{rented === 1 ? "" : "s"}{" "}
         <span className="text-muted">({owned} if owned)</span> <span className="text-muted">→</span> {formatKw(kw)}
@@ -171,7 +179,7 @@ export function PlanFrame({
           </div>
         }
         below={
-          <div className="mx-auto mt-2 max-w-[1200px] rounded-2xl border border-line bg-surface p-1 lg:hidden print:hidden">
+          <div className="mx-auto max-w-[1320px] border-t border-line bg-surface p-1 lg:hidden print:hidden">
             <StepTracker route={route} plan={plan} compact />
           </div>
         }
@@ -185,7 +193,7 @@ export function PlanFrame({
       {bare ? (
         <main>{children}</main>
       ) : (
-      <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
+      <main className="mx-auto max-w-[1320px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
         {children}
 
         {i >= 0 && (

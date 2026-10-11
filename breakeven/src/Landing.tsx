@@ -4,7 +4,7 @@ import { OPTIONS } from "@/components/options";
 import { linkClick } from "@/components/Brand";
 import { Decode } from "@/components/Decode";
 import { FlipStory, FlipStoryLink } from "@/components/FlipStory";
-import { IsoHero, IsoIcon, type IsoKind } from "@/components/Iso";
+import { IsoIcon, type IsoKind } from "@/components/Iso";
 import { PillBar, SiteFooter } from "@/components/Site";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, cheapest, compare, crossovers, formatTokensM, formatUsd } from "@/lib/tco";
 
@@ -97,6 +97,9 @@ export function Landing() {
   const startup = compare(DEFAULT_WORKLOAD, DEFAULT_ASSUMPTIONS);
   const startupWinner = cheapest(startup);
   const cross = crossovers(DEFAULT_WORKLOAD, DEFAULT_ASSUMPTIONS);
+  const runnerUp = (Object.values(startup) as (typeof startup)[keyof typeof startup][])
+    .filter((c) => c.id !== startupWinner)
+    .sort((a, b) => a.monthly - b.monthly)[0]!;
 
   return (
     <div className="min-h-dvh bg-bg">
@@ -114,55 +117,81 @@ export function Landing() {
       />
 
       <main>
-        {/* Hero: a large statement on the left, the isometric data center on the right. Always light. */}
-        <section className="light-scope -mt-[76px] bg-[#fdfcff] pt-[76px]">
-          <div className="mx-auto grid max-w-[1200px] items-center gap-10 px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:min-h-[86vh] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-6 lg:pb-24">
+        {/* Hero, after the Figma design: the question on the left, a short aside on the right, then the three costs. */}
+        <section className="light-scope -mt-[73px] bg-bg pt-[73px]">
+          <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-4 pb-12 pt-14 sm:px-8 sm:pt-20 lg:grid-cols-[1.4fr_0.65fr] lg:gap-24">
             <div>
-              <p className="flex items-center gap-3 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-brand-ink">
-                <span className="h-px w-10 bg-current opacity-60" aria-hidden />
-                <Decode text="AI compute cost of ownership" />
-              </p>
-              <h1 className="mt-6 text-[3.4rem] font-extrabold leading-[0.95] tracking-[-0.055em] sm:text-7xl lg:text-[6.6rem]">
-                Find your <span className="text-brand">breakeven.</span>
+              <p className="kicker">Compute economics, made explicit.</p>
+              <h1 className="mt-4 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-[5.4rem]">
+                <span className="underline decoration-[#79aa9f] decoration-4 underline-offset-[7px]">API</span>, cloud GPUs, or your own hardware?
               </h1>
-              <p className="mt-7 max-w-xl text-lg leading-8 text-ink-2 text-pretty sm:text-xl sm:leading-9">
-                Pay per token, rent cloud GPUs, or own the hardware. See what each really costs at your volume, and where the cheapest
-                answer flips.
+              <p className="mt-6 max-w-[650px] text-base leading-7 text-muted">
+                Pay per token, rent cloud GPUs, or own the machines. See what each really costs at your workload, and where the cheapest answer
+                flips.
               </p>
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-7 flex flex-wrap items-center gap-6">
                 <CtaLink to="/worth-it">
                   Start <ArrowRight className="size-4" aria-hidden />
                 </CtaLink>
-                <CtaLink to="/run-it" variant="secondary">
-                  Jump to the calculator
-                </CtaLink>
+                <a href="/run-it" onClick={linkClick("/run-it")} className="text-[15px] font-semibold text-ink underline-offset-4 hover:underline">
+                  Jump to the calculator <ArrowRight className="inline size-4" aria-hidden />
+                </a>
               </div>
               <p className="mt-3 text-sm text-muted">Opens on a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
             </div>
+            <aside className="max-w-[340px]">
+              <h2 className="text-lg font-semibold">Find your breakeven.</h2>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Use your workload, not a vendor pitch. Compare all-in API, cloud and owned cost, and know where the assumptions matter.
+              </p>
+            </aside>
+          </div>
 
-            <div className={`theme-${startupWinner} relative`}>
-              <IsoHero className="w-full" />
-              {/* Real answers from the model, pinned to the drawing */}
-              <div className="win-panel absolute bottom-0 left-0 hidden rounded-2xl p-4 text-white sm:block">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/75">Cheapest at 2B tokens / month</p>
-                <p className="mt-1 text-lg font-extrabold tracking-tight">{OPTIONS[startupWinner].name}</p>
-                <p className="mt-0.5 font-mono text-sm text-white/85">
-                  {formatUsd(startup[startupWinner].monthly)} / month · {formatUsd(startup[startupWinner].perM, 2)} / M
+          {/* One workload, three ways to run it: the real numbers at the default workload. */}
+          <div className="mx-auto max-w-[1320px] px-4 pb-16 sm:px-8 sm:pb-20">
+            <div className="rounded-[7px] border border-line bg-surface p-5 shadow-[0_10px_35px_rgb(26_39_48/0.08)] sm:p-6">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-4">
+                <p className="font-semibold">One workload. Three ways to run it.</p>
+                <p className="text-xs text-muted">
+                  {formatTokensM(DEFAULT_WORKLOAD.tokensM)} tokens a month · default assumptions
                 </p>
               </div>
-              {cross.ownFromM !== null && (
-                <div className="absolute right-0 top-0 hidden rounded-2xl border border-line bg-surface px-4 py-3 md:block">
-                  <p className="flex items-center gap-1.5 text-xs font-semibold">
-                    <span className="size-2 rounded-full bg-own" aria-hidden /> Owning wins for good
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-ink-2">from {formatTokensM(cross.ownFromM)} tokens / month</p>
-                </div>
-              )}
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                {(["api", "rent", "own"] as const).map((id) => (
+                  <div key={id} className={`rounded-[5px] border p-4 ${id === startupWinner ? "border-[#4f9588]" : "border-line"}`}>
+                    <p className="flex items-center justify-between gap-2 font-semibold">
+                      <span className="flex items-center gap-2">
+                        <span className={`size-2 rounded-full ${OPTIONS[id].swatch}`} aria-hidden />
+                        {OPTIONS[id].short}
+                      </span>
+                      {id === startupWinner && <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-ink">Lowest cost</span>}
+                    </p>
+                    <p className="mt-3 text-[28px] font-semibold tracking-tight">
+                      {formatUsd(startup[id].monthly)}
+                      <span className="ml-1.5 text-sm font-normal text-muted">/ month</span>
+                    </p>
+                    <p className="mt-1 text-xs text-muted">{formatUsd(startup[id].perM, 2)} per million tokens</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex flex-wrap justify-between gap-2 bg-brand-soft px-4 py-3.5 text-sm text-[#335f57]">
+                <span>{OPTIONS[startupWinner].name} has the lowest estimated monthly cost</span>
+                <span className="font-semibold">
+                  {formatUsd(runnerUp.monthly - startup[startupWinner].monthly)} less than {OPTIONS[runnerUp.id].short}
+                </span>
+              </div>
+              <p className="mt-4 text-sm text-muted">
+                {cross.apiUntilM !== null && <>The API stops winning above about {formatTokensM(cross.apiUntilM)} tokens a month. </>}
+                {cross.ownFromM !== null && <>Owning wins for good from about {formatTokensM(cross.ownFromM)}. </>}
+                <a href="/run-it" onClick={linkClick("/run-it")} className="font-semibold text-brand-ink hover:underline">
+                  Find your own breakeven <ArrowRight className="inline size-3.5" aria-hidden />
+                </a>
+              </p>
             </div>
           </div>
 
           {/* At a glance */}
-          <dl className="mx-auto grid max-w-[1200px] grid-cols-3 border-t border-line px-4 sm:px-6">
+          <dl className="mx-auto grid max-w-[1320px] grid-cols-3 border-t border-line px-4 sm:px-6">
             {[
               ["3", "ways to run your AI"],
               ["10M–100B", "tokens a month, compared"],
@@ -180,7 +209,7 @@ export function Landing() {
 
         {/* 01 · How it works: the three questions */}
         <section id="how" className="scroll-mt-20 bg-bg py-24 sm:py-36">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+          <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
             <SectionHeader
               index="01"
               kicker="How it works"
@@ -220,7 +249,7 @@ export function Landing() {
 
         {/* 02 · The flip: step 2's answer as a scroll-driven story on a dark section */}
         <section id="flip" className="dark-scope">
-          <div className="mx-auto max-w-[1200px] px-4 pt-24 sm:px-6 sm:pt-32">
+          <div className="mx-auto max-w-[1320px] px-4 pt-24 sm:px-6 sm:pt-32">
             <SectionHeader
               index="02"
               kicker="The flip"
@@ -229,14 +258,14 @@ export function Landing() {
             />
           </div>
           <FlipStory />
-          <div className="mx-auto flex max-w-[1200px] px-4 pb-24 sm:px-6 sm:pb-32">
+          <div className="mx-auto flex max-w-[1320px] px-4 pb-24 sm:px-6 sm:pb-32">
             <FlipStoryLink />
           </div>
         </section>
 
         {/* 03 · FAQ */}
         <section id="faq" className="scroll-mt-20 border-t border-line bg-bg py-24 sm:py-36">
-          <div className="mx-auto grid max-w-[1200px] gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
+          <div className="mx-auto grid max-w-[1320px] gap-12 px-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-16">
             <SectionHeader index="03" kicker="FAQ" title="Good questions." body="The short version of how the numbers work." />
             <div className="divide-y divide-line border-y border-line">
               {FAQ.map((f) => (
@@ -259,7 +288,7 @@ export function Landing() {
 
         {/* Closing call to action */}
         <section className="dark-scope">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-start gap-8 px-4 py-24 sm:px-6 sm:py-36 lg:flex-row lg:items-end lg:justify-between">
+          <div className="mx-auto flex max-w-[1320px] flex-col items-start gap-8 px-4 py-24 sm:px-6 sm:py-36 lg:flex-row lg:items-end lg:justify-between">
             <h2 className="max-w-3xl text-5xl font-extrabold leading-[0.98] tracking-[-0.05em] text-balance sm:text-7xl">
               Your numbers. <span className="text-brand-ink">Your answer.</span>
             </h2>

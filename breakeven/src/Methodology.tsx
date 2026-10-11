@@ -201,12 +201,12 @@ export function Methodology() {
         </section>
 
         <section className="px-4 pb-20 sm:px-6">
-          <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-5 rounded-3xl bg-[#2a1458] px-6 py-14 text-center text-white">
+          <div className="mx-auto flex max-w-[1320px] flex-col items-center gap-5 rounded-3xl bg-[#182536] px-6 py-14 text-center text-white">
             <h2 className="max-w-xl text-3xl font-extrabold tracking-[-0.03em] text-balance sm:text-4xl">Use your own numbers.</h2>
             <a
               href={stepHref("run-it", plan)}
               onClick={linkClick(stepHref("run-it", plan))}
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-[#2a1458] transition hover:bg-white/90"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 font-semibold text-[#182536] transition hover:bg-white/90"
             >
               Back to step 2 <ArrowRight className="size-4" aria-hidden />
             </a>

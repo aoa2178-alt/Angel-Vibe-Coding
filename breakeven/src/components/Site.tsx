@@ -119,7 +119,7 @@ export function SiteFooter() {
         <div>
           <Logo tagline={false} />
           <p className="mt-4 max-w-sm text-sm leading-6 text-ink-2">
-            An AI compute cost-of-ownership calculator: pay per token, rent cloud GPUs, or own the hardware.
+            Total-cost-of-ownership analysis for running AI: pay-per-token API, rented GPUs or owned infrastructure.
           </p>
         </div>
         <div>

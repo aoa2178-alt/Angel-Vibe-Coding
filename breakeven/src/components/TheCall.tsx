@@ -29,7 +29,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
   const currentLabel = CURRENTS.find((c) => c.id === current)?.label;
   return (
     <section data-call-text className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`} style={anim("rise", 600, 0, "back")}>
-      <p className="kicker">1 · My recommendation</p>
+      <p className="kicker">1 · Recommendation</p>
       <p className="mt-2 flex items-start gap-2.5 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">
         <span className={`mt-2 size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
         <span>
@@ -38,7 +38,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
       </p>
       <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
         <li>
-          <span className="font-semibold text-ink">Versus today:</span>{" "}
+          <span className="font-semibold text-ink">Versus current state:</span>{" "}
           {versusToday === null ? (
             current === "none" ? (
               "you're not using AI yet, so the value is the case below, not a switch."
@@ -64,7 +64,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
                     </option>
                   ))}
                 </select>{" "}
-                to see what switching is worth.
+                to quantify the value of switching.
               </>
             )
           ) : versusToday > 1 ? (
@@ -126,7 +126,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
   const flips = [...call.volumeChecks, ...call.checks.filter((c) => !c.holds)];
   const holds = call.checks.filter((c) => c.holds).map((c) => c.label.replace(" 25% higher or lower", ""));
   return (
-    <Block n={3} title="What would change my mind">
+    <Block n={3} title="What would change the recommendation">
       {call.recommended !== call.cheapestId && (
         <p className="mb-2">These are cost checks. The cheapest option today is {lowerFirst(OPTIONS[call.cheapestId].name)}; the recommendation trades some cost for your priorities.</p>
       )}
@@ -162,7 +162,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
 export function CallLanding({ call }: { call: Call }) {
   const view = useInView<HTMLDivElement>();
   return (
-    <Block n={4} title="How to land it">
+    <Block n={4} title="Implementation plan">
       <div ref={view.ref} className={`grid gap-3 sm:grid-cols-3 ${view.paused}`}>
         {landingPlan(call.recommended).map((col, i) => (
           <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
@@ -176,7 +176,7 @@ export function CallLanding({ call }: { call: Call }) {
         ))}
       </div>
       <p className="mt-3">
-        <span className="font-semibold text-ink">The hard part is people, not technology.</span>{" "}
+        <span className="font-semibold text-ink">Adoption is the main risk, not the technology.</span>{" "}
         {call.r && call.r.savings > 0
           ? `The budget moves from people to tokens: ${formatUsd(call.r.escalationCost + call.r.reviewCost)} a month stays on people who review and handle what the AI can't. Redesign those jobs before launch, and train reviewers on what good AI output looks like.`
           : "Whoever owns the workflow has to trust the output. Agree what the AI does alone, what a person checks, and who's accountable when it's wrong."}{" "}
@@ -198,7 +198,7 @@ export function CallMeasures({ call, plan }: { call: Call; plan: Plan }) {
   rows.push(["Average wait for an answer", "–", `≤ ${plan.ops.waitTargetSec} s (modeled ${q.waitSec < 10 ? q.waitSec.toFixed(1) : Math.round(q.waitSec)} s)`]);
   rows.push(["Monthly volume", formatTokensM(plan.workload.tokensM), call.cross.apiUntilM || call.cross.ownFromM ? "re-check at the flip points" : "–"]);
   return (
-    <Block n={5} title="How we'd know it worked">
+    <Block n={5} title="Success measures">
       <div className="overflow-auto rounded-lg border border-line">
         <table className="w-full text-left text-sm">
           <thead className="bg-sunken text-xs text-muted">
@@ -227,7 +227,7 @@ export function CallMeasures({ call, plan }: { call: Call; plan: Plan }) {
 /** 6 · The judgment calls behind the answer. */
 export function CallJudgment() {
   return (
-    <Block n={6} title="My judgment calls">
+    <Block n={6} title="Key judgments">
       <ul className="list-disc space-y-2 pl-5">
         <li>
           <span className="font-semibold text-ink">Like for like:</span> "rent" and "own" mean running an open-weight model of similar size. The strongest frontier models are API-only, so if quality matters most, the

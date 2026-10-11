@@ -15,10 +15,10 @@ import { VOLUME_MAX_M, gpusNeeded, type Assumptions, type Workload } from "./tco
 export type StepRoute = "worth-it" | "run-it" | "power-it" | "result";
 
 export const STEPS: { route: StepRoute; label: string; question: string }[] = [
-  { route: "worth-it", label: "Evaluate AI ROI", question: "Is AI worth it for this work?" },
-  { route: "run-it", label: "Compare compute costs", question: "How should we run it?" },
-  { route: "power-it", label: "Power planning", question: "Can we power it?" },
-  { route: "result", label: "Recommendation", question: "Recommendation: how to run it, and is it worth it?" },
+  { route: "worth-it", label: "Evaluate AI ROI", question: "AI business case" },
+  { route: "run-it", label: "Compare compute costs", question: "Deployment cost comparison" },
+  { route: "power-it", label: "Power planning", question: "Power and grid readiness" },
+  { route: "result", label: "Recommendation", question: "Deployment recommendation" },
 ];
 
 export interface Plan {
@@ -44,7 +44,7 @@ export interface Plan {
 
 export type Current = "none" | "api" | "rent" | "own" | "mix";
 export const CURRENTS: { id: Current; label: string }[] = [
-  { id: "none", label: "Not using AI yet" },
+  { id: "none", label: "No AI in production yet" },
   { id: "api", label: "Pay-per-token API" },
   { id: "rent", label: "Rented cloud GPUs" },
   { id: "own", label: "Own GPUs" },

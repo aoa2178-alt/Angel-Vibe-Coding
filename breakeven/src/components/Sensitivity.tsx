@@ -2,7 +2,7 @@ import { cheapest, compare, formatUsd, sensitivity, type Assumptions, type Optio
 import type { OptionMeta } from "./ClosingBars";
 
 /**
- * "What moves the answer": each driver pushed 25% down and up, with the cheapest option at each end.
+ * "Drivers of the recommendation": each driver pushed 25% down and up, with the cheapest option at each end.
  * Drivers that change the answer sort first, then the ones that move the cost most.
  */
 export function Sensitivity({ workload, assumptions, meta }: { workload: Workload; assumptions: Assumptions; meta: Record<OptionId, OptionMeta> }) {
@@ -21,7 +21,7 @@ export function Sensitivity({ workload, assumptions, meta }: { workload: Workloa
   return (
     <figure className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <p className="kicker">Sensitivity</p>
-      <figcaption className="mt-1 text-lg font-bold tracking-tight">What moves the answer</figcaption>
+      <figcaption className="mt-1 text-lg font-bold tracking-tight">Drivers of the recommendation</figcaption>
       <p className="mt-1 text-sm text-ink-2">
         Each assumption pushed 25% lower and higher.{" "}
         {flips === 0

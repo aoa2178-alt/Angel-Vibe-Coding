@@ -26,10 +26,10 @@ import {
 import { formatUsd, ownCostPerGpuMonth } from "@/lib/tco";
 
 export const STRATEGY_META: Record<StrategyId, StrategyMeta & { note: string }> = {
-  wait: { name: "Rent cloud GPUs while you wait", short: "Rent & wait", color: "var(--bridge-wait)", note: "No commitment, but you pay the cloud premium every month." },
-  service: { name: "Bridge power service", short: "Bridge power", color: "var(--bridge-service)", note: "A provider brings and runs on-site generators; you pay per MWh." },
-  engines: { name: "Own on-site gas", short: "Own gas", color: "var(--bridge-engines)", note: "Your own turbines or engines: cheap power, long lead time." },
-  flex: { name: "Flexible grid + batteries", short: "Batteries", color: "var(--bridge-flex)", note: "Connect early on curtailable terms; batteries carry the cutbacks." },
+  wait: { name: "Rent cloud GPUs while you wait", short: "Rent & wait", color: "var(--bridge-wait)", note: "No commitment; pays the cloud premium every month." },
+  service: { name: "Bridge power service", short: "Bridge power", color: "var(--bridge-service)", note: "Third-party on-site generation, billed per MWh." },
+  engines: { name: "Own on-site gas", short: "Own gas", color: "var(--bridge-engines)", note: "Owned turbines or engines: low running cost, long lead time." },
+  flex: { name: "Flexible grid + batteries", short: "Batteries", color: "var(--bridge-flex)", note: "Early curtailable connection, with batteries covering curtailment." },
 };
 
 const FIELDS: { group: string; items: { key: keyof BridgeAssumptions; label: string; unit: string; step: number }[] }[] = [
@@ -90,12 +90,12 @@ export function PowerIt() {
   return (
     <PlanFrame route="power-it" plan={plan}>
         <StepHeading route="power-it">
-          Owning only wins if you can power it. Set how much power you can get, then see what to do if the grid connection is late.
+          Ownership only pays if the capacity can be powered. Set the power available, then compare options for bridging a delayed grid connection.
         </StepHeading>
 
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <section aria-label="Your power" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Power you can get</p>
+            <p className="kicker">01 · Available power</p>
             <div className="mt-4">
               <PowerBudget
                 kw={assumptions.powerLimitKw}
@@ -104,8 +104,8 @@ export function PowerIt() {
               />
             </div>
 
-            <p className="kicker mt-7">02 · If the grid is late</p>
-            <p className="mt-2 text-sm font-medium">Cluster to power</p>
+            <p className="kicker mt-7">02 · Grid connection delay</p>
+            <p className="mt-2 text-sm font-medium">Cluster size</p>
             <button
               type="button"
               aria-pressed={plan.clusterGpus === null}
@@ -117,7 +117,7 @@ export function PowerIt() {
                 {yours.toLocaleString("en-US")} owned GPUs · {formatKw(facilityKw(yours, assumptions))}
               </span>
             </button>
-            <p className="mt-3 text-xs font-medium text-ink-2">What if you grow?</p>
+            <p className="mt-3 text-xs font-medium text-ink-2">Scale scenarios</p>
             <div className="mt-1.5 grid grid-cols-3 gap-2" role="group" aria-label="What-if cluster sizes">
               {CLUSTER_PRESETS.map((p) => {
                 const active = plan.clusterGpus === p.gpus;
@@ -157,7 +157,7 @@ export function PowerIt() {
             <div className="mt-6">
               <div className="flex items-end justify-between gap-3">
                 <label htmlFor="delay" className="text-sm font-medium">
-                  How late is the grid?
+                  Expected grid delay
                 </label>
                 <span className="font-mono text-sm text-brand-ink">{delay === 0 ? "On time" : `${delay} months`}</span>
               </div>
@@ -181,9 +181,9 @@ export function PowerIt() {
             </div>
 
             <fieldset className="mt-6 space-y-2.5">
-              <legend className="text-sm font-medium">What's on offer where you are</legend>
+              <legend className="text-sm font-medium">Options available at this site</legend>
               <Toggle checked={bridge.serviceOffered > 0} onChange={(on) => setB({ serviceOffered: on ? 1 : 0 })}>
-                A bridge-power provider can serve this size
+                Bridge-power provider available at this scale
               </Toggle>
               <Toggle checked={bridge.flexOffered > 0} onChange={(on) => setB({ flexOffered: on ? 1 : 0 })}>
                 The utility offers a flexible (curtailable) connection
@@ -272,13 +272,13 @@ export function PowerIt() {
                 {delay === 0 ? "Nothing to bridge" : STRATEGY_META[winner].name}
               </p>
               <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4">
-                <PanelStat label="Extra cost">
+                <PanelStat label="Incremental cost">
                   <Odometer text={formatMoney(winnerTotal)} />
                 </PanelStat>
-                <PanelStat label="Saves vs renting">
+                <PanelStat label="Savings vs renting">
                   <Odometer text={formatMoney(savedVsRent)} />
                 </PanelStat>
-                <PanelStat label="Running from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
+                <PanelStat label="Operational from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
               </div>
             </div>
 
@@ -290,7 +290,7 @@ export function PowerIt() {
                   <Zap className="size-4" />
                 </span>
                 <div>
-                  <p className="kicker">Speed beats price</p>
+                  <p className="kicker">Time to power drives the decision</p>
                   <p className="mt-1 text-sm leading-6 text-ink">
                     Renting this cluster costs {formatMoney(premium)} a month more than owning it on a working grid, so the fastest bridge usually
                     wins, even with pricier power. {describeStretches(stretches)} {describePayoff(all, stretches)}
@@ -299,10 +299,10 @@ export function PowerIt() {
               </div>
             </div>
 
-            <Fold id="wait-chart" title="See the cost of the wait" sub="Each option's extra cost as the grid delay grows, with the switch points">
+            <Fold id="wait-chart" title="Cost of delay by option" sub="Each option's incremental cost as the grid delay grows, with the switch points">
               <BridgeChart all={all} delay={delay} stretches={stretches} meta={STRATEGY_META} />
             </Fold>
-            <Fold id="bridge-numbers" title="Behind the numbers" sub="Lead times, one-time costs and monthly costs for each option">
+            <Fold id="bridge-numbers" title="Behind the numbers" sub="Lead times, one-time and monthly costs for each option">
               <StrategyTable all={all} delay={delay} />
             </Fold>
 

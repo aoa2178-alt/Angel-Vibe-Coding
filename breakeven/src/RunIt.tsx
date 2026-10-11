@@ -103,14 +103,14 @@ export function RunIt() {
       }
     >
         <StepHeading route="run-it">
-          Pay per token, rent cloud GPUs, or own the hardware: what each costs at your volume, where the answer flips, and what fits
-          your priorities beyond cost.
+          Total cost of ownership for a pay-per-token API, rented GPUs and owned infrastructure at your volume, the crossover points, and
+          fit beyond cost.
         </StepHeading>
 
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           {/* Inputs: stay in view on wide screens while the results scroll beside them */}
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Your workload</p>
+            <p className="kicker">01 · Workload</p>
 
             <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
               {PRESETS.map((p) => {
@@ -172,8 +172,8 @@ export function RunIt() {
 
             <PercentSlider
               id="output-share"
-              label="Share that is output"
-              hint="Answers cost more than prompts on most APIs."
+              label="Output token share"
+              hint="Output tokens are priced above input tokens on most APIs."
               value={workload.outputShare}
               onChange={(v) => setW({ outputShare: v })}
               min={0.05}
@@ -181,8 +181,8 @@ export function RunIt() {
             />
             <PercentSlider
               id="utilization"
-              label="GPU utilization you can sustain"
-              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs; higher means slower answers (see Operating strategies)."
+              label="Sustainable GPU utilization"
+              hint="Peaks leave capacity idle. Lower utilization requires more GPUs; higher utilization lengthens response times (see Operating strategies)."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -197,10 +197,10 @@ export function RunIt() {
               <Zap className="mt-0.5 size-4 shrink-0 text-brand-ink" aria-hidden />
               <span>
                 <span className="block font-medium">
-                  {assumptions.powerLimitKw > 0 ? `Power capped at ${assumptions.powerLimitKw} kW (up to ${maxOwnedGpus(assumptions)} owned GPUs)` : "Owning needs power"}
+                  {assumptions.powerLimitKw > 0 ? `Power capped at ${assumptions.powerLimitKw} kW (up to ${maxOwnedGpus(assumptions)} owned GPUs)` : "Ownership requires power"}
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
-                  {ownedKw(workload, assumptions)} for your owned GPUs. Set a power budget or a late grid in step 3 →
+                  {ownedKw(workload, assumptions)} for owned GPUs. Set a power budget or model a grid delay in Power planning →
                 </span>
               </span>
             </a>
@@ -208,7 +208,7 @@ export function RunIt() {
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
                 <span className="kicker">02 · Assumptions</span>
-                <span className="text-xs text-muted group-open:hidden">Edit prices, power, throughput ▾</span>
+                <span className="text-xs text-muted group-open:hidden">Pricing, power and throughput ▾</span>
                 <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
               </summary>
               <MarketNow assumptions={assumptions} onUse={() => setAssumptions(withLatest)} sourcesHref={`/sources${planQuery(plan)}#price-history`} />
@@ -257,10 +257,10 @@ export function RunIt() {
             <div className="win-panel relative overflow-hidden rounded-2xl p-5 text-white sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
-                  Cheapest at {formatTokensM(workload.tokensM)} tokens / month
+                  Lowest cost at {formatTokensM(workload.tokensM)} tokens / month
                 </p>
                 <span key={`pill-${winner}`} className="animate-pop rounded-full border border-white/40 bg-white/15 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
-                  {OPTIONS[winner].short} wins
+                  Lowest cost
                 </span>
               </div>
               <p key={winner} className="mt-3 flex animate-rise items-center gap-3 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
@@ -292,22 +292,22 @@ export function RunIt() {
                 <Sparkles className="size-4" />
               </span>
               <div>
-                <p className="kicker">Where the answer flips</p>
+                <p className="kicker">Crossover points</p>
                 <p className="mt-1 text-sm leading-6 text-ink">
                   {describeCrossovers(cross)} {describePower(workload, assumptions)}
                 </p>
               </div>
             </div>
 
-            <Fold id="projection" title="See detailed cost curves" sub="Each option's monthly cost as volume grows, with the flip points">
+            <Fold id="projection" title="Cost curves by volume" sub="Monthly cost of each option across volumes, with the crossover points">
               <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
             </Fold>
-            <Fold id="sensitivity" title="Sensitivity analysis" sub="Each assumption 25% lower and higher: which ones change the answer">
+            <Fold id="sensitivity" title="Sensitivity analysis" sub="±25% on each cost driver: which ones change the recommendation">
               <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
             </Fold>
-            <Fold id="beyond-cost" title="Beyond cost" sub="Weight cost, data control, launch, quality, ease and flexibility">
+            <Fold id="beyond-cost" title="Qualitative scorecard" sub="Weighted criteria: cost, data control, time to launch, model quality, operability and flexibility">
               <p className="mb-4 max-w-2xl text-sm leading-6 text-ink-2">
-                The cheapest option isn't always the right one. Weight what matters to you and see which way to run AI scores best.
+                The lowest-cost option is not always the right choice. Weight the criteria that matter to the business and compare weighted scores.
               </p>
               <Scorecard
                 costs={costs}
@@ -320,10 +320,10 @@ export function RunIt() {
                 onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
               />
             </Fold>
-            <Fold id="operating" title="Operating strategies" sub="How hot to run GPUs, owning the base and renting the peaks, and when to retire them">
+            <Fold id="operating" title="Operating strategies" sub="Utilization and response time, base-and-peak capacity mix, and asset retirement timing">
               <RunningItWell plan={plan} setPlan={setPlan} bare />
             </Fold>
-            <Fold id="behind" title="Behind the numbers" sub="The math with your numbers, and the cash view over the ownership period">
+            <Fold id="behind" title="Calculation detail" sub="Step-by-step cost build-up and the ownership cash view">
               <div className="grid gap-4">
                 <Calculations workload={workload} assumptions={assumptions} costs={costs} />
                 <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
@@ -383,7 +383,7 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
   ];
   return (
     <div className="rounded-[7px] border border-line bg-surface">
-      <p className="kicker px-5 pt-4">The math with your numbers</p>
+      <p className="kicker px-5 pt-4">Cost build-up</p>
       <dl className="grid gap-2.5 px-5 py-4 text-sm">
         {lines.map((l) => (
           <div key={l.label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
@@ -484,7 +484,7 @@ function MarketNow({ assumptions, onUse, sourcesHref }: { assumptions: Assumptio
   const when = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   return (
     <div className="border-t border-line px-4 py-3 text-xs leading-5">
-      <p className="font-semibold text-ink">Market now</p>
+      <p className="font-semibold text-ink">Current market price</p>
       <ul className="mt-1 space-y-0.5 text-ink-2">
         <li>
           API: <span className="font-mono">{formatUsd(l.api.point.input, 2)} / {formatUsd(l.api.point.output, 2)}</span> per M tokens ({l.api.point.model},{" "}
@@ -497,10 +497,10 @@ function MarketNow({ assumptions, onUse, sourcesHref }: { assumptions: Assumptio
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
         {stale ? (
           <button type="button" onClick={onUse} className="rounded-full bg-brand px-3 py-1.5 font-semibold text-white transition hover:bg-brand-ink">
-            Use latest prices
+            Apply current market prices
           </button>
         ) : (
-          <span className="font-medium text-brand-ink">Your plan uses the latest prices.</span>
+          <span className="font-medium text-brand-ink">Pricing reflects current market rates.</span>
         )}
         <a href={sourcesHref} onClick={linkClick(sourcesHref)} className="font-medium text-brand-ink underline underline-offset-2">
           Price history

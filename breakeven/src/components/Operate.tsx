@@ -64,7 +64,7 @@ function HowHot({ plan, setPlan, setOps }: { plan: Plan; setPlan: SetPlan; setOp
   const compareGpus = q.gpus >= 4 ? 1 : q.gpus * 10;
 
   return (
-    <Card kicker="01 · How hot to run it" title="How fast do answers come back?" method="Factory physics · Little's Law">
+    <Card kicker="01 · Utilization" title="Response time vs utilization" method="Factory physics · Little's Law">
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <div className="min-w-0">
           <ResponseChart plan={plan} compareGpus={compareGpus} />
@@ -72,7 +72,7 @@ function HowHot({ plan, setPlan, setOps }: { plan: Plan; setPlan: SetPlan; setOp
         <div className="grid content-start gap-4">
           <div>
             <p className="text-sm font-medium">Traffic</p>
-            <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Traffic">
+            <div className="mt-2 grid grid-cols-3 gap-1.5" role="group" aria-label="Traffic variability">
               {BURST_PRESETS.map((b) => (
                 <button
                   key={b.id}
@@ -87,7 +87,7 @@ function HowHot({ plan, setPlan, setOps }: { plan: Plan; setPlan: SetPlan; setOp
               ))}
             </div>
           </div>
-          <NumberField label="Longest acceptable wait" unit="seconds in the queue, on average" step={0.5} value={ops.waitTargetSec} onChange={(v) => v > 0 && setOps({ waitTargetSec: v })} />
+          <NumberField label="Wait-time target" unit="seconds in the queue, on average" step={0.5} value={ops.waitTargetSec} onChange={(v) => v > 0 && setOps({ waitTargetSec: v })} />
           <NumberField label="Tokens per request" unit="prompt + answer" step={500} value={ops.requestTokens} onChange={(v) => v >= 1 && setOps({ requestTokens: v })} />
         </div>
       </div>
@@ -167,7 +167,7 @@ function ResponseChart({ plan, compareGpus }: { plan: Plan; compareGpus: number 
   return (
     <figure>
       <figcaption className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink-2">
-        <span className="font-semibold text-ink">Response time as the fleet gets busier</span>
+        <span className="font-semibold text-ink">Response time by utilization</span>
         <span className="flex flex-wrap gap-x-3 gap-y-1">
           <span className="flex items-center gap-1.5">
             <span className="h-0.5 w-4 rounded-full bg-brand" aria-hidden />
@@ -208,7 +208,7 @@ function ResponseChart({ plan, compareGpus }: { plan: Plan; compareGpus: number 
             </text>
           ))}
           <text x={m.left + pw / 2} y={height - 2} textAnchor="middle" className="fill-muted text-[10px]">
-            How busy the fleet is
+            Fleet utilization
           </text>
           <line x1={m.left} x2={m.left + pw} y1={y(target)} y2={y(target)} stroke="var(--brand)" strokeDasharray="4 4" opacity={0.6} />
           <text x={m.left + 4} y={y(target) - 5} className="fill-brand-ink text-[10px] font-semibold">
@@ -281,15 +281,15 @@ function BaseAndPeak({ plan, setOps }: { plan: Plan; setOps: (p: Partial<OpsSett
   const { workload: w, assumptions: a, ops } = plan;
   const h = hybrid(w, a, ops);
   const rows = [
-    { id: "rent", label: "Rent everything", value: h.allRent },
-    { id: "own", label: "Own everything", value: h.allOwn },
-    { id: "split", label: "Own the base, handle the peak", value: h.best === "split" ? h.hybrid : h.base.monthly + h.peak.monthly },
+    { id: "rent", label: "All rented", value: h.allRent },
+    { id: "own", label: "All owned", value: h.allOwn },
+    { id: "split", label: "Hybrid: owned base, flexible peak", value: h.best === "split" ? h.hybrid : h.base.monthly + h.peak.monthly },
   ];
   const max = Math.max(...rows.map((r) => r.value)) || 1;
   const winner = h.best;
   const peakHow = { "on-demand": "rent it by the hour, only at peak", rent: "rent it reserved, all day", own: "own it too" }[h.peak.choice];
   return (
-    <Card kicker="02 · How much to own" title="Own the base, rent the peaks" method="Flexibility · newsvendor">
+    <Card kicker="02 · Capacity mix" title="Base-load ownership, peak rental" method="Flexibility · newsvendor">
       <label className="block">
         <span className="flex items-baseline justify-between text-sm font-medium">
           Peak hours a day <span className="font-mono text-brand-ink">{ops.peakHours} h</span>
@@ -370,7 +370,7 @@ function Retire({ plan, setOps }: { plan: Plan; setOps: (p: Partial<OpsSettings>
   }).join("");
 
   return (
-    <Card kicker="03 · When to retire it" title="When to retire owned GPUs" method="Capacity retraction · sunk cost">
+    <Card kicker="03 · Retirement" title="Asset retirement timing" method="Capacity retraction · sunk cost">
       <p className="text-sm leading-6 text-ink-2">
         Once bought, the hardware is a sunk cost. Keeping a GPU costs only what it takes to run it: <span className="font-mono text-ink">{formatUsd(r.keepMonthly)}</span> a
         month for support, power and space. Renting the same capacity costs <span className="font-mono text-ink">{formatUsd(r.rentMonthly)}</span> today, and less every
@@ -403,7 +403,7 @@ function Retire({ plan, setOps }: { plan: Plan; setOps: (p: Partial<OpsSettings>
               }`}
       </p>
       <label className="mt-4 block max-w-[14rem]">
-        <span className="block text-xs font-medium text-ink-2">Rental prices fall each year</span>
+        <span className="block text-xs font-medium text-ink-2">Annual rental price decline</span>
         <input
           type="number"
           step={1}

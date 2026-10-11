@@ -67,7 +67,7 @@ export function Result() {
         <header className="border-b border-line pb-6">
           <p className="kicker">Recommendation · Breakeven</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">{title}</h1>
-          <p className="mt-2 text-lg font-medium text-ink-2">How should we run it, and is it worth it?</p>
+          <p className="mt-2 text-lg font-medium text-ink-2">AI deployment recommendation</p>
           <p className="mt-2 text-sm text-muted">
             Prepared {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · {formatTokensM(workload.tokensM)} tokens a
             month · Illustrative estimate, USD
@@ -75,7 +75,7 @@ export function Result() {
         </header>
 
         <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-          <SummaryStat label="Run on" value={OPTIONS[recommended].short} />
+          <SummaryStat label="Deployment" value={OPTIONS[recommended].short} />
           <SummaryStat label="AI cost / month" value={formatUsd(costs[recommended].monthly)} />
           {product ? (
             <SummaryStat label="Margin / month" value={product.margin >= 0 ? formatUsd(product.margin) : `−${formatUsd(-product.margin)}`} />
@@ -90,9 +90,9 @@ export function Result() {
         <CallShare root={root} />
 
         <div className="mt-8">
-          <Fold id="evidence" title="2 · Why: the evidence" sub="Is it worth it, how to run it (make or buy), and can we power it">
+          <Fold id="evidence" title="2 · Supporting analysis" sub="Business case, make-or-buy and power readiness">
 
-        <Section n="a" title="Is it worth it?">
+        <Section n="a" title="Business case">
           {product ? (
             <p>
               {plan.product.users.toLocaleString("en-US")} users a month, {percent(plan.product.paidShare)} paying {formatUsd(plan.product.price)}, bring in{" "}
@@ -125,7 +125,7 @@ export function Result() {
           )}
         </Section>
 
-        <Section n="b" title="How should we run it? Make or buy">
+        <Section n="b" title="Make or buy">
           <div className={`theme-${recommended} win-border rounded-2xl border-2 p-5`}>
             <p className="flex items-center gap-2.5 text-2xl font-extrabold tracking-tight text-ink">
               <span className={`size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
@@ -169,7 +169,7 @@ export function Result() {
           </p>
         </Section>
 
-        <Section n="c" title="Can we power it?">
+        <Section n="c" title="Power readiness">
           <p>
             Owning at this volume means {owned.toLocaleString("en-US")} GPUs in whole servers, about {formatKw(ownedKw)} of facility power.{" "}
             {assumptions.powerLimitKw > 0 &&
@@ -192,7 +192,7 @@ export function Result() {
         <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
         <CallLanding call={call} />
         <div className="mt-8">
-          <Fold id="measures" title="How we'd know it worked, and my judgment calls" sub="The measures to track, today vs aim, and the calls behind the recommendation">
+          <Fold id="measures" title="Success measures and key judgments" sub="Metrics to track against target, and the judgments behind the recommendation">
             <CallMeasures call={call} plan={plan} />
             <CallJudgment />
           </Fold>

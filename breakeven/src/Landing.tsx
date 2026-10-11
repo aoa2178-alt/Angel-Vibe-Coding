@@ -16,19 +16,19 @@ const STEPS = [
     n: "01",
     href: "/worth-it",
     label: "Evaluate AI ROI",
-    body: "Does AI pay off for this work?",
+    body: "Savings, payback and 12-month ROI.",
   },
   {
     n: "02",
     href: "/run-it",
     label: "Compare compute costs",
-    body: "API, rented or owned GPUs: which is cheapest?",
+    body: "API, rented or owned GPUs, on total cost.",
   },
   {
     n: "03",
     href: "/power-it",
     label: "Power planning",
-    body: "Do you have the power, and what if the grid is late?",
+    body: "Power availability and grid-delay options.",
   },
 ];
 
@@ -72,16 +72,16 @@ export function Landing() {
               <h1 className="mt-4 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-[5.4rem]">
                 <span className="underline decoration-[#79aa9f] decoration-4 underline-offset-[7px]">API</span>, cloud GPUs, or your own hardware?
               </h1>
-              <p className="mt-6 max-w-[620px] text-lg leading-7 text-muted">See what each costs at your volume, and where the answer flips.</p>
+              <p className="mt-6 max-w-[620px] text-lg leading-7 text-muted">Total cost of ownership at your volume, and the volumes where the answer changes.</p>
               <div className="mt-7 flex flex-wrap items-center gap-6">
                 <CtaLink to="/worth-it">
                   Start <ArrowRight className="size-4" aria-hidden />
                 </CtaLink>
                 <a href="/run-it" onClick={linkClick("/run-it")} className="text-[15px] font-semibold text-ink underline-offset-4 hover:underline">
-                  Jump to the calculator <ArrowRight className="inline size-4" aria-hidden />
+                  Go to the cost comparison <ArrowRight className="inline size-4" aria-hidden />
                 </a>
               </div>
-              <p className="mt-3 text-sm text-muted">No sign-up.</p>
+              <p className="mt-3 text-sm text-muted">No sign-up required.</p>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ export function Landing() {
         {/* Closing call to action. */}
         <section className="dark-scope">
           <div className="mx-auto flex max-w-[1320px] flex-col items-start gap-6 px-4 py-16 sm:px-8 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Your numbers. Your answer.</h2>
+            <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Model your own scenario.</h2>
             <CtaLink to="/worth-it" variant="light">
               Start <ArrowRight className="size-4" aria-hidden />
             </CtaLink>

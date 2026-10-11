@@ -89,11 +89,10 @@ export function Result() {
         </dl>
 
         <CallRecommendation call={call} plan={plan} setPlan={setPlan} />
-        <HowSolid checks={call.checks} />
         <CallShare root={root} />
 
-        <div className="mt-8">
-          <Fold id="evidence" title="2 · Supporting analysis" sub="Business case, make-or-buy and power readiness">
+        <div className="mt-6 grid gap-3">
+          <Fold id="evidence" title="Evidence" sub="Business case, make-or-buy and power readiness">
 
         <Section n="a" title="Business case">
           {product ? (
@@ -198,13 +197,17 @@ export function Result() {
           )}
         </Section>
           </Fold>
-        </div>
-
-        <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
-        <CallLanding call={call} />
-        <div className="mt-8">
-          <Fold id="measures" title="Success measures and key judgments" sub="Metrics to track against target, and the judgments behind the recommendation">
+          <Fold id="checks" title="What would change the recommendation" sub="The flip points and the cost checks, and how solid the call is">
+            <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
+            <HowSolid checks={call.checks} />
+          </Fold>
+          <Fold id="landing" title="Implementation plan" sub="30, 60 and 90 days, and who owns each part">
+            <CallLanding call={call} />
+          </Fold>
+          <Fold id="measures" title="Success measures" sub={`Cost per million tokens ≤ ${formatUsd(costs[recommended].perM, 2)}${r ? " · cost per task handled" : ""}`}>
             <CallMeasures call={call} plan={plan} />
+          </Fold>
+          <Fold id="judgments" title="Key judgments" sub="Like for like, prices that move, a conservative queueing model, and what's left out">
             <CallJudgment />
           </Fold>
         </div>

@@ -13,12 +13,10 @@ const STEPS = [
 ];
 
 /**
- * The year as a tilted wall of twelve month blocks that drifts slowly: each block stands as tall as that month's revenue,
- * and the blocks float in a slow wave. Actuals up to the review month (lit), glassy re-forecasts after it. Each closed
+ * The year as a tilted wall of twelve thin month slabs that drifts slowly, the slabs floating in a slow wave. Actuals up to the review month (lit), glassy re-forecasts after it. Each closed
  * month is a button that makes it the review month.
  */
 function MonthWall({ r, onPick }: { r: Run; onPick: (m: number) => void }) {
-  const max = Math.max(...r.actual.slice(0, r.n).map((m) => m.revenue), ...r.forecast.map((m) => m.revenue));
   return (
     <div className="keel-wall grid grid-cols-4 gap-[22px]">
       {r.plan.map((p, i) => {
@@ -35,7 +33,7 @@ function MonthWall({ r, onPick }: { r: Run; onPick: (m: number) => void }) {
             disabled={!done}
             onClick={() => onPick(i + 1)}
             className={`kt ${kind}`}
-            style={{ ["--h" as string]: `${Math.round(14 + (v / max) * 40)}px`, animationDelay: `${-(i % 4) * 0.45 - Math.floor(i / 4) * 0.7}s` }}
+            style={{ ["--h" as string]: "7px", animationDelay: `${-(i % 4) * 0.45 - Math.floor(i / 4) * 0.7}s` }}
           >
             <span className="kt-shadow" />
             <span className="kt-side kt-n" />

@@ -3496,3 +3496,222 @@ blockquote {
     opacity: 1;
   }
 }
+
+/* Project detail panel: the story on the left, the live app on the right. */
+.project-detail {
+  width: min(1280px, 100vw - 64px);
+  height: min(860px, 100dvh - 64px);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  background: var(--paper);
+}
+.project-detail::backdrop {
+  background: rgb(22 24 23 / 0.5);
+}
+.project-detail[open] {
+  animation: project-detail-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes project-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.project-detail__panel {
+  position: relative;
+  height: 100%;
+  display: grid;
+  grid-template-columns: clamp(340px, 32vw, 420px) minmax(0, 1fr);
+}
+.project-detail__close {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  left: 1.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.project-detail__close:hover {
+  color: var(--paper);
+  background: var(--ink);
+}
+.project-detail__story {
+  overflow-y: auto;
+  padding: 4.25rem 1.5rem 2rem;
+  border-right: 1px solid var(--line);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.project-detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.project-detail__tags span {
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--line);
+  font-family: "DM Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.project-detail__tags span:last-child {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.project-detail__title {
+  margin-top: 1rem;
+  font-size: clamp(2rem, 3.4vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 600;
+}
+.project-detail__pitch {
+  margin-top: 0.9rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+.project-detail__heading {
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.project-detail__list,
+.project-detail__steps {
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.project-detail__list {
+  list-style: disc;
+}
+.project-detail__steps {
+  list-style: decimal;
+}
+.project-detail__stack {
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.project-detail__cta {
+  margin-top: 2rem;
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  color: var(--paper);
+  background: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+.project-detail__cta:hover {
+  background: var(--accent);
+}
+.project-detail__stage {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+.project-detail__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+}
+.project-detail__address {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.project-detail__tool {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.project-detail__tool:hover {
+  border-color: var(--ink);
+}
+.project-detail__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+.project-detail__viewport iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.project-detail__status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: "DM Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Phones: one scrolling column, the story first and the live app below it. */
+@media (max-width: 800px) {
+  .project-detail {
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+  }
+  .project-detail__panel {
+    display: block;
+    overflow-y: auto;
+  }
+  .project-detail__story {
+    overflow: visible;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .project-detail__stage {
+    height: 80dvh;
+  }
+  .project-detail__close {
+    position: fixed;
+    top: 0.75rem;
+    right: 0.75rem;
+    left: auto;
+  }
+  .project-detail__story {
+    padding-top: 3.75rem;
+  }
+}

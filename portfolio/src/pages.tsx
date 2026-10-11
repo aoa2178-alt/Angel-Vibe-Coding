@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { EssayArticle } from "./Essay";
+import { ProjectDetail } from "./ProjectDetail";
+import { projects, type Project } from "./projects";
 
 const experience = [
   {
@@ -247,6 +249,17 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
     introShown = true;
   }, []);
   const [introLeaving, setIntroLeaving] = useState(false);
+  const [openProject, setOpenProject] = useState<Project | null>(null);
+
+  // A plain click on a project card opens its detail panel; ctrl/cmd-click still opens the app in a new tab.
+  const openFromCard = (event: MouseEvent) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>("a.ai-build-card__link");
+    const project = link && projects.find((p) => link.href.startsWith(p.url));
+    if (!project) return;
+    event.preventDefault();
+    setOpenProject(project);
+  };
 
   const enterSite = () => {
     if (introLeaving) return;
@@ -392,7 +405,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </div>
         </div>
 
-        <div className="ai-build-grid" id="ai-builds-grid">
+        <div className="ai-build-grid" id="ai-builds-grid" onClick={openFromCard}>
           <article className="ai-build-card">
             <BreakevenProject />
             <div className="ai-build-card__body">
@@ -922,6 +935,8 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
       </section>
         </>
       )}
+
+      <ProjectDetail project={openProject} onClose={() => setOpenProject(null)} />
 
       <footer className="contact-footer" id="contact">
         <div className="contact-footer__intro">

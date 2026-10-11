@@ -11,7 +11,8 @@ import { OPTIONS } from "@/components/options";
 import { CopyLinkButton, PlanFrame, formatKw, usePlan } from "@/components/PlanFrame";
 import { SummaryStat, joinLabels, months, percent } from "@/components/ui";
 import { hybrid, maxUtilizationFor, responseTime, retirement } from "@/lib/operate";
-import { clusterGpusOf, ownedClusterGpus, planFreemium, planRoi, roiInputsOf, stepHref } from "@/lib/plan";
+import { clusterGpusOf, ownedClusterGpus, planFreemium, planNecessity, planRoi, roiInputsOf, stepHref } from "@/lib/plan";
+import { VERDICT_LABELS } from "@/lib/necessity";
 import { templateById, type RoiInputs, type RoiResult } from "@/lib/roi";
 import { OPTION_IDS, advantages, scorecard } from "@/lib/scorecard";
 import { bestStrategy, facilityKw, formatMoney, strategies, totalOver } from "@/lib/speedToPower";
@@ -28,6 +29,7 @@ export function Result() {
   const recommended: OptionId = card.winner ?? winner;
   const product = plan.mode === "product" ? planFreemium(plan) : null;
   const r = plan.templateId && !product ? planRoi(plan) : null;
+  const need = r ? planNecessity(plan) : null;
   const inputs = roiInputsOf(plan);
   const owned = ownedClusterGpus(plan);
   const ownedKw = owned * facilityKwPerGpu(assumptions);
@@ -74,7 +76,7 @@ export function Result() {
           </p>
         </header>
 
-        <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
+        <dl className={`mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line ${need ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
           <SummaryStat label="Deployment" value={OPTIONS[recommended].short} />
           <SummaryStat label="AI cost / month" value={formatUsd(costs[recommended].monthly)} />
           {product ? (
@@ -82,6 +84,7 @@ export function Result() {
           ) : (
             <SummaryStat label="Savings / month" value={r ? (r.savings > 0 ? formatUsd(r.savings) : `−${formatUsd(-r.savings)}`) : "Step 1 skipped"} />
           )}
+          {need && <SummaryStat label="AI decision" value={VERDICT_LABELS[need.verdict]} />}
           <SummaryStat label="Power if owned" value={formatKw(ownedKw)} />
         </dl>
 
@@ -105,6 +108,7 @@ export function Result() {
                 : `That loses ${formatUsd(-product.margin)} a month: free users cost more than paying users bring in.`}
             </p>
           ) : r ? (
+            <>
             <p>
               Today {inputs.tasksPerMonth.toLocaleString("en-US")} tasks a month cost {formatUsd(r.humanCost)} in people's time. With AI solving{" "}
               {percent(inputs.aiSuccess)} of them and people reviewing its work and handling the rest, the same work costs {formatUsd(r.aiCost)},
@@ -115,6 +119,13 @@ export function Result() {
               {r.savings > 0 &&
                 `In operating terms, the budget moves from people to tokens: ${formatUsd(r.escalationCost + r.reviewCost)} on people and ${formatUsd(r.computeCost)} on compute.`}
             </p>
+            {need && (
+              <p className="mt-3">
+                <span className="font-semibold text-ink">AI necessity test: {VERDICT_LABELS[need.verdict]}.</span> {need.reason}
+                {need.missing.length > 0 && ` Evidence to confirm: ${need.missing.map((m) => (/^[A-Z]{2}/.test(m.label) ? m.label : m.label.charAt(0).toLowerCase() + m.label.slice(1))).join("; ")}.`}
+              </p>
+            )}
+            </>
           ) : (
             <p>
               You went straight to the cost comparison.{" "}

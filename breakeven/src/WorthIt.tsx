@@ -1,6 +1,7 @@
 import { TriangleAlert } from "lucide-react";
 import { linkClick } from "@/components/Brand";
 import { Fold } from "@/components/Fold";
+import { Necessity } from "@/components/Necessity";
 import { Odometer } from "@/components/Odometer";
 import { OPTIONS } from "@/components/options";
 import { PlanFrame, StepHeading, usePlan } from "@/components/PlanFrame";
@@ -39,6 +40,7 @@ export function WorthIt() {
           onReset={() => setPlan((p) => updateProduct(p, PRODUCT_TEMPLATE))}
         />
       ) : (
+        <>
         <RoiStep
           templateId={plan.templateId!}
           inputs={roiInputsOf(plan)}
@@ -46,6 +48,8 @@ export function WorthIt() {
           onTemplate={(id) => setPlan((p) => applyTemplate(p, id))}
           onInput={(patch) => setPlan((p) => updateRoi(p, patch))}
         />
+        <Necessity plan={plan} setPlan={setPlan} />
+        </>
       )}
     </PlanFrame>
   );

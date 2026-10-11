@@ -2,6 +2,7 @@
 // priorities (step 2's "beyond cost"), and power (step 3). It lives in the URL, so every step link carries it.
 // Volume has one source of truth, tokens a month (v); step 1's "tokens per task" is derived from it.
 import { readCase, readCaseParams, writeCaseParams } from "./businessCaseShare";
+import { altDefaults, necessity, readAlt, writeAlt, type Alternatives } from "./necessity";
 import { PRODUCT_TEMPLATE, freemium, productTokensM, type ProductInputs } from "./freemium";
 import type { OpsSettings } from "./operate";
 import { readMode, readOps, readProduct, writeOps, writeProduct, type Mode } from "./opsShare";
@@ -28,6 +29,8 @@ export interface Plan {
   templateId: TemplateId | null;
   /** Step-1 inputs. Tokens per task and output share are derived from the workload, so their values here are ignored. */
   roi: RoiInputs;
+  /** Step 1's necessity test: the non-AI alternatives and the cash share of freed hours */
+  alt: Alternatives;
   weights: Weights;
   scores: Scores;
   /** A "what if you grow" cluster size for step 3; null means the GPUs you'd own at your volume */
@@ -61,6 +64,7 @@ export function readPlan(search: string): Plan {
     assumptions,
     templateId: c.templateId,
     roi: c.inputs,
+    alt: readAlt(params, c.templateId),
     weights: c.weights,
     scores: c.scores,
     clusterGpus: readClusterGpus(params),
@@ -75,6 +79,7 @@ export function readPlan(search: string): Plan {
 export function planQuery(plan: Plan) {
   const params = new URLSearchParams(estimateQuery(plan.workload, plan.assumptions));
   writeCaseParams(params, { templateId: plan.templateId, inputs: plan.roi, weights: plan.weights, scores: plan.scores }, ["tokensPerTask", "outputShare"]);
+  writeAlt(params, plan.alt, plan.templateId);
   if (plan.clusterGpus !== null) params.set("g", String(plan.clusterGpus));
   writeBridge(params, plan.bridge);
   writeOps(params, plan.ops);
@@ -99,6 +104,8 @@ export function roiInputsOf(plan: Plan): RoiInputs {
 
 export const planRoi = (plan: Plan) => roi(roiInputsOf(plan), plan.assumptions, plan.workload.utilization);
 
+export const planNecessity = (plan: Plan) => necessity(roiInputsOf(plan), plan.alt, plan.assumptions, plan.workload.utilization, plan.templateId);
+
 /** Picking a template sets step 1's inputs and the volume they imply. */
 export function applyTemplate(plan: Plan, id: TemplateId): Plan {
   const t = templateById(id).inputs;
@@ -106,6 +113,7 @@ export function applyTemplate(plan: Plan, id: TemplateId): Plan {
     ...plan,
     templateId: id,
     roi: { ...t },
+    alt: altDefaults(id, plan.alt?.cashShare),
     workload: { ...plan.workload, tokensM: clampVolume((t.tasksPerMonth * t.tokensPerTask) / 1e6), outputShare: t.outputShare },
   };
 }

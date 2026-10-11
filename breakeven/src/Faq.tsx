@@ -78,6 +78,21 @@ export const FAQ_GROUPS: { title: string; items: { id: string; q: string; a: str
     title: "Business case and power",
     items: [
       {
+        id: "why-alternatives",
+        q: "Why compare AI with non-AI options?",
+        a: "Many workflow problems are solved more cheaply by redesigning the process or by rules-based automation. Measuring AI against those options, and against no change, keeps the recommendation honest: the test can conclude that AI is not the right investment.",
+      },
+      {
+        id: "necessity",
+        q: "How is the AI decision made?",
+        a: "Each option is valued on cash benefit over three years at a 10% discount rate, in a conservative, base and optimistic case. If a non-AI option creates more value in the base case, the decision is Don't use AI. Otherwise: Invest if AI stays positive in the conservative case, Pilot if it is positive only in the base case, Defer if only the optimistic case pays, and Reject if none does. Inputs still at template defaults are listed as evidence to confirm.",
+      },
+      {
+        id: "cash-capacity",
+        q: "What is the difference between cash savings and capacity?",
+        a: "Freed hours only become cash when they avoid hiring, overtime or contractors, or reduce headcount through attrition. The cash share sets how much of the freed time counts as savings; the rest is shown as capacity redeployed, in hours and FTEs, and is excluded from the decision.",
+      },
+      {
         id: "compute-share",
         q: "Why does compute matter less than the resolution rate?",
         a: "In most workflows the remaining human effort, escalations and review, costs far more than the tokens. Raising the AI resolution rate or cutting review time usually moves savings more than changing the deployment model.",

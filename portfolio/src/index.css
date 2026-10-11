@@ -3497,7 +3497,7 @@ blockquote {
   }
 }
 
-/* Project detail panel: the story on the left, the live app on the right. */
+/* Project detail panel: a header across the top, the story on the left, the app on the right. */
 .project-detail {
   width: min(1280px, 100vw - 64px);
   height: min(860px, 100dvh - 64px);
@@ -3523,157 +3523,234 @@ blockquote {
   }
 }
 .project-detail__panel {
-  position: relative;
   height: 100%;
-  display: grid;
-  grid-template-columns: clamp(340px, 32vw, 420px) minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
+}
+.project-detail__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem 1.1rem 2rem;
+  border-bottom: 1px solid var(--ink);
+}
+.project-detail__tags {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.project-detail__title {
+  margin-top: 0.35rem;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 .project-detail__close {
-  position: absolute;
-  z-index: 2;
-  top: 1rem;
-  left: 1.5rem;
-  padding: 0.35rem 0.7rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
   border: 1px solid var(--ink);
   background: var(--paper);
-  font-family: "DM Mono", monospace;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   cursor: pointer;
 }
 .project-detail__close:hover {
   color: var(--paper);
   background: var(--ink);
 }
+.project-detail__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: clamp(340px, 32vw, 420px) minmax(0, 1fr);
+}
 .project-detail__story {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--ink);
+}
+.project-detail__scroll {
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 4.25rem 1.5rem 2rem;
-  border-right: 1px solid var(--line);
-  font-size: 0.9rem;
+  padding: 1.75rem 2rem 2rem;
+  font-size: 0.92rem;
   line-height: 1.6;
 }
-.project-detail__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-.project-detail__tags span {
-  padding: 0.15rem 0.5rem;
-  border: 1px solid var(--line);
-  font-family: "DM Mono", monospace;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.project-detail__tags span:last-child {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-.project-detail__title {
-  margin-top: 1rem;
-  font-size: clamp(2rem, 3.4vw, 2.8rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
-  font-weight: 600;
-}
 .project-detail__pitch {
-  margin-top: 0.9rem;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   line-height: 1.45;
-  font-weight: 500;
+}
+.project-detail__section {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
 }
 .project-detail__heading {
-  margin-top: 1.75rem;
-  margin-bottom: 0.5rem;
-  font-family: "DM Mono", monospace;
-  font-size: 0.72rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 400;
-  text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--accent);
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .project-detail__list,
 .project-detail__steps {
-  padding-left: 1.1rem;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
 }
-.project-detail__list {
-  list-style: disc;
+.project-detail__list li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
 }
-.project-detail__steps {
-  list-style: decimal;
+.project-detail__list li::before {
+  content: "—";
 }
-.project-detail__stack {
-  font-family: "DM Mono", monospace;
-  font-size: 0.75rem;
-  line-height: 1.7;
-  color: var(--muted);
+.project-detail__steps li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+}
+.project-detail__steps li span {
+  font-weight: 700;
+}
+.project-detail__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--ink);
 }
 .project-detail__cta {
-  margin-top: 2rem;
   display: inline-flex;
   gap: 0.5rem;
-  padding: 0.75rem 1.1rem;
+  padding: 0.85rem 1.1rem;
   color: var(--paper);
   background: var(--ink);
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   text-decoration: none;
 }
 .project-detail__cta:hover {
   background: var(--accent);
 }
+.project-detail__github {
+  display: inline-flex;
+  color: var(--ink);
+}
+.project-detail__github:hover {
+  color: var(--accent);
+}
 .project-detail__stage {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
 }
 .project-detail__toolbar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--ink);
   font-family: "DM Mono", monospace;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 .project-detail__address {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   overflow: hidden;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--muted);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+.project-detail__address::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.6rem;
+  height: 0.6rem;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+}
 .project-detail__tool {
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--line);
-  background: transparent;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
   color: inherit;
   font: inherit;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
 }
 .project-detail__tool:hover {
-  border-color: var(--ink);
+  color: var(--accent);
 }
 .project-detail__viewport {
   position: relative;
   flex: 1;
   min-height: 0;
+  background: #d8d2c6;
 }
 .project-detail__viewport iframe {
   display: block;
   width: 100%;
   height: 100%;
   border: 0;
+  background: #fff;
+}
+.project-detail__preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+.project-detail__preview img {
+  display: block;
+  width: min(100%, 52rem);
+  height: auto;
+  max-height: calc(100% - 4.5rem);
+  object-fit: contain;
+  border: 1px solid var(--ink);
+  box-shadow: 0 18px 40px rgb(22 24 23 / 0.18);
+}
+.project-detail__try {
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  border: 0;
+  color: var(--paper);
+  background: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.project-detail__try:hover {
+  background: var(--accent);
 }
 .project-detail__status {
   position: absolute;
@@ -3686,32 +3763,35 @@ blockquote {
   pointer-events: none;
 }
 
-/* Phones: one scrolling column, the story first and the live app below it. */
+/* Phones: everything in one scrolling column, the app below the story. */
 @media (max-width: 800px) {
   .project-detail {
     width: 100vw;
     height: 100dvh;
     border: 0;
   }
-  .project-detail__panel {
+  .project-detail__header {
+    padding: 1rem 1.25rem;
+  }
+  .project-detail__body {
     display: block;
     overflow-y: auto;
   }
   .project-detail__story {
-    overflow: visible;
     border-right: 0;
-    border-bottom: 1px solid var(--line);
+  }
+  .project-detail__scroll {
+    overflow: visible;
+    padding: 1.5rem 1.25rem;
+  }
+  .project-detail__actions {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--ink);
   }
   .project-detail__stage {
     height: 80dvh;
   }
-  .project-detail__close {
-    position: fixed;
-    top: 0.75rem;
-    right: 0.75rem;
-    left: auto;
-  }
-  .project-detail__story {
-    padding-top: 3.75rem;
+  .project-detail__preview {
+    padding: 1.25rem;
   }
 }

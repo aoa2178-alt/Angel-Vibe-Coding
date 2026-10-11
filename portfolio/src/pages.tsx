@@ -864,13 +864,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             </p>
             <strong>Clarity is an act of empathy.</strong>
           </div>
-          <div className="profile-note">
-            <p>How it connects</p>
-            <p>
-              Art, sport, and operations all reward the same habits: seeing
-              patterns, understanding structure, and knowing when to move.
-            </p>
-          </div>
         </div>
       </section>
 

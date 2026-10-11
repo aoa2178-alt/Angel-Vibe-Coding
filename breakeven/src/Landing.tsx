@@ -8,6 +8,7 @@ import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, cheapest, compare, formatTokensM
 const NAV = [
   { href: "#how", label: "How it works" },
   { href: "/sources", label: "Sources" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 /** The path through Breakeven: three steps, then one page with the recommendation. */

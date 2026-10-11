@@ -248,9 +248,8 @@ export function PowerIt() {
           <section aria-label="Results" aria-live="polite" className={`bridge-${winner} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4`}>
             {kw < 1000 && (
               <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
-                <span className="font-semibold">At {formatKw(kw)}, power usually isn't your bottleneck:</span> a colocation cage can often
-                power this today. Grid delays bite at multi-megawatt scale. Try <span className="font-semibold">What if you grow?</span> to
-                see them.
+                <span className="font-semibold">At {formatKw(kw)}, power is unlikely to be a constraint.</span> Grid delays matter at multi-megawatt
+                scale; try a <span className="font-semibold">scale scenario</span>.
               </p>
             )}
             {premium <= 0 && (
@@ -307,8 +306,10 @@ export function PowerIt() {
             </Fold>
 
             <p className="text-xs leading-5 text-muted">
-              Batteries alone can't power a site with no grid connection: they only carry a partial, curtailable connection through cutbacks.
-              Costs are extra spending versus owning the cluster on a working grid from day one. Illustrative, not quotes.
+              Costs are incremental to owning on a working grid. Illustrative, not quotes.{" "}
+              <a href="/faq#batteries" onClick={linkClick("/faq#batteries")} className="font-semibold text-brand-ink underline underline-offset-2">
+                Can batteries run a site alone?
+              </a>
             </p>
           </section>
         </div>

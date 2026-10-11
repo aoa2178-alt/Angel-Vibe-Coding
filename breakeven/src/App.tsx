@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { Methodology } from "./Methodology";
 import { PowerIt } from "./PowerIt";
@@ -7,9 +8,9 @@ import { RunIt } from "./RunIt";
 import { WorthIt } from "./WorthIt";
 import { legacyRedirect } from "@/lib/plan";
 
-type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources";
+type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources" | "faq";
 
-const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources"];
+const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources", "faq"];
 
 /** Old links (/calculator, /business-case, /speed-to-power, /methodology, /?v=) move to the new routes, keeping their plan. */
 function resolve(): View {
@@ -27,6 +28,7 @@ const TITLES: Record<View, string> = {
   "power-it": "Breakeven · Power planning",
   result: "Breakeven · Recommendation",
   sources: "Breakeven · Sources",
+  faq: "Breakeven · FAQ",
 };
 
 export default function App() {
@@ -55,6 +57,8 @@ export default function App() {
       return <Result key={view} />;
     case "sources":
       return <Methodology key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

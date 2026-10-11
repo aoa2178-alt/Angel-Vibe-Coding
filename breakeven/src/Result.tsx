@@ -201,8 +201,11 @@ export function Result() {
         <DecisionReport plan={plan} />
 
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">
-          Every number is an editable assumption with a source on the Sources page. Illustrative, not quotes; excludes taxes, egress and
-          change-management costs.
+          Illustrative estimates, not quotes. Assumptions on the Sources page;{" "}
+          <a href="/faq#excluded" onClick={linkClick("/faq#excluded")} className="underline underline-offset-2">
+            what is excluded
+          </a>
+          .
         </p>
       </article>
     </PlanFrame>

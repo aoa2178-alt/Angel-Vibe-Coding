@@ -241,12 +241,9 @@ export function RunIt() {
                 </div>
               </div>
               <p className="border-t border-line px-4 py-3 text-[11px] leading-5 text-muted">
-                Defaults (October 2026, illustrative): API at Claude Sonnet 5.5 list price ($2 / $10 per M tokens). Rent at
-                about $2.50 per H100-hour on GPU-focused clouds (market average ≈ $3.60, hyperscalers ≈ $7). Hardware ≈ $35K
-                per GPU, from 8-GPU H100 servers at $250–320K. 1.3 kW per GPU with its share of the server. Throughput is a
-                conservative estimate for a 70B-class open-weight model with batching.{" "}
+                Illustrative October 2026 defaults. <a href={`/faq${planQuery(plan)}#defaults`} onClick={linkClick(`/faq${planQuery(plan)}#defaults`)} className="font-semibold text-brand-ink underline underline-offset-2">What they represent</a> ·{" "}
                 <a href={`/sources${planQuery(plan)}`} onClick={linkClick(`/sources${planQuery(plan)}`)} className="font-semibold text-brand-ink underline underline-offset-2">
-                  Ranges and sources for every number →
+                  Sources →
                 </a>
               </p>
             </details>
@@ -306,9 +303,6 @@ export function RunIt() {
               <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
             </Fold>
             <Fold id="beyond-cost" title="Qualitative scorecard" sub="Weighted criteria: cost, data control, time to launch, model quality, operability and flexibility">
-              <p className="mb-4 max-w-2xl text-sm leading-6 text-ink-2">
-                The lowest-cost option is not always the right choice. Weight the criteria that matter to the business and compare weighted scores.
-              </p>
               <Scorecard
                 costs={costs}
                 cheapestId={winner}
@@ -331,9 +325,7 @@ export function RunIt() {
             </Fold>
 
             <p className="text-xs leading-5 text-muted">
-              “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
-              GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
-              Every number here is an editable assumption, not a quote.
+              Rent and Own assume a comparable open-weight model. <a href={`/faq${planQuery(plan)}#open-weight`} onClick={linkClick(`/faq${planQuery(plan)}#open-weight`)} className="font-semibold text-brand-ink underline underline-offset-2">Why</a> · Illustrative estimates, not quotes.
             </p>
           </section>
         </div>

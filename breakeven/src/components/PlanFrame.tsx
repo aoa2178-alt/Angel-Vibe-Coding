@@ -6,7 +6,7 @@ import { PillBar, SiteFooter } from "./Site";
 import { STEPS, ownedClusterGpus, planQuery, readPlan, stepHref, type Plan, type StepRoute } from "@/lib/plan";
 import { cheapest, compare, facilityKwPerGpu, formatTokensM } from "@/lib/tco";
 
-export type PageRoute = StepRoute | "sources";
+export type PageRoute = StepRoute | "sources" | "faq";
 
 /** The plan for a step page: read from the URL once, and written back to it on every change so it's always shareable. */
 export function usePlan(route: PageRoute, init: (p: Plan) => Plan = (p) => p) {
@@ -22,6 +22,7 @@ export const formatKw = (kw: number) => (kw >= 1000 ? `${(kw / 1000).toFixed(kw 
 /** 1 Evaluate AI ROI · 2 Compare compute costs · 3 Power planning · Recommendation, then Sources. Every link carries the plan. */
 function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan: Plan; compact?: boolean }) {
   const sources = `/sources${planQuery(plan)}`;
+  const faq = `/faq${planQuery(plan)}`;
   return (
     <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-6 self-stretch xl:flex"}>
       {STEPS.map((s, i) => {
@@ -63,6 +64,18 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
         }
       >
         Sources
+      </a>
+      <a
+        href={faq}
+        onClick={linkClick(faq)}
+        aria-current={route === "faq" ? "page" : undefined}
+        className={
+          compact
+            ? `shrink-0 rounded px-3 py-2 text-sm font-medium transition ${route === "faq" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+            : `relative flex h-full shrink-0 items-center text-sm transition ${route === "faq" ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"}`
+        }
+      >
+        FAQ
       </a>
     </nav>
   );

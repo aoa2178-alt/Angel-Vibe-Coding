@@ -1,3 +1,4 @@
+import { linkClick } from "./Brand";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NumberField, months, percent } from "./ui";
 import type { Plan } from "@/lib/plan";
@@ -119,8 +120,10 @@ function HowHot({ plan, setPlan, setOps }: { plan: Plan; setPlan: SetPlan; setOp
         )}
       </div>
       <p className="mt-3 text-xs leading-5 text-muted">
-        Wait = variability × utilization × time, for {q.gpus === 1 ? "one machine" : `${q.gpus} machines in parallel`} (the Kingman and Sakasegawa formulas). A
-        bigger fleet pools its traffic, so it can run hotter for the same wait. Illustrative: real serving batches requests, but the shape holds.
+        Queueing model (Kingman–Sakasegawa).{" "}
+        <a href="/faq#response-time" onClick={linkClick("/faq#response-time")} className="font-semibold text-brand-ink underline underline-offset-2">
+          How it works
+        </a>
       </p>
     </Card>
   );

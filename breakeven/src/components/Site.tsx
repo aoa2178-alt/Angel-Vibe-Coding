@@ -110,6 +110,7 @@ const FOOTER_LINKS: NavItem[] = [
   { href: "/power-it", label: "3 · Power planning" },
   { href: "/result", label: "Recommendation" },
   { href: "/sources", label: "Sources" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export function SiteFooter() {

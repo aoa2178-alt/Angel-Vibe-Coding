@@ -7,27 +7,19 @@ import type { Scenario } from "@/lib/scenario";
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const mo = (m: number) => (!Number.isFinite(m) ? "never" : `${Math.round(m)} months`);
 
-/** Step 3's "Hedge the long-lead items": why transformers take years, and how many spares to hold. */
+/** Cost of delay's long-lead equipment section: why transformers take years, and how many spares to hold. */
 export function Hedge({ s, setS, campus }: { s: Scenario; setS: (s: Scenario) => void; campus: Campus }) {
   const h = s.hedge;
   const set = (patch: Partial<HedgeSettings>) => setS({ ...s, hedge: { ...h, ...patch } });
   const r = spares(campus, s.settings, h);
 
   return (
-    <section className="mt-12" aria-label="Hedge the long-lead items">
-      <div className="mb-6 max-w-2xl">
-        <p className="kicker">Hedge the long-lead items</p>
-        <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Transformers take years. Hold spares?</h2>
-        <p className="mt-2 text-ink-2">
-          The longest waits on an AI campus are for grid equipment. Why the wait is so long sets what being short costs, and that sets how many
-          spares are worth holding.
-        </p>
-      </div>
+    <section aria-label="Long-lead equipment">
       <div className="grid items-start gap-4 lg:grid-cols-2">
         <Card>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="kicker">01 · Factory physics</p>
+              <p className="kicker">Factory physics</p>
               <h3 className="mt-1 text-lg font-bold tracking-tight">Why transformers take years</h3>
             </div>
             <span className="rounded-full border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted">Kingman · VUT</span>
@@ -54,7 +46,7 @@ export function Hedge({ s, setS, campus }: { s: Scenario; setS: (s: Scenario) =>
         <Card>
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
-              <p className="kicker">02 · Newsvendor</p>
+              <p className="kicker">Newsvendor</p>
               <h3 className="mt-1 text-lg font-bold tracking-tight">How many spare transformers to hold</h3>
             </div>
             <span className="rounded-full border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted">Critical ratio</span>

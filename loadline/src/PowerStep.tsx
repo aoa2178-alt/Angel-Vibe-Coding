@@ -1,4 +1,5 @@
 import { Card, FactList, NumberField, PHASE_COLOR, SourceLink, Stat } from "@/components/ui";
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { DATA, campusById, formatMoney, formatMw, plan, type Settings } from "@/lib/model";
 
@@ -19,7 +20,7 @@ export function PowerStep() {
   return (
     <Frame route="power" s={s} setS={setS}>
       <StepHeading route="power" campus={campus}>
-        From the GPU plan to megawatts at the meter, and the electricity bill once it's fully running.
+        GPU plan to facility megawatts and annual energy cost at full build.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -68,16 +69,13 @@ export function PowerStep() {
             </Card>
           ))}
 
-          <Card>
-            <p className="kicker">What's public</p>
-            <div className="mt-2">
-              <FactList facts={campus.facts} />
-            </div>
-          </Card>
+          <Fold id="public" title="Public disclosures" sub={`What ${campus.company} has said about this campus, with sources`}>
+            <FactList facts={campus.facts} />
+          </Fold>
         </div>
 
         <Card className="lg:sticky lg:top-40">
-          <p className="kicker">Power assumptions</p>
+          <p className="kicker">Assumptions</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <NumberField label="Electricity price" unit="$ per MWh" value={s.settings.pricePerMwh} step={1} onChange={(v) => set({ pricePerMwh: v })} />
             <NumberField label="PUE" unit="facility ÷ IT power" value={s.settings.pue} step={0.01} min={1} max={3} onChange={(v) => set({ pue: v })} />

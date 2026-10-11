@@ -8,6 +8,11 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 7px;
+  --radius-3xl: 8px;
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -31,20 +36,20 @@
 
 :root {
   color-scheme: dark;
-  --bg: #0e131a;
-  --surface: #151c25;
-  --sunken: #1c2530;
-  --line: #263142;
-  --ink: #e7edf4;
-  --ink-2: #b9c4d1;
-  --muted: #8a97a8;
-  --brand: #38d6c1;
-  --brand-ink: #38d6c1;
-  --brand-soft: #10302e;
+  --bg: #0d1418;
+  --surface: #142028;
+  --sunken: #1a2a34;
+  --line: #233540;
+  --ink: #e8eef1;
+  --ink-2: #b6c4cc;
+  --muted: #8fa1ab;
+  --brand: #35d0c0;
+  --brand-ink: #5fdccf;
+  --brand-soft: #0f2f2d;
   --on-brand: #06231f;
-  --panel: #1f2a38;
-  --panel-ink: #e7edf4;
-  --panel-muted: #98a6b8;
+  --panel: #1a2a34;
+  --panel-ink: #e8eef1;
+  --panel-muted: #97a9b3;
   --phase-1: #4c8df0;
   --phase-2: #d65aa0;
   --phase-3: #c77a1a;
@@ -82,6 +87,18 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Space Grotesk for headings, Inter for text, JetBrains Mono for figures. Corners stay small (5–8px). */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+.font-extrabold {
+  font-weight: 700;
+}
+a.rounded-full,
+button.rounded-full {
+  border-radius: 6px;
 }
 
 :focus-visible {

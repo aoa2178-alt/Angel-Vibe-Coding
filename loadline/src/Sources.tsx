@@ -3,7 +3,7 @@ import { Card, Confidence, FactList, SourceLink } from "@/components/ui";
 import { CAMPUSES, DATA, MILESTONES, lowerFirst } from "@/lib/model";
 
 const ASSUMPTIONS: { label: string; value: string; why: string; source?: string }[] = [
-  { label: "Milestone dates inside each phase", value: "Fitted to public dates", why: "Companies rarely publish when transformers, cooling or GPUs arrive. Each phase's milestone dates are set so the model reproduces the public construction start, target and go-live dates; slip them in step 3." },
+  { label: "Milestone dates inside each phase", value: "Fitted to public dates", why: "Companies rarely publish when transformers, cooling or GPUs arrive. Each phase's milestone dates are set so the model reproduces the public construction start, target and go-live dates; slip them under Cost of delay." },
   { label: "PUE", value: "1.15–1.25", why: "New liquid-cooled AI campuses run around 1.1–1.3. QTS's water-free design is set a little lower." },
   { label: "Average load", value: "85%", why: "AI training and inference campuses run hot but not flat out; 85% of full power is a planning figure." },
   { label: "Lease rate", value: "$140–150 per kW per month", why: "Wholesale hyperscale leases price below the ~$195/kW-month CBRE reports for smaller colocation deployments." },
@@ -24,7 +24,7 @@ export function Sources() {
     <Frame route="sources" s={s} setS={setS}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">What's public, and what's assumed</h1>
+        <h1 className="mt-2 text-3xl font-bold leading-[1.05] tracking-[-0.03em] sm:text-4xl">What's public, and what's assumed</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           Loadline separates what companies have disclosed from what the model assumes. Every fact links to its source with a confidence level;
           every assumption is editable. Checked {DATA.checked}.

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Brief } from "./Brief";
 import { DelaysStep } from "./DelaysStep";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { PowerStep } from "./PowerStep";
 import { Sources } from "./Sources";
 import { TimelineStep } from "./TimelineStep";
 
-type View = "landing" | "power" | "timeline" | "delays" | "brief" | "sources";
-const VIEWS: View[] = ["power", "timeline", "delays", "brief", "sources"];
+type View = "landing" | "power" | "timeline" | "delays" | "brief" | "sources" | "faq";
+const VIEWS: View[] = ["power", "timeline", "delays", "brief", "sources", "faq"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -16,11 +17,12 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Loadline · Can this AI campus go live on time?",
-  power: "Loadline · 1. Power",
-  timeline: "Loadline · 2. Timeline",
-  delays: "Loadline · 3. Delays",
-  brief: "Loadline · The call",
+  power: "Loadline · Power demand",
+  timeline: "Loadline · Delivery schedule",
+  delays: "Loadline · Cost of delay",
+  brief: "Loadline · Recommendation",
   sources: "Loadline · Sources",
+  faq: "Loadline · FAQ",
 };
 
 export default function App() {
@@ -48,6 +50,8 @@ export default function App() {
       return <Brief key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

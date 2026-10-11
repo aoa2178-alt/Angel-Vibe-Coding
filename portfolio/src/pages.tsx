@@ -1,6 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Link, useLocation, useParams } from "react-router";
+import { AskAI } from "./AskAI";
 import { EssayArticle } from "./Essay";
+import { ProjectDetail } from "./ProjectDetail";
+import { projects, type Project } from "./projects";
+
+/** A project's kind as an outlined pill (its "Live" status is shown separately). */
+function TagPills({ id }: { id: string }) {
+  // Only the kind of build; the subject already shows in the card's label ("07 / Site selection").
+  const tags = projects.find((p) => p.id === id)?.tags.filter((t) => t !== "Live").slice(0, 1) ?? [];
+  return (
+    <ul className="tag-pills" aria-label="Tags">
+      {tags.map((t) => (
+        <li key={t}>{t}</li>
+      ))}
+    </ul>
+  );
+}
 
 const experience = [
   {
@@ -238,6 +254,50 @@ function SignalProject() {
   );
 }
 
+function OpsRoomProject() {
+  return (
+    <div className="project-art project-art--ops" aria-hidden="true">
+      <span className="card-art-label">CASE FILE</span>
+      <span className="ops-stamp">URGENT</span>
+      <div className="ops-file">
+        <i />
+        <i />
+        <i className="ops-redact" />
+        <i />
+      </div>
+      <strong>
+        T&ndash;28<span>:</span>00
+      </strong>
+      <span className="card-art-caption">The Ops Room · five cases · thirty endings</span>
+    </div>
+  );
+}
+
+function WalkinProject() {
+  return (
+    <div className="project-art project-art--walkin" aria-hidden="true">
+      <span className="card-art-label">NEW YORK CITY</span>
+      <div className="walkin-stripes">
+        <i />
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="walkin-grid">
+        {Array.from({ length: 12 }, (_, index) => (
+          <i key={index} />
+        ))}
+      </div>
+      <strong>
+        WALKIN&rsquo;
+        <br />
+        HERE!
+      </strong>
+      <span className="card-art-caption">Subway · Bodegas · Slang</span>
+    </div>
+  );
+}
+
 // The intro splash plays once per visit, not every time someone comes back to the home page.
 let introShown = false;
 
@@ -247,6 +307,17 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
     introShown = true;
   }, []);
   const [introLeaving, setIntroLeaving] = useState(false);
+  const [openProject, setOpenProject] = useState<Project | null>(null);
+
+  // A plain click on a project card opens its detail panel; ctrl/cmd-click still opens the app in a new tab.
+  const openFromCard = (event: MouseEvent) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>("a.ai-build-card__link");
+    const project = link && projects.find((p) => link.href.startsWith(p.url));
+    if (!project) return;
+    event.preventDefault();
+    setOpenProject(project);
+  };
 
   const enterSite = () => {
     if (introLeaving) return;
@@ -383,18 +454,22 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             <h2 id="ai-builds-heading">AI Builds</h2>
             <div className="portfolio-intro">
               <p>
-                Eight working products built to turn dense questions across AI
+                Ten working products: eight that turn dense questions across AI
                 infrastructure, strategy, operations, and supply chains into
-                clear, practical decisions.
+                clear, practical decisions, a leadership simulator, and a
+                consumer app for learning a city.
               </p>
-              <a href="#ai-builds-grid">Explore all eight below ↓</a>
+              <a href="#ai-builds-grid">Explore all ten below ↓</a>
             </div>
           </div>
         </div>
 
-        <div className="ai-build-grid" id="ai-builds-grid">
+        <div className="ai-build-grid" id="ai-builds-grid" onClick={openFromCard}>
           <article className="ai-build-card">
-            <BreakevenProject />
+            <div className="ai-build-card__media">
+              <BreakevenProject />
+              <img className="ai-build-card__shot" src="/shots/breakeven.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>01 / AI economics</span>
@@ -410,11 +485,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Decides whether to pay per token, rent GPUs, or own them—and
                 whether an AI use case pays off.
               </p>
+              <TagPills id="breakeven" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <LoadlineProject />
+            <div className="ai-build-card__media">
+              <LoadlineProject />
+              <img className="ai-build-card__shot" src="/shots/loadline.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>02 / Data centers</span>
@@ -430,11 +509,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Plans power, the critical path to go-live, the cost of delay,
                 and what to fix first.
               </p>
+              <TagPills id="loadline" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <ThroughlineProject />
+            <div className="ai-build-card__media">
+              <ThroughlineProject />
+              <img className="ai-build-card__shot" src="/shots/throughline.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>03 / Supply chain</span>
@@ -450,11 +533,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Models demand, scarce-supply allocation, bullwhip effects, and
                 delivery risk across 180,519 orders.
               </p>
+              <TagPills id="throughline" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <KeelProject />
+            <div className="ai-build-card__media">
+              <KeelProject />
+              <img className="ai-build-card__shot" src="/shots/keel.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>04 / Operating rhythm</span>
@@ -470,11 +557,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Runs annual plans, OKRs, monthly reviews, gap analysis, and
                 funding decisions for an AI company.
               </p>
+              <TagPills id="keel" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <TenderProject />
+            <div className="ai-build-card__media">
+              <TenderProject />
+              <img className="ai-build-card__shot" src="/shots/tender.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>05 / Procurement</span>
@@ -490,11 +581,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Compares total-cost bids, builds should-cost models, and sets
                 negotiation targets for critical equipment.
               </p>
+              <TagPills id="tender" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <BuildoutProject />
+            <div className="ai-build-card__media">
+              <BuildoutProject />
+              <img className="ai-build-card__shot" src="/shots/buildout.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>06 / Capital intelligence</span>
@@ -510,11 +605,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Tracks Big Tech AI spending, its returns, and the suppliers
                 receiving the investment.
               </p>
+              <TagPills id="buildout" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <WhereAILivesProject />
+            <div className="ai-build-card__media">
+              <WhereAILivesProject />
+              <img className="ai-build-card__shot" src="/shots/where-ai-lives.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>07 / Site selection</span>
@@ -530,11 +629,15 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Maps 77 US AI data centers, power prices, and grid queues to
                 score the next location.
               </p>
+              <TagPills id="where-ai-lives" />
             </div>
           </article>
 
           <article className="ai-build-card">
-            <SignalProject />
+            <div className="ai-build-card__media">
+              <SignalProject />
+              <img className="ai-build-card__shot" src="/shots/signal.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>08 / Digital inclusion</span>
@@ -550,6 +653,55 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Shows who is offline, why access is unaffordable, what coverage
                 costs, and who should pay.
               </p>
+              <TagPills id="signal" />
+            </div>
+          </article>
+
+          <article className="ai-build-card">
+            <div className="ai-build-card__media">
+              <OpsRoomProject />
+              <img className="ai-build-card__shot" src="/shots/ops-room.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
+            <div className="ai-build-card__body">
+              <div className="ai-build-card__meta">
+                <span>09 / Leadership simulation</span>
+                <span className="live-status">Live</span>
+              </div>
+              <h3>
+                <a className="ai-build-card__link" href="https://ops-room-phi.vercel.app" target="_blank" rel="noreferrer">
+                  <span className="sr-only">The Ops Room — </span>
+                  Explore <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>
+                Puts you in the seat on five operating decisions: two hard calls,
+                a memo, and every ending you could have had.
+              </p>
+              <TagPills id="ops-room" />
+            </div>
+          </article>
+
+          <article className="ai-build-card">
+            <div className="ai-build-card__media">
+              <WalkinProject />
+              <img className="ai-build-card__shot" src="/shots/walkin-here.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
+            <div className="ai-build-card__body">
+              <div className="ai-build-card__meta">
+                <span>10 / City learning</span>
+                <span className="live-status">Live</span>
+              </div>
+              <h3>
+                <a className="ai-build-card__link" href="https://walkinhere.vercel.app" target="_blank" rel="noreferrer">
+                  <span className="sr-only">Walkin' Here! — </span>
+                  Explore <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>
+                Teaches newcomers New York's unwritten rules in three-minute
+                daily lessons, with quizzes and a streak.
+              </p>
+              <TagPills id="walkin-here" />
             </div>
           </article>
         </div>
@@ -659,7 +811,8 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               <svg viewBox="0 0 320 320">
                 <circle cx="160" cy="160" r="118" />
                 <ellipse cx="160" cy="160" rx="118" ry="48" />
-                <ellipse cx="160" cy="160" rx="52" ry="118" />
+                <ellipse className="footprint-meridian" cx="160" cy="160" rx="52" ry="118" />
+                <ellipse className="footprint-meridian footprint-meridian--late" cx="160" cy="160" rx="100" ry="118" />
                 <path d="M48 126C92 75 145 215 194 145S260 104 278 134" />
                 <circle className="footprint-node" cx="62" cy="112" r="7" />
                 <circle className="footprint-node" cx="126" cy="149" r="7" />
@@ -923,6 +1076,9 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
         </>
       )}
 
+      <ProjectDetail project={openProject} onClose={() => setOpenProject(null)} />
+      {!introVisible && <AskAI />}
+
       <footer className="contact-footer" id="contact">
         <div className="contact-footer__intro">
           <span>Contact</span>
@@ -939,7 +1095,8 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             >
               <path d="M6 10h17v8a8 8 0 0 1-8 8h-1a8 8 0 0 1-8-8v-8Z" />
               <path d="M23 13h2a4 4 0 0 1 0 8h-3" />
-              <path d="M10 6c0-2 2-2 2-4M16 6c0-2 2-2 2-4" />
+              <path className="coffee-steam" d="M10 6c0-2 2-2 2-4" />
+              <path className="coffee-steam coffee-steam--late" d="M16 6c0-2 2-2 2-4" />
               <path d="M4 29h22" />
             </svg>
           </div>

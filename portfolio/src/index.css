@@ -525,7 +525,8 @@ blockquote {
   transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.ai-build-card:hover .project-art {
+.ai-build-card:hover .project-art,
+.ai-build-card:hover .ai-build-card__shot {
   transform: translateY(-0.35rem);
 }
 
@@ -2778,6 +2779,7 @@ blockquote {
 }
 
 .coffee-cup {
+  overflow: visible;
   width: clamp(5rem, 8vw, 8rem);
   height: clamp(5rem, 8vw, 8rem);
   flex: 0 0 auto;
@@ -3464,4 +3466,674 @@ blockquote {
   font-weight: 400;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* Steam drifts up off the coffee and fades, the two wisps out of step. */
+.coffee-steam {
+  animation: coffee-steam 2.8s ease-in-out infinite;
+}
+.coffee-steam--late {
+  animation-delay: 1.4s;
+}
+@keyframes coffee-steam {
+  0% {
+    opacity: 0;
+    transform: translate(0, 2px);
+  }
+  30% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(0.6px, -1.5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-0.4px, -4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coffee-steam {
+    animation: none !important;
+    opacity: 1;
+  }
+}
+
+/* Project detail panel: a header across the top, the story on the left, the app on the right. */
+.project-detail {
+  width: min(1280px, 100vw - 64px);
+  height: min(860px, 100dvh - 64px);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  background: #fff;
+}
+.project-detail::backdrop {
+  background: rgb(22 24 23 / 0.45);
+}
+.project-detail[open] {
+  animation: project-detail-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes project-detail-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.project-detail__panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.project-detail__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem 1.1rem 2rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.project-detail__tags {
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.project-detail__title {
+  margin-top: 0.35rem;
+  font-size: clamp(2.1rem, 4vw, 3.2rem);
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+}
+.project-detail__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: #fff;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.project-detail__close:hover {
+  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.project-detail__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: clamp(340px, 32vw, 420px) minmax(0, 1fr);
+}
+.project-detail__story {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--line);
+}
+.project-detail__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.75rem 2rem 2rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+.project-detail__pitch {
+  font-size: 1.2rem;
+  line-height: 1.45;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.project-detail__section {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.project-detail__heading {
+  margin-bottom: 0.8rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.project-detail__list,
+.project-detail__steps {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+.project-detail__list li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+}
+.project-detail__list li::before {
+  content: "↘";
+  color: var(--accent);
+}
+.project-detail__steps li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+}
+.project-detail__steps li span {
+  font-family: "DM Mono", monospace;
+  font-size: 0.8rem;
+  line-height: 1.9;
+  color: var(--accent);
+}
+.project-detail__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--line);
+}
+.project-detail__cta {
+  display: inline-flex;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.project-detail__cta:hover {
+  background: var(--ink);
+}
+.project-detail__github {
+  display: inline-flex;
+  color: var(--ink);
+}
+.project-detail__github:hover {
+  color: var(--accent);
+}
+.project-detail__stage {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.project-detail__toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+}
+.project-detail__address {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.project-detail__address::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.project-detail__tool {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+.project-detail__tool:hover {
+  color: var(--accent);
+}
+.project-detail__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+}
+.project-detail__viewport iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+}
+.project-detail__preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 2rem;
+}
+.project-detail__preview img {
+  display: block;
+  width: min(100%, 52rem);
+  height: auto;
+  max-height: calc(100% - 4.5rem);
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 16px 40px rgb(22 24 23 / 0.14);
+}
+.project-detail__try {
+  display: inline-flex;
+  gap: 0.6rem;
+  padding: 0.8rem 1.3rem;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.project-detail__try:hover {
+  background: var(--ink);
+}
+.project-detail__status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: "DM Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Phones: everything in one scrolling column, the app below the story. */
+@media (max-width: 800px) {
+  .project-detail {
+    width: 100vw;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+  .project-detail__header {
+    padding: 1rem 1.25rem;
+  }
+  .project-detail__body {
+    display: block;
+    overflow-y: auto;
+  }
+  .project-detail__story {
+    border-right: 0;
+  }
+  .project-detail__scroll {
+    overflow: visible;
+    padding: 1.5rem 1.25rem;
+  }
+  .project-detail__actions {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .project-detail__stage {
+    height: 80dvh;
+  }
+  .project-detail__preview {
+    padding: 1.25rem;
+  }
+}
+.project-detail :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* On hover, a screenshot of the app fades in over the card's artwork. */
+.ai-build-card__media {
+  position: relative;
+}
+.ai-build-card__shot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.75rem;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--line);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 350ms ease 120ms,
+    transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: hover) {
+  .ai-build-card:hover .ai-build-card__shot,
+  .ai-build-card:focus-within .ai-build-card__shot {
+    opacity: 1;
+  }
+}
+
+/* Ask AI: a floating button, bottom right, that opens a small card of AI assistants. */
+.ask-ai {
+  position: fixed;
+  z-index: 50;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+.ask-ai__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 10px 30px rgb(22 24 23 / 0.2);
+  font-family: "DM Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ask-ai__trigger:hover {
+  background: var(--ink);
+}
+.ask-ai__trigger:focus-visible,
+.ask-ai__panel :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ask-ai__panel {
+  width: min(22rem, calc(100vw - 2.5rem));
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 40px rgb(22 24 23 / 0.16);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  animation: ask-ai-in 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes ask-ai-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.ask-ai__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.ask-ai__copy {
+  margin-top: 0.4rem;
+  color: var(--muted);
+}
+.ask-ai__prompt {
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  border-left: 2px solid var(--accent);
+  background: var(--paper);
+  font-size: 0.78rem;
+}
+.ask-ai__actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ask-ai__provider,
+.ask-ai__copybtn {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  color: var(--ink);
+  background: #fff;
+  font-family: "DM Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ask-ai__provider:hover,
+.ask-ai__copybtn:hover {
+  color: #fff;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.ask-ai__source {
+  margin-top: 0.9rem;
+  display: inline-block;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+@media print {
+  .ask-ai {
+    display: none;
+  }
+}
+
+/* The footprint globe turns: its meridians widen and narrow out of step, the route flows, and the stops pulse in turn. */
+.footprint-meridian {
+  animation: footprint-turn 6s ease-in-out infinite alternate;
+}
+.footprint-meridian--late {
+  animation-delay: -3s;
+}
+@keyframes footprint-turn {
+  from {
+    rx: 4px;
+  }
+  to {
+    rx: 118px;
+  }
+}
+.footprint-graphic svg > path {
+  animation: footprint-flow 1.6s linear infinite;
+}
+@keyframes footprint-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.footprint-graphic .footprint-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: footprint-stop 3.2s ease-in-out infinite;
+}
+.footprint-graphic .footprint-node:nth-of-type(3) {
+  animation-delay: 0.8s;
+}
+.footprint-graphic .footprint-node:nth-of-type(4) {
+  animation-delay: 1.6s;
+}
+.footprint-graphic .footprint-node:nth-of-type(5) {
+  animation-delay: 2.4s;
+}
+@keyframes footprint-stop {
+  0%,
+  30%,
+  100% {
+    fill: var(--paper);
+    transform: scale(1);
+  }
+  12% {
+    fill: var(--accent);
+    transform: scale(1.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footprint-meridian,
+  .footprint-graphic svg > path,
+  .footprint-graphic .footprint-node {
+    animation: none !important;
+  }
+}
+
+/* Tag pills on the app cards */
+.tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-pills li {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-family: "DM Mono", monospace;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--ink);
+  opacity: 0.85;
+}
+
+/* Walkin' Here! card art: the app's four-colour stripe over a street grid */
+.project-art--walkin {
+  color: var(--ink);
+  background: #fbf8ef;
+}
+
+.walkin-stripes {
+  position: absolute;
+  inset: 0 0 auto;
+  display: flex;
+  height: 10px;
+}
+
+.walkin-stripes i {
+  flex: 1;
+}
+
+.walkin-stripes i:nth-child(1) { background: #f5c518; }
+.walkin-stripes i:nth-child(2) { background: #2f9e5b; }
+.walkin-stripes i:nth-child(3) { background: #9b6fc8; }
+.walkin-stripes i:nth-child(4) { background: #d8343a; }
+
+.walkin-grid {
+  position: absolute;
+  inset: 18% 8% 34% 40%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.walkin-grid i {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+
+.walkin-grid i:nth-child(6) {
+  background: #f5c518;
+  border-color: #f5c518;
+}
+
+.project-art--walkin > strong {
+  position: absolute;
+  z-index: 2;
+  left: 1rem;
+  bottom: 2.4rem;
+  font-size: clamp(2.4rem, 4vw, 4.4rem);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+/* The Ops Room card art: a case file with a stamp, a redaction and the countdown */
+.project-art--ops {
+  color: var(--ink);
+  background: #faf9f6;
+}
+
+.ops-stamp {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  right: 1rem;
+  border: 1.5px solid #c0262d;
+  color: #c0262d;
+  padding: 1px 6px;
+  font: 600 0.55rem "DM Mono", monospace;
+  letter-spacing: 0.12em;
+  transform: rotate(4deg);
+}
+
+.ops-file {
+  position: absolute;
+  top: 26%;
+  left: 1rem;
+  right: 38%;
+  display: grid;
+  gap: 10px;
+  border-top: 4px solid #2453ff;
+  padding-top: 14px;
+}
+
+.ops-file i {
+  display: block;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.ops-file i:nth-child(2) {
+  width: 70%;
+}
+
+.ops-file .ops-redact {
+  width: 55%;
+  height: 10px;
+  background: var(--ink);
+}
+
+.project-art--ops > strong {
+  position: absolute;
+  z-index: 2;
+  left: 1rem;
+  bottom: 2.2rem;
+  font-family: Georgia, serif;
+  font-size: clamp(2.6rem, 4.4vw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.project-art--ops > strong span {
+  color: #2453ff;
 }

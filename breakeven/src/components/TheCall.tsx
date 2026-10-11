@@ -1,6 +1,5 @@
 import { Check, X } from "lucide-react";
 import type { ReactNode } from "react";
-import { CountUp, anim, useInView } from "./Motion";
 import { OPTIONS } from "./options";
 import { joinLabels, months, percent } from "./ui";
 import { advantages } from "@/lib/scorecard";
@@ -11,13 +10,11 @@ import { formatTokensM, formatUsd } from "@/lib/tco";
 /** "Rent cloud GPUs" → "rent cloud GPUs" (acronyms keep their capitals). */
 const lowerFirst = (t: string) => (/^[A-Z]{2}/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
 
-function Block({ n, title, children }: { n: number; title: string; children: ReactNode }) {
+/** A section's body; its title lives on the fold that holds it. */
+function Block({ children }: { title?: string; children: ReactNode }) {
   return (
-    <section className="mt-8">
-      <p className="kicker">
-        {n} · {title}
-      </p>
-      <div className="mt-3 text-[15px] leading-7 text-ink-2">{children}</div>
+    <section data-call-text>
+      <div className="text-[15px] leading-7 text-ink-2">{children}</div>
     </section>
   );
 }
@@ -28,8 +25,8 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
   const rec = costs[recommended];
   const currentLabel = CURRENTS.find((c) => c.id === current)?.label;
   return (
-    <section className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`} style={anim("rise", 600, 0, "back")}>
-      <p className="kicker">1 · My recommendation</p>
+    <section data-call-text className={`theme-${recommended} win-border mt-6 rounded-2xl border-2 p-5 sm:p-6`}>
+      <p className="kicker">Recommendation</p>
       <p className="mt-2 flex items-start gap-2.5 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">
         <span className={`mt-2 size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
         <span>
@@ -38,7 +35,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
       </p>
       <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
         <li>
-          <span className="font-semibold text-ink">Versus today:</span>{" "}
+          <span className="font-semibold text-ink">Versus current state:</span>{" "}
           {versusToday === null ? (
             current === "none" ? (
               "you're not using AI yet, so the value is the case below, not a switch."
@@ -64,15 +61,13 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
                     </option>
                   ))}
                 </select>{" "}
-                to see what switching is worth.
+                to quantify the value of switching.
               </>
             )
           ) : versusToday > 1 ? (
             <>
               you run on {lowerFirst(currentLabel ?? "")} today. Switching saves about{" "}
-              <span className="font-semibold text-ink">
-                <CountUp value={versusToday} format={(v) => formatUsd(v)} delay={300} />
-              </span>{" "}
+              <span className="font-semibold text-ink">{formatUsd(versusToday)}</span>{" "}
               a year.
             </>
           ) : versusToday < -1 ? (
@@ -114,25 +109,39 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
           </li>
         )}
       </ul>
+      <WhatWouldChange call={call} />
     </section>
+  );
+}
+
+/** The one line on the card: which checks would change the cheapest way to run it. */
+function WhatWouldChange({ call }: { call: Call }) {
+  const flips = [...call.volumeChecks, ...call.checks.filter((c) => !c.holds)];
+  const total = call.volumeChecks.length + call.checks.length;
+  return (
+    <p className="mt-3 rounded-[10px] border border-line bg-surface px-3.5 py-3 text-[15px] leading-6 text-ink-2">
+      <span className="font-semibold text-ink">What would change it: </span>
+      {flips.length === 0
+        ? `none of the ${total} cost checks change it.`
+        : flips.length === 1
+          ? `${lowerFirst(flips[0]!.label)}: the cheapest way becomes ${lowerFirst(OPTIONS[flips[0]!.instead!].name)}.`
+          : `${flips.map((c) => `${lowerFirst(c.label)} (${lowerFirst(OPTIONS[c.instead!].name)})`).join("; ")}. Details below.`}
+    </p>
   );
 }
 
 /** 3 · What would change my mind: every flip point, as checks that hold or don't. */
 export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
-  const view = useInView<HTMLUListElement>();
-  let k = 0;
-  const row = () => anim("slideR", 600, k++ * 120, "back");
   const flips = [...call.volumeChecks, ...call.checks.filter((c) => !c.holds)];
   const holds = call.checks.filter((c) => c.holds).map((c) => c.label.replace(" 25% higher or lower", ""));
   return (
-    <Block n={3} title="What would change my mind">
+    <Block title="What would change the recommendation">
       {call.recommended !== call.cheapestId && (
         <p className="mb-2">These are cost checks. The cheapest option today is {lowerFirst(OPTIONS[call.cheapestId].name)}; the recommendation trades some cost for your priorities.</p>
       )}
-      <ul ref={view.ref} className={`space-y-2 ${view.paused}`}>
+      <ul className="space-y-2">
         {holds.length > 0 && (
-          <li className="flex gap-2.5" style={row()}>
+          <li className="flex gap-2.5">
             <Check className="mt-1.5 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-label="Holds" />
             <span>
               The answer holds if any one of these is 25% higher or lower than assumed: {joinLabels(holds.map(lowerFirst))}.
@@ -140,7 +149,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
           </li>
         )}
         {flips.map((c) => (
-          <li key={c.label} className="flex gap-2.5" style={row()}>
+          <li key={c.label} className="flex gap-2.5">
             {c.holds ? <Check className="mt-1.5 size-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-label="Holds" /> : <X className="mt-1.5 size-4 shrink-0 text-red-700 dark:text-red-400" aria-label="Changes the answer" />}
             <span>
               {c.label}: {c.holds ? "the answer holds." : <>the cheapest way becomes <span className="font-semibold text-ink">{lowerFirst(OPTIONS[c.instead!].name)}</span>.</>}
@@ -148,7 +157,7 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
           </li>
         ))}
         {extra.map((e) => (
-          <li key={e} className="flex gap-2.5" style={row()}>
+          <li key={e} className="flex gap-2.5">
             <X className="mt-1.5 size-4 shrink-0 text-red-700 dark:text-red-400" aria-hidden />
             <span>{e}</span>
           </li>
@@ -160,12 +169,11 @@ export function CallChecks({ call, extra }: { call: Call; extra: string[] }) {
 
 /** 4 · How to land it: 30/60/90 days and the people side. */
 export function CallLanding({ call }: { call: Call }) {
-  const view = useInView<HTMLDivElement>();
   return (
-    <Block n={4} title="How to land it">
-      <div ref={view.ref} className={`grid gap-3 sm:grid-cols-3 ${view.paused}`}>
-        {landingPlan(call.recommended).map((col, i) => (
-          <div key={col.when} className="rounded-xl border border-line p-4" style={anim("rise", 600, 200 + i * 150, "back")}>
+    <Block title="Implementation plan">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {landingPlan(call.recommended).map((col) => (
+          <div key={col.when} className="rounded-xl border border-line p-4">
             <p className="font-mono text-[11px] font-semibold uppercase tracking-wider text-brand-ink">{col.when}</p>
             <ul className="mt-2 list-disc space-y-1 pl-4 text-sm leading-6">
               {col.what.map((w) => (
@@ -176,7 +184,7 @@ export function CallLanding({ call }: { call: Call }) {
         ))}
       </div>
       <p className="mt-3">
-        <span className="font-semibold text-ink">The hard part is people, not technology.</span>{" "}
+        <span className="font-semibold text-ink">Adoption is the main risk, not the technology.</span>{" "}
         {call.r && call.r.savings > 0
           ? `The budget moves from people to tokens: ${formatUsd(call.r.escalationCost + call.r.reviewCost)} a month stays on people who review and handle what the AI can't. Redesign those jobs before launch, and train reviewers on what good AI output looks like.`
           : "Whoever owns the workflow has to trust the output. Agree what the AI does alone, what a person checks, and who's accountable when it's wrong."}{" "}
@@ -198,7 +206,7 @@ export function CallMeasures({ call, plan }: { call: Call; plan: Plan }) {
   rows.push(["Average wait for an answer", "–", `≤ ${plan.ops.waitTargetSec} s (modeled ${q.waitSec < 10 ? q.waitSec.toFixed(1) : Math.round(q.waitSec)} s)`]);
   rows.push(["Monthly volume", formatTokensM(plan.workload.tokensM), call.cross.apiUntilM || call.cross.ownFromM ? "re-check at the flip points" : "–"]);
   return (
-    <Block n={5} title="How we'd know it worked">
+    <Block title="Success measures">
       <div className="overflow-auto rounded-lg border border-line">
         <table className="w-full text-left text-sm">
           <thead className="bg-sunken text-xs text-muted">
@@ -227,7 +235,7 @@ export function CallMeasures({ call, plan }: { call: Call; plan: Plan }) {
 /** 6 · The judgment calls behind the answer. */
 export function CallJudgment() {
   return (
-    <Block n={6} title="My judgment calls">
+    <Block title="Key judgments">
       <ul className="list-disc space-y-2 pl-5">
         <li>
           <span className="font-semibold text-ink">Like for like:</span> "rent" and "own" mean running an open-weight model of similar size. The strongest frontier models are API-only, so if quality matters most, the

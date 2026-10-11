@@ -1,5 +1,7 @@
 import { TriangleAlert } from "lucide-react";
 import { linkClick } from "@/components/Brand";
+import { Fold } from "@/components/Fold";
+import { Necessity } from "@/components/Necessity";
 import { Odometer } from "@/components/Odometer";
 import { OPTIONS } from "@/components/options";
 import { PlanFrame, StepHeading, usePlan } from "@/components/PlanFrame";
@@ -20,14 +22,14 @@ export function WorthIt() {
       plan={plan}
       footerNote={
         <a href={skip} onClick={linkClick(skip)} className="text-sm font-medium text-brand-ink underline underline-offset-2">
-          Already sure AI is worth it? Skip to step 2
+          Business case already approved? Go to the cost comparison
         </a>
       }
     >
       <StepHeading route="worth-it">
         {plan.mode === "product"
-          ? "For an AI product you sell: what free and paying users cost in compute, and how many need to pay. The volume here carries into step 2."
-          : "Compare what the work costs your people today with what it costs once AI does most of it. The AI volume here carries into step 2."}
+          ? "Unit economics of an AI product: compute cost per free and paid user, gross margin and break-even conversion. The token volume carries into the cost comparison."
+          : "Current labour cost against the AI-enabled cost of the same work: net savings, payback and 12-month ROI. The token volume carries into the cost comparison."}
       </StepHeading>
       <ModeSwitch mode={plan.mode} onMode={(m) => setPlan((p) => setMode(p, m))} />
       {plan.mode === "product" ? (
@@ -38,6 +40,7 @@ export function WorthIt() {
           onReset={() => setPlan((p) => updateProduct(p, PRODUCT_TEMPLATE))}
         />
       ) : (
+        <>
         <RoiStep
           templateId={plan.templateId!}
           inputs={roiInputsOf(plan)}
@@ -45,20 +48,22 @@ export function WorthIt() {
           onTemplate={(id) => setPlan((p) => applyTemplate(p, id))}
           onInput={(patch) => setPlan((p) => updateRoi(p, patch))}
         />
+        <Necessity plan={plan} setPlan={setPlan} />
+        </>
       )}
     </PlanFrame>
   );
 }
 
 const FIELDS: { key: keyof RoiInputs; label: string; unit: string; step: number; percent?: boolean }[] = [
-  { key: "tasksPerMonth", label: "Tasks per month", unit: "tasks", step: 1000 },
-  { key: "humanMinutes", label: "Time per task today", unit: "minutes, by a person", step: 1 },
-  { key: "hourlyCost", label: "Loaded cost of an hour", unit: "$ / hour, with benefits", step: 5 },
-  { key: "aiSuccess", label: "AI success rate", unit: "% solved without a redo", step: 5, percent: true },
-  { key: "reviewMinutes", label: "Review per AI task", unit: "minutes to check it", step: 0.5 },
-  { key: "tokensPerTask", label: "Tokens per task", unit: "prompt + answer", step: 1000 },
-  { key: "outputShare", label: "Share that is output", unit: "% of tokens", step: 5, percent: true },
-  { key: "setupCost", label: "Setup cost", unit: "$ one-time, to build and launch", step: 5000 },
+  { key: "tasksPerMonth", label: "Monthly task volume", unit: "tasks", step: 1000 },
+  { key: "humanMinutes", label: "Handling time per task", unit: "minutes per task, manual", step: 1 },
+  { key: "hourlyCost", label: "Fully loaded hourly cost", unit: "$ per hour, incl. benefits and overhead", step: 5 },
+  { key: "aiSuccess", label: "AI resolution rate", unit: "% of tasks resolved without rework", step: 5, percent: true },
+  { key: "reviewMinutes", label: "Review time per resolved task", unit: "minutes of human QA per task", step: 0.5 },
+  { key: "tokensPerTask", label: "Tokens per task", unit: "input + output tokens", step: 1000 },
+  { key: "outputShare", label: "Output token share", unit: "% of tokens", step: 5, percent: true },
+  { key: "setupCost", label: "One-time implementation cost", unit: "$ one-time, build and launch", step: 5000 },
 ];
 
 function RoiStep({
@@ -80,37 +85,35 @@ function RoiStep({
 
   return (
     <div className="grid gap-6">
-      <div>
-        <p className="text-sm font-semibold">Start from a template</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="group" aria-label="Templates">
-          {ROI_TEMPLATES.map((t) => {
-            const active = t.id === templateId;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => onTemplate(t.id)}
-                className={`rounded-2xl border p-4 text-left transition ${active ? "border-brand bg-brand text-white" : "border-line bg-surface hover:border-brand"}`}
-              >
-                <span className="block font-semibold">{t.label}</span>
-                <span className={`mt-1 block text-sm leading-6 ${active ? "text-white/85" : "text-ink-2"}`}>{t.blurb}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="max-w-md">
+        <label htmlFor="roi-template" className="text-sm font-semibold">
+          Start from a template
+        </label>
+        <select
+          id="roi-template"
+          value={templateId}
+          onChange={(e) => onTemplate(e.target.value as TemplateId)}
+          className="mt-2 w-full rounded-[5px] border border-line bg-surface px-3 py-2.5 text-[15px] text-ink focus:border-brand"
+        >
+          {ROI_TEMPLATES.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1.5 text-sm text-muted">{template.blurb}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
         <section aria-label="Inputs" className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="kicker">Your numbers</p>
+            <p className="kicker">Inputs</p>
             {edited ? (
               <button type="button" onClick={() => onTemplate(templateId)} className="text-xs font-medium text-brand-ink underline underline-offset-2">
                 Reset to template
               </button>
             ) : (
-              <span className="text-xs text-muted">Illustrative template values. Replace them with yours.</span>
+              <span className="text-xs text-muted">Illustrative template values; replace with company data.</span>
             )}
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -129,24 +132,24 @@ function RoiStep({
         </section>
 
         <section aria-label="Return on investment" aria-live="polite" className="grid gap-4">
-          <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#2a1458] text-white" : "border border-line bg-surface"}`}>
+          <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#182536] text-white" : "border border-line bg-surface"}`}>
             {pays ? (
               <>
-                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Monthly savings with AI</p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Net monthly savings</p>
                 <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
                   <Odometer text={formatUsd(r.savings)} />
                 </p>
                 <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4">
                   <PanelStat label="Payback">{months(r.paybackMonths!)}</PanelStat>
                   <PanelStat label="12-month ROI">{r.roi12 === null ? "n/a" : percent(r.roi12)}</PanelStat>
-                  <PanelStat label="AI tokens / mo">{formatTokensM(r.tokensM)}</PanelStat>
+                  <PanelStat label="Token volume / mo">{formatTokensM(r.tokensM)}</PanelStat>
                 </div>
               </>
             ) : (
               <div className="flex gap-3">
                 <TriangleAlert className="mt-1 size-5 shrink-0 text-brand-ink" aria-hidden />
                 <div>
-                  <p className="text-2xl font-extrabold tracking-tight">AI doesn't pay off at these numbers</p>
+                  <p className="text-2xl font-extrabold tracking-tight">No positive business case at these inputs</p>
                   <p className="mt-2 text-ink-2">
                     It would cost {formatUsd(-r.savings)} a month more than doing the work by hand. A higher success rate or a shorter
                     review usually changes that.
@@ -157,7 +160,9 @@ function RoiStep({
           </div>
 
           <CostCompare r={r} />
-          <OperatingModel inputs={inputs} r={r} />
+          <Fold id="operating-model" title="Operating model" sub="Capacity released, FTE equivalent, and spend on tokens versus labour">
+            <OperatingModel inputs={inputs} r={r} />
+          </Fold>
         </section>
       </div>
     </div>
@@ -168,21 +173,21 @@ function RoiStep({
 function CostCompare({ r }: { r: RoiResult }) {
   const max = Math.max(r.humanCost, r.aiCost) || 1;
   const parts = [
-    { label: "People redoing what AI missed", value: r.escalationCost, opacity: 1 },
-    { label: "People reviewing AI work", value: r.reviewCost, opacity: 0.6 },
+    { label: "Escalations handled by staff", value: r.escalationCost, opacity: 1 },
+    { label: "Human review of AI output", value: r.reviewCost, opacity: 0.6 },
     { label: `AI compute (${OPTIONS[r.computeOption].short})`, value: r.computeCost, opacity: 0.32 },
   ];
   const computeShare = r.aiCost > 0 ? r.computeCost / r.aiCost : 0;
   return (
     <figure className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold">Monthly cost of the work</span>
-        <span className="kicker">Today vs with AI</span>
+        <span className="text-sm font-semibold">Monthly operating cost</span>
+        <span className="kicker">Current state vs AI-enabled</span>
       </figcaption>
       <div className="mt-4 space-y-4">
         <div>
           <div className="mb-1.5 flex justify-between text-sm">
-            <span className="text-ink-2">Today, all by people</span>
+            <span className="text-ink-2">Current state (fully manual)</span>
             <span className="font-mono">
               <Odometer text={formatUsd(r.humanCost)} />
             </span>
@@ -193,7 +198,7 @@ function CostCompare({ r }: { r: RoiResult }) {
         </div>
         <div>
           <div className="mb-1.5 flex justify-between text-sm">
-            <span className="text-ink-2">With AI</span>
+            <span className="text-ink-2">AI-enabled</span>
             <span className="font-mono font-semibold">
               <Odometer text={formatUsd(r.aiCost)} />
             </span>
@@ -227,8 +232,8 @@ function CostCompare({ r }: { r: RoiResult }) {
       </div>
       <p className="mt-4 border-t border-line pt-3 text-sm leading-6 text-ink-2">
         {computeShare < 0.1
-          ? `Compute is only ${percent(computeShare)} of the cost with AI: the success rate and review time matter far more than how you run the model.`
-          : `Compute is ${percent(computeShare)} of the cost with AI, so how you run the model matters. Step 2 compares the options.`}
+          ? `Compute is ${percent(computeShare)} of the AI-enabled cost: resolution rate and review time drive the economics far more than the deployment model.`
+          : `Compute is ${percent(computeShare)} of the AI-enabled cost, so the deployment model is material. The cost comparison evaluates the options.`}
       </p>
     </figure>
   );
@@ -237,13 +242,13 @@ function CostCompare({ r }: { r: RoiResult }) {
 /** Work the company does today, or an AI product it sells. */
 function ModeSwitch({ mode, onMode }: { mode: Mode; onMode: (m: Mode) => void }) {
   const options: { id: Mode; label: string }[] = [
-    { id: "work", label: "Work we do today" },
-    { id: "product", label: "A product we sell" },
+    { id: "work", label: "Internal workflow" },
+    { id: "product", label: "Customer-facing product" },
   ];
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">
-      <p className="text-sm font-semibold">What is the AI for?</p>
-      <div className="inline-flex rounded-full border border-line bg-surface p-1" role="group" aria-label="What is the AI for?">
+      <p className="text-sm font-semibold">Use case</p>
+      <div className="inline-flex rounded-full border border-line bg-surface p-1" role="group" aria-label="Use case">
         {options.map((o) => (
           <button
             key={o.id}
@@ -269,12 +274,12 @@ function OperatingModel({ inputs, r }: { inputs: RoiInputs; r: RoiResult }) {
   const n = (x: number) => Math.round(x).toLocaleString("en-US");
   return (
     <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-      <p className="kicker">Operating model · people and token capital</p>
+      <p className="kicker">Operating model · labour and token spend</p>
       <p className="mt-2 text-sm leading-6 text-ink-2">
         AI completes {percent(inputs.aiSuccess)} of tasks. People's time on this work falls from {n(hoursToday)} to {n(hoursWithAi)} hours a month
         {freed > 0 ? (
           <>
-            : about <span className="font-semibold text-ink">{(freed / 160).toFixed(1)} full-time people</span> freed for other work (at 160 hours a month).
+            : about <span className="font-semibold text-ink">{(freed / 160).toFixed(1)} FTEs</span> freed for other work (at 160 hours a month).
           </>
         ) : (
           "."
@@ -287,11 +292,11 @@ function OperatingModel({ inputs, r }: { inputs: RoiInputs; r: RoiResult }) {
 }
 
 const PRODUCT_FIELDS: { key: keyof ProductInputs; label: string; unit: string; step: number; percent?: boolean }[] = [
-  { key: "users", label: "Monthly users", unit: "people using it in a month", step: 1000 },
-  { key: "paidShare", label: "Share who pay", unit: "% of users (freemium is often 2–5%)", step: 0.5, percent: true },
-  { key: "price", label: "Price", unit: "$ per paying user per month", step: 1 },
-  { key: "freeTokens", label: "Tokens per free user", unit: "a month, capped by the free tier", step: 10_000 },
-  { key: "paidTokens", label: "Tokens per paying user", unit: "a month", step: 100_000 },
+  { key: "users", label: "Monthly active users", unit: "users per month", step: 1000 },
+  { key: "paidShare", label: "Paid conversion rate", unit: "% of users (freemium benchmarks: 2–5%)", step: 0.5, percent: true },
+  { key: "price", label: "Price per paid user", unit: "$ per paid user per month", step: 1 },
+  { key: "freeTokens", label: "Tokens per free user", unit: "per month, capped by the free tier", step: 10_000 },
+  { key: "paidTokens", label: "Tokens per paying user", unit: "per month", step: 100_000 },
 ];
 
 const share = (x: number) => `${(x * 100).toFixed(x < 0.01 ? 2 : 1)}%`;
@@ -320,13 +325,13 @@ function FreemiumStep({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
       <section aria-label="Product inputs" className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="kicker">Your product · freemium</p>
+          <p className="kicker">Product inputs · freemium</p>
           {edited ? (
             <button type="button" onClick={onReset} className="text-xs font-medium text-brand-ink underline underline-offset-2">
               Reset to template
             </button>
           ) : (
-            <span className="text-xs text-muted">Illustrative: an AI writing app. Replace with yours.</span>
+            <span className="text-xs text-muted">Illustrative: an AI writing app. Replace with company data.</span>
           )}
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -348,21 +353,21 @@ function FreemiumStep({
       </section>
 
       <section aria-label="Product economics" aria-live="polite" className="grid gap-4">
-        <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#2a1458] text-white" : "border border-line bg-surface"}`}>
-          <p className={`font-mono text-[11px] uppercase tracking-[0.12em] ${pays ? "text-white/75" : "text-muted"}`}>Margin after compute, per month</p>
+        <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#182536] text-white" : "border border-line bg-surface"}`}>
+          <p className={`font-mono text-[11px] uppercase tracking-[0.12em] ${pays ? "text-white/75" : "text-muted"}`}>Gross margin after compute / month</p>
           <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
             <Odometer text={pays ? formatUsd(f.margin) : `−${formatUsd(-f.margin)}`} />
           </p>
           <div className={`mt-5 grid grid-cols-3 gap-3 border-t pt-4 ${pays ? "border-white/20" : "border-line"}`}>
             <PanelStat label="Gross margin">{f.marginPct === null ? "n/a" : percent(f.marginPct)}</PanelStat>
-            <PanelStat label="Break-even paid">{f.breakEvenShare === null ? "never" : share(f.breakEvenShare)}</PanelStat>
-            <PanelStat label="AI tokens / mo">{formatTokensM(f.tokensM)}</PanelStat>
+            <PanelStat label="Break-even conversion">{f.breakEvenShare === null ? "never" : share(f.breakEvenShare)}</PanelStat>
+            <PanelStat label="Token volume / mo">{formatTokensM(f.tokensM)}</PanelStat>
           </div>
         </div>
 
         <figure className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <figcaption className="flex items-baseline justify-between gap-3">
-            <span className="text-sm font-semibold">Revenue vs compute, per month</span>
+            <span className="text-sm font-semibold">Revenue vs compute cost / month</span>
             <span className="kicker">{OPTIONS[f.computeOption].short} is cheapest</span>
           </figcaption>
           <div className="mt-4 space-y-4">
@@ -384,7 +389,7 @@ function FreemiumStep({
             A free user costs {cents(f.costPerFree)} a month in compute and a paying user {cents(f.costPerPaid)}.{" "}
             {f.freePerPaid !== null && `Each paying user carries ${f.freePerPaid < 10 ? f.freePerPaid.toFixed(1) : Math.round(f.freePerPaid)} free users. `}
             {f.breakEvenShare === null
-              ? "A paying user doesn't cover their own compute at this price, so no paid share breaks even."
+              ? "At this price a paid user does not cover their own compute cost, so no conversion rate breaks even."
               : `Revenue covers everyone's compute once ${share(f.breakEvenShare)} of users pay, at today's cost per token.`}
           </p>
         </figure>

@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
+import { Fold } from "@/components/Fold";
 import { BridgeChart, type StrategyMeta } from "@/components/BridgeChart";
 import { Odometer } from "@/components/Odometer";
 import { PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
@@ -25,10 +26,10 @@ import {
 import { formatUsd, ownCostPerGpuMonth } from "@/lib/tco";
 
 export const STRATEGY_META: Record<StrategyId, StrategyMeta & { note: string }> = {
-  wait: { name: "Rent cloud GPUs while you wait", short: "Rent & wait", color: "var(--bridge-wait)", note: "No commitment, but you pay the cloud premium every month." },
-  service: { name: "Bridge power service", short: "Bridge power", color: "var(--bridge-service)", note: "A provider brings and runs on-site generators; you pay per MWh." },
-  engines: { name: "Own on-site gas", short: "Own gas", color: "var(--bridge-engines)", note: "Your own turbines or engines: cheap power, long lead time." },
-  flex: { name: "Flexible grid + batteries", short: "Batteries", color: "var(--bridge-flex)", note: "Connect early on curtailable terms; batteries carry the cutbacks." },
+  wait: { name: "Rent cloud GPUs while you wait", short: "Rent & wait", color: "var(--bridge-wait)", note: "No commitment; pays the cloud premium every month." },
+  service: { name: "Bridge power service", short: "Bridge power", color: "var(--bridge-service)", note: "Third-party on-site generation, billed per MWh." },
+  engines: { name: "Own on-site gas", short: "Own gas", color: "var(--bridge-engines)", note: "Owned turbines or engines: low running cost, long lead time." },
+  flex: { name: "Flexible grid + batteries", short: "Batteries", color: "var(--bridge-flex)", note: "Early curtailable connection, with batteries covering curtailment." },
 };
 
 const FIELDS: { group: string; items: { key: keyof BridgeAssumptions; label: string; unit: string; step: number }[] }[] = [
@@ -89,12 +90,12 @@ export function PowerIt() {
   return (
     <PlanFrame route="power-it" plan={plan}>
         <StepHeading route="power-it">
-          Owning only wins if you can power it. Set how much power you can get, then see what to do if the grid connection is late.
+          Ownership only pays if the capacity can be powered. Set the power available, then compare options for bridging a delayed grid connection.
         </StepHeading>
 
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <section aria-label="Your power" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Power you can get</p>
+            <p className="kicker">01 · Available power</p>
             <div className="mt-4">
               <PowerBudget
                 kw={assumptions.powerLimitKw}
@@ -103,8 +104,8 @@ export function PowerIt() {
               />
             </div>
 
-            <p className="kicker mt-7">02 · If the grid is late</p>
-            <p className="mt-2 text-sm font-medium">Cluster to power</p>
+            <p className="kicker mt-7">02 · Grid connection delay</p>
+            <p className="mt-2 text-sm font-medium">Cluster size</p>
             <button
               type="button"
               aria-pressed={plan.clusterGpus === null}
@@ -116,7 +117,7 @@ export function PowerIt() {
                 {yours.toLocaleString("en-US")} owned GPUs · {formatKw(facilityKw(yours, assumptions))}
               </span>
             </button>
-            <p className="mt-3 text-xs font-medium text-ink-2">What if you grow?</p>
+            <p className="mt-3 text-xs font-medium text-ink-2">Scale scenarios</p>
             <div className="mt-1.5 grid grid-cols-3 gap-2" role="group" aria-label="What-if cluster sizes">
               {CLUSTER_PRESETS.map((p) => {
                 const active = plan.clusterGpus === p.gpus;
@@ -156,7 +157,7 @@ export function PowerIt() {
             <div className="mt-6">
               <div className="flex items-end justify-between gap-3">
                 <label htmlFor="delay" className="text-sm font-medium">
-                  How late is the grid?
+                  Expected grid delay
                 </label>
                 <span className="font-mono text-sm text-brand-ink">{delay === 0 ? "On time" : `${delay} months`}</span>
               </div>
@@ -180,9 +181,9 @@ export function PowerIt() {
             </div>
 
             <fieldset className="mt-6 space-y-2.5">
-              <legend className="text-sm font-medium">What's on offer where you are</legend>
+              <legend className="text-sm font-medium">Options available at this site</legend>
               <Toggle checked={bridge.serviceOffered > 0} onChange={(on) => setB({ serviceOffered: on ? 1 : 0 })}>
-                A bridge-power provider can serve this size
+                Bridge-power provider available at this scale
               </Toggle>
               <Toggle checked={bridge.flexOffered > 0} onChange={(on) => setB({ flexOffered: on ? 1 : 0 })}>
                 The utility offers a flexible (curtailable) connection
@@ -247,9 +248,8 @@ export function PowerIt() {
           <section aria-label="Results" aria-live="polite" className={`bridge-${winner} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4`}>
             {kw < 1000 && (
               <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
-                <span className="font-semibold">At {formatKw(kw)}, power usually isn't your bottleneck:</span> a colocation cage can often
-                power this today. Grid delays bite at multi-megawatt scale. Try <span className="font-semibold">What if you grow?</span> to
-                see them.
+                <span className="font-semibold">At {formatKw(kw)}, power is unlikely to be a constraint.</span> Grid delays matter at multi-megawatt
+                scale; try a <span className="font-semibold">scale scenario</span>.
               </p>
             )}
             {premium <= 0 && (
@@ -271,39 +271,45 @@ export function PowerIt() {
                 {delay === 0 ? "Nothing to bridge" : STRATEGY_META[winner].name}
               </p>
               <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4">
-                <PanelStat label="Extra cost">
+                <PanelStat label="Incremental cost">
                   <Odometer text={formatMoney(winnerTotal)} />
                 </PanelStat>
-                <PanelStat label="Saves vs renting">
+                <PanelStat label="Savings vs renting">
                   <Odometer text={formatMoney(savedVsRent)} />
                 </PanelStat>
-                <PanelStat label="Running from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
+                <PanelStat label="Operational from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
               </div>
             </div>
 
             <StrategyBars all={all} delay={delay} winner={winner} />
 
-            <BridgeChart all={all} delay={delay} stretches={stretches} meta={STRATEGY_META} />
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+            <div className="grid items-start gap-4">
+              <div className="flex gap-3 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
                 <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
                   <Zap className="size-4" />
                 </span>
                 <div>
-                  <p className="kicker">Speed beats price</p>
+                  <p className="kicker">Time to power drives the decision</p>
                   <p className="mt-1 text-sm leading-6 text-ink">
                     Renting this cluster costs {formatMoney(premium)} a month more than owning it on a working grid, so the fastest bridge usually
                     wins, even with pricier power. {describeStretches(stretches)} {describePayoff(all, stretches)}
                   </p>
                 </div>
               </div>
-              <StrategyTable all={all} delay={delay} />
             </div>
 
+            <Fold id="wait-chart" title="Cost of delay by option" sub="Each option's incremental cost as the grid delay grows, with the switch points">
+              <BridgeChart all={all} delay={delay} stretches={stretches} meta={STRATEGY_META} />
+            </Fold>
+            <Fold id="bridge-numbers" title="Behind the numbers" sub="Lead times, one-time and monthly costs for each option">
+              <StrategyTable all={all} delay={delay} />
+            </Fold>
+
             <p className="text-xs leading-5 text-muted">
-              Batteries alone can't power a site with no grid connection: they only carry a partial, curtailable connection through cutbacks.
-              Costs are extra spending versus owning the cluster on a working grid from day one. Illustrative, not quotes.
+              Costs are incremental to owning on a working grid. Illustrative, not quotes.{" "}
+              <a href="/faq#batteries" onClick={linkClick("/faq#batteries")} className="font-semibold text-brand-ink underline underline-offset-2">
+                Can batteries run a site alone?
+              </a>
             </p>
           </section>
         </div>
@@ -328,50 +334,96 @@ function describePayoff(all: ReturnType<typeof strategies>, stretches: { fromMon
     : `Owning gas beats renting from ${m} months; until it arrives (${all.engines.readyAfter} months), you rent.`;
 }
 
+const HATCH = "repeating-linear-gradient(135deg, #c9d2d8 0 5px, #e4e9ec 5px 10px)";
+
+/**
+ * The wait as a timeline: one lane per option across the months until the grid arrives. Hatched is the months you rent
+ * while the option is being built; colour is the months it's running. The total extra cost sits at the end of each lane.
+ */
 function StrategyBars({ all, delay, winner }: { all: ReturnType<typeof strategies>; delay: number; winner: StrategyId }) {
-  const totals = STRATEGY_IDS.map((id) => ({ id, total: totalOver(all[id], delay), available: all[id].available }));
-  const max = Math.max(1, ...totals.filter((t) => t.available).map((t) => Math.abs(t.total)));
+  const premium = all.wait.monthlyWaiting;
+  const ticks = delay > 0 ? [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * delay)) : [];
   return (
     <figure className="win-tint rounded-2xl border p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold">Extra cost over {delay} months</span>
-        <span className="kicker">Each option</span>
+        <span className="text-sm font-semibold">{delay === 0 ? "The grid is on time" : `The ${delay}-month wait, option by option`}</span>
+        <span className="kicker">Extra cost</span>
       </figcaption>
-      <div className="mt-5 space-y-4">
-        {totals.map(({ id, total, available }) => (
-          <div key={id}>
-            <div className="mb-1.5 flex items-center justify-between gap-2 text-sm">
-              <span className="flex items-center gap-2 text-ink-2">
-                <span className="size-2.5 rounded-full" style={{ background: STRATEGY_META[id].color }} aria-hidden />
-                {STRATEGY_META[id].name}
-                {id === winner && delay > 0 && (
-                  <span className="win-pill rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">Cheapest</span>
-                )}
-              </span>
-              <span className={`font-mono ${id === winner ? "font-semibold text-ink" : "text-ink-2"}`}>{available ? formatMoney(total) : "Not on offer"}</span>
-            </div>
-            <div className="h-5 rounded-r-[4px] bg-surface/80">
-              {available && (
-                <div className="glide h-full rounded-r-[4px]" style={{ width: `${Math.max(0.8, (Math.max(0, total) / max) * 100)}%`, background: STRATEGY_META[id].color }} />
-              )}
-            </div>
-            <p className="mt-1 text-[11px] text-muted">{STRATEGY_META[id].note}</p>
+      {delay === 0 ? (
+        <p className="mt-3 text-sm text-ink-2">Nothing to bridge: every option costs nothing extra. Move the delay to compare them.</p>
+      ) : (
+        <>
+          <div className="mt-4">
+            {STRATEGY_IDS.map((id) => {
+              const s = all[id];
+              const total = totalOver(s, delay);
+              const ready = Math.min(delay, s.readyAfter);
+              const pct = (ready / delay) * 100;
+              const best = id === winner;
+              return (
+                <div key={id} className={`grid grid-cols-1 items-center gap-x-3 gap-y-1.5 border-t border-line/70 py-2.5 first:border-t-0 sm:grid-cols-[200px_minmax(0,1fr)_72px] ${best ? "-mx-2 rounded-lg bg-surface/80 px-2" : ""}`}>
+                  <span className="flex items-start gap-2 text-sm text-ink-2">
+                    <span className="mt-1.5 size-2.5 shrink-0 rounded-full" style={{ background: STRATEGY_META[id].color }} aria-hidden />
+                    <span>
+                      {STRATEGY_META[id].name}
+                      {best && <span className="win-pill ml-1.5 rounded-[999px] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">Cheapest</span>}
+                    </span>
+                  </span>
+                  <div className="relative h-[26px] overflow-hidden rounded-[5px] bg-surface/80" role="img" aria-label={!s.available ? "Not on offer" : id === "wait" ? `Renting all ${delay} months` : s.readyAfter >= delay ? `Not ready before the grid arrives: renting all ${delay} months` : `Renting for ${ready} months, then running from month ${ready}`}>
+                    {s.available &&
+                      (id === "wait" ? (
+                        <div className="absolute inset-0 opacity-90" style={{ background: STRATEGY_META[id].color }}>
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-white">renting all {delay} months</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, background: HATCH }} />
+                          {ready < delay ? (
+                            <div className="absolute inset-y-0 right-0" style={{ left: `${pct}%`, background: STRATEGY_META[id].color }}>
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] font-semibold text-white">{pct < 75 ? `running from month ${ready}` : `month ${ready}`}</span>
+                            </div>
+                          ) : (
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-ink-2">not ready before the grid arrives</span>
+                          )}
+                        </>
+                      ))}
+                    {!s.available && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-muted">not on offer</span>}
+                  </div>
+                  <span className={`font-mono text-sm sm:text-right ${best ? "font-semibold text-ink" : "text-ink-2"}`}>{s.available ? formatMoney(total) : "–"}</span>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-[200px_minmax(0,1fr)_72px]">
+            <span className="hidden sm:block" />
+            <div className="relative mt-1 h-4 font-mono text-[10.5px] text-muted">
+              {ticks.map((t, k) => (
+                <span key={k} className={`absolute ${k === 0 ? "left-0" : k === ticks.length - 1 ? "right-0" : "-translate-x-1/2"}`} style={k > 0 && k < ticks.length - 1 ? { left: `${(t / delay) * 100}%` } : undefined}>
+                  {k === 0 ? "Month 0" : k === ticks.length - 1 ? `${t} · grid arrives` : t}
+                </span>
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[12px] text-ink-2">
+            <span className="inline-flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-5 rounded-sm" style={{ background: HATCH }} />
+              Renting cloud GPUs while it's built ({formatMoney(premium)} a month)
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-5 rounded-sm bg-ink-2" />
+              Running on the option
+            </span>
+          </p>
+        </>
+      )}
     </figure>
   );
 }
 
 function StrategyTable({ all, delay }: { all: ReturnType<typeof strategies>; delay: number }) {
   return (
-    <details className="group rounded-2xl border border-line bg-surface">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
-        <span className="kicker">Show the numbers</span>
-        <span className="text-xs text-muted group-open:hidden">Lead times and costs ▾</span>
-        <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
-      </summary>
-      <div className="overflow-x-auto border-t border-line px-5 py-4">
+    <div>
+      <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] text-left text-sm">
           <thead>
             <tr className="border-b border-line font-mono text-[11px] uppercase tracking-wider text-muted">
@@ -401,7 +453,7 @@ function StrategyTable({ all, delay }: { all: ReturnType<typeof strategies>; del
           Until an option is ready, you rent ({formatMoney(all.wait.monthlyRunning)} a month extra). Negative means cheaper than grid power.
         </p>
       </div>
-    </details>
+    </div>
   );
 }
 

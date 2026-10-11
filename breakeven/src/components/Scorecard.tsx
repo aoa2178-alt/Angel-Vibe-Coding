@@ -43,7 +43,7 @@ export function Scorecard({
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
       <section aria-label="Your priorities" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-        <p className="kicker">Your priorities</p>
+        <p className="kicker">Criteria weights</p>
         <div className="mt-4 grid grid-cols-2 gap-2" role="group" aria-label="Priority presets">
           {WEIGHT_PRESETS.map((p) => (
             <button
@@ -87,7 +87,7 @@ export function Scorecard({
       <section aria-label="Scorecard" aria-live="polite" className={`grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 ${winner ? `theme-${winner}` : ""}`}>
         {winner ? (
           <div className="win-panel rounded-2xl p-5 text-white sm:p-7">
-            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Best fit for your priorities</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Highest weighted score</p>
             <p key={winner} className="mt-3 flex animate-rise items-center gap-3 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">
               <span className={`size-4 shrink-0 rounded-full ring-2 ring-white/80 ${OPTIONS[winner].swatch}`} aria-hidden />
               {OPTIONS[winner].name}
@@ -126,7 +126,7 @@ export function Scorecard({
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <div>
               <p className="kicker">Scores, 1 to 5</p>
-              <p className="mt-1 text-sm text-ink-2">Disagree with a score? Change it. Cost comes from the comparison above.</p>
+              <p className="mt-1 text-sm text-ink-2">Scores are editable. Cost is scored from the comparison above.</p>
             </div>
             {scoresEdited && (
               <button type="button" onClick={onResetScores} className="text-xs font-medium text-brand-ink underline underline-offset-2">

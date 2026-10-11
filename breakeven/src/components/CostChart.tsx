@@ -128,8 +128,8 @@ export function CostChart({
     <figure className="min-w-0 rounded-2xl border border-line bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="kicker">Cost projection analysis</p>
-          <figcaption className="mt-1 text-lg font-bold tracking-tight">Monthly cost as your volume grows</figcaption>
+          <p className="kicker">Cost projection</p>
+          <figcaption className="mt-1 text-lg font-bold tracking-tight">Monthly cost by volume</figcaption>
         </div>
         <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-2" aria-label="Legend">
           {ORDER.map((id) => (

@@ -3,6 +3,8 @@ import { useEffect, useMemo } from "react";
 import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
+import { Fold } from "@/components/Fold";
+import { CalcPad } from "@/components/Handheld";
 import { Odometer } from "@/components/Odometer";
 import { RunningItWell } from "@/components/Operate";
 import { OPTIONS } from "@/components/options";
@@ -31,15 +33,6 @@ import {
   type Assumptions,
   type Workload,
 } from "@/lib/tco";
-
-// The volume slider is logarithmic: 0–1000 maps to 10M–100B tokens a month.
-const SLIDER_STEPS = 1000;
-const toSlider = (m: number) => Math.round((Math.log10(m / VOLUME_MIN_M) / Math.log10(VOLUME_MAX_M / VOLUME_MIN_M)) * SLIDER_STEPS);
-const fromSlider = (s: number) => {
-  const m = VOLUME_MIN_M * Math.pow(VOLUME_MAX_M / VOLUME_MIN_M, s / SLIDER_STEPS);
-  const p = Math.pow(10, Math.floor(Math.log10(m)) - 1); // keep two significant figures
-  return Math.round(m / p) * p;
-};
 
 const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; step: number }[] = [
   { key: "apiInputPerM", label: "API price, input", unit: "$ / M tokens", step: 0.1 },
@@ -102,77 +95,44 @@ export function RunIt() {
       }
     >
         <StepHeading route="run-it">
-          Pay per token, rent cloud GPUs, or own the hardware: what each costs at your volume, where the answer flips, and what fits
-          your priorities beyond cost.
+          Total cost of ownership for a pay-per-token API, rented GPUs and owned infrastructure at your volume, the crossover points, and
+          fit beyond cost.
         </StepHeading>
 
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           {/* Inputs: stay in view on wide screens while the results scroll beside them */}
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Your workload</p>
+            <p className="kicker">01 · Workload</p>
 
-            <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
-              {PRESETS.map((p) => {
-                const active = workload.tokensM === p.tokensM;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setW({ tokensM: p.tokensM })}
-                    className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"
-                    }`}
-                  >
-                    <span className="block text-sm font-semibold leading-tight">{p.label}</span>
-                    <span className={`mt-0.5 block font-mono text-xs ${active ? "text-white/80" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
-                  </button>
-                );
-              })}
+            <div className="mt-4">
+              <CalcPad tokensM={workload.tokensM} onChange={(m) => setW({ tokensM: m })} costs={costs} presets={PRESETS} />
             </div>
 
-            <div className="mt-6">
-              <div className="flex items-end justify-between gap-3">
-                <label htmlFor="volume" className="text-sm font-medium">
-                  Tokens per month <span className="font-mono text-brand-ink">= {formatTokensM(workload.tokensM)}</span>
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    aria-label="Tokens per month, in millions"
-                    type="number"
-                    min={VOLUME_MIN_M}
-                    max={VOLUME_MAX_M}
-                    value={workload.tokensM}
-                    onChange={(e) => {
-                      const v = Number(e.target.value);
-                      if (Number.isFinite(v) && v > 0) setW({ tokensM: Math.min(VOLUME_MAX_M * 10, v) });
-                    }}
-                    className="w-28 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
-                  />
-                  <span className="font-mono text-sm text-muted">M</span>
-                </div>
-              </div>
-              <input
-                id="volume"
-                type="range"
-                min={0}
-                max={SLIDER_STEPS}
-                value={toSlider(Math.min(Math.max(workload.tokensM, VOLUME_MIN_M), VOLUME_MAX_M))}
-                onChange={(e) => setW({ tokensM: fromSlider(Number(e.target.value)) })}
-                aria-valuetext={`${formatTokensM(workload.tokensM)} tokens per month`}
-                className="mt-3 w-full"
-              />
-              <div className="mt-1 flex justify-between font-mono text-[11px] text-muted">
-                <span>10M</span>
-                <span>1B</span>
-                <span>100B</span>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <label htmlFor="volume-exact" className="text-sm font-medium">
+                Exact tokens per month
+              </label>
+              <div className="flex items-center gap-1.5">
+                <input
+                  id="volume-exact"
+                  type="number"
+                  min={VOLUME_MIN_M}
+                  max={VOLUME_MAX_M}
+                  value={workload.tokensM}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v) && v > 0) setW({ tokensM: Math.min(VOLUME_MAX_M * 10, v) });
+                  }}
+                  className="w-28 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
+                />
+                <span className="font-mono text-sm text-muted">M</span>
               </div>
             </div>
 
             <PercentSlider
               id="output-share"
-              label="Share that is output"
-              hint="Answers cost more than prompts on most APIs."
+              label="Output token share"
+              hint="Output tokens are priced above input tokens on most APIs."
               value={workload.outputShare}
               onChange={(v) => setW({ outputShare: v })}
               min={0.05}
@@ -180,8 +140,8 @@ export function RunIt() {
             />
             <PercentSlider
               id="utilization"
-              label="GPU utilization you can sustain"
-              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs; higher means slower answers (see Running it well)."
+              label="Sustainable GPU utilization"
+              hint="Peaks leave capacity idle. Lower utilization requires more GPUs; higher utilization lengthens response times (see Operating strategies)."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -196,10 +156,10 @@ export function RunIt() {
               <Zap className="mt-0.5 size-4 shrink-0 text-brand-ink" aria-hidden />
               <span>
                 <span className="block font-medium">
-                  {assumptions.powerLimitKw > 0 ? `Power capped at ${assumptions.powerLimitKw} kW (up to ${maxOwnedGpus(assumptions)} owned GPUs)` : "Owning needs power"}
+                  {assumptions.powerLimitKw > 0 ? `Power capped at ${assumptions.powerLimitKw} kW (up to ${maxOwnedGpus(assumptions)} owned GPUs)` : "Ownership requires power"}
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
-                  {ownedKw(workload, assumptions)} for your owned GPUs. Set a power budget or a late grid in step 3 →
+                  {ownedKw(workload, assumptions)} for owned GPUs. Set a power budget or model a grid delay in Power planning →
                 </span>
               </span>
             </a>
@@ -207,7 +167,7 @@ export function RunIt() {
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
                 <span className="kicker">02 · Assumptions</span>
-                <span className="text-xs text-muted group-open:hidden">Edit prices, power, throughput ▾</span>
+                <span className="text-xs text-muted group-open:hidden">Pricing, power and throughput ▾</span>
                 <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
               </summary>
               <MarketNow assumptions={assumptions} onUse={() => setAssumptions(withLatest)} sourcesHref={`/sources${planQuery(plan)}#price-history`} />
@@ -240,12 +200,9 @@ export function RunIt() {
                 </div>
               </div>
               <p className="border-t border-line px-4 py-3 text-[11px] leading-5 text-muted">
-                Defaults (October 2026, illustrative): API at Claude Sonnet 5.5 list price ($2 / $10 per M tokens). Rent at
-                about $2.50 per H100-hour on GPU-focused clouds (market average ≈ $3.60, hyperscalers ≈ $7). Hardware ≈ $35K
-                per GPU, from 8-GPU H100 servers at $250–320K. 1.3 kW per GPU with its share of the server. Throughput is a
-                conservative estimate for a 70B-class open-weight model with batching.{" "}
+                Illustrative October 2026 defaults. <a href={`/faq${planQuery(plan)}#defaults`} onClick={linkClick(`/faq${planQuery(plan)}#defaults`)} className="font-semibold text-brand-ink underline underline-offset-2">What they represent</a> ·{" "}
                 <a href={`/sources${planQuery(plan)}`} onClick={linkClick(`/sources${planQuery(plan)}`)} className="font-semibold text-brand-ink underline underline-offset-2">
-                  Ranges and sources for every number →
+                  Sources →
                 </a>
               </p>
             </details>
@@ -256,10 +213,10 @@ export function RunIt() {
             <div className="win-panel relative overflow-hidden rounded-2xl p-5 text-white sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
-                  Cheapest at {formatTokensM(workload.tokensM)} tokens / month
+                  Lowest cost at {formatTokensM(workload.tokensM)} tokens / month
                 </p>
                 <span key={`pill-${winner}`} className="animate-pop rounded-full border border-white/40 bg-white/15 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">
-                  {OPTIONS[winner].short} wins
+                  Lowest cost
                 </span>
               </div>
               <p key={winner} className="mt-3 flex animate-rise items-center gap-3 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
@@ -286,60 +243,51 @@ export function RunIt() {
 
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
-            <div id="projection" className="min-w-0 scroll-mt-24">
-              <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
-            </div>
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
-              <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
-            </div>
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
-                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
-                  <Sparkles className="size-4" />
-                </span>
-                <div>
-                  <p className="kicker">Where the answer flips</p>
-                  <p className="mt-1 text-sm leading-6 text-ink">
-                    {describeCrossovers(cross)} {describePower(workload, assumptions)}
-                  </p>
-                </div>
+            <div className="flex gap-3 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
+                <Sparkles className="size-4" />
+              </span>
+              <div>
+                <p className="kicker">Crossover points</p>
+                <p className="mt-1 text-sm leading-6 text-ink">
+                  {describeCrossovers(cross)} {describePower(workload, assumptions)}
+                </p>
               </div>
-              <Calculations workload={workload} assumptions={assumptions} costs={costs} />
             </div>
+
+            <Fold id="projection" title="Cost curves by volume" sub="Monthly cost of each option across volumes, with the crossover points">
+              <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
+            </Fold>
+            <Fold id="sensitivity" title="Sensitivity analysis" sub="±25% on each cost driver: which ones change the recommendation">
+              <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
+            </Fold>
+            <Fold id="beyond-cost" title="Qualitative scorecard" sub="Weighted criteria: cost, data control, time to launch, model quality, operability and flexibility">
+              <Scorecard
+                costs={costs}
+                cheapestId={winner}
+                card={card}
+                weights={plan.weights}
+                scores={plan.scores}
+                onWeights={(w) => setPlan((p) => ({ ...p, weights: w }))}
+                onScore={(c, o, v) => setPlan((p) => ({ ...p, scores: { ...p.scores, [c]: { ...p.scores[c], [o]: v } } }))}
+                onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
+              />
+            </Fold>
+            <Fold id="operating" title="Operating strategies" sub="Utilization and response time, base-and-peak capacity mix, and asset retirement timing">
+              <RunningItWell plan={plan} setPlan={setPlan} bare />
+            </Fold>
+            <Fold id="behind" title="Calculation detail" sub="Step-by-step cost build-up and the ownership cash view">
+              <div className="grid gap-4">
+                <Calculations workload={workload} assumptions={assumptions} costs={costs} />
+                <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
+              </div>
+            </Fold>
 
             <p className="text-xs leading-5 text-muted">
-              “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
-              GPT are only available through their APIs, so switching is also a quality decision, not only a cost one.
-              Every number here is an editable assumption, not a quote.
+              Rent and Own assume a comparable open-weight model. <a href={`/faq${planQuery(plan)}#open-weight`} onClick={linkClick(`/faq${planQuery(plan)}#open-weight`)} className="font-semibold text-brand-ink underline underline-offset-2">Why</a> · Illustrative estimates, not quotes.
             </p>
           </section>
         </div>
-
-        <RunningItWell plan={plan} setPlan={setPlan} />
-
-        <section id="beyond-cost" className="mt-14 scroll-mt-24">
-          <div className="mb-6 max-w-2xl">
-            <p className="kicker">Beyond cost</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Which option fits your priorities?</h2>
-            <p className="mt-2 text-ink-2">
-              The cheapest option isn't always the right one. Weight what matters to you, such as data control or time to launch, and see
-              which way to run AI scores best.
-            </p>
-          </div>
-          <Scorecard
-            costs={costs}
-            cheapestId={winner}
-            card={card}
-            weights={plan.weights}
-            scores={plan.scores}
-            onWeights={(w) => setPlan((p) => ({ ...p, weights: w }))}
-            onScore={(c, o, v) => setPlan((p) => ({ ...p, scores: { ...p.scores, [c]: { ...p.scores[c], [o]: v } } }))}
-            onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
-          />
-        </section>
     </PlanFrame>
 
   );
@@ -385,13 +333,9 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
     { label: "Per M tokens", text: "monthly cost ÷ monthly volume in millions of tokens" },
   ];
   return (
-    <details className="group rounded-2xl border border-line bg-surface">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
-        <span className="kicker">Show calculations</span>
-        <span className="text-xs text-muted group-open:hidden">See the math with your numbers ▾</span>
-        <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
-      </summary>
-      <dl className="grid gap-2.5 border-t border-line px-5 py-4 text-sm">
+    <div className="rounded-[7px] border border-line bg-surface">
+      <p className="kicker px-5 pt-4">Cost build-up</p>
+      <dl className="grid gap-2.5 px-5 py-4 text-sm">
         {lines.map((l) => (
           <div key={l.label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
             <dt className="font-semibold text-ink">{l.label}</dt>
@@ -399,14 +343,22 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
           </div>
         ))}
       </dl>
-    </details>
+    </div>
   );
 }
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">{label}</p>
+      <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">
+        {label}
+        <span
+          title="Modeled: calculated by this app from data and assumptions"
+          className="ml-1.5 inline-block whitespace-nowrap rounded border border-current px-1 align-[1px] text-[8.5px] leading-[1.5] tracking-[0.08em] opacity-75"
+        >
+          <span className="sr-only">(</span>Modeled<span className="sr-only">)</span>
+        </span>
+      </p>
       <p className="mt-1.5 text-lg font-semibold sm:text-2xl">{children}</p>
     </div>
   );
@@ -483,7 +435,7 @@ function MarketNow({ assumptions, onUse, sourcesHref }: { assumptions: Assumptio
   const when = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
   return (
     <div className="border-t border-line px-4 py-3 text-xs leading-5">
-      <p className="font-semibold text-ink">Market now</p>
+      <p className="font-semibold text-ink">Current market price</p>
       <ul className="mt-1 space-y-0.5 text-ink-2">
         <li>
           API: <span className="font-mono">{formatUsd(l.api.point.input, 2)} / {formatUsd(l.api.point.output, 2)}</span> per M tokens ({l.api.point.model},{" "}
@@ -496,10 +448,10 @@ function MarketNow({ assumptions, onUse, sourcesHref }: { assumptions: Assumptio
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
         {stale ? (
           <button type="button" onClick={onUse} className="rounded-full bg-brand px-3 py-1.5 font-semibold text-white transition hover:bg-brand-ink">
-            Use latest prices
+            Apply current market prices
           </button>
         ) : (
-          <span className="font-medium text-brand-ink">Your plan uses the latest prices.</span>
+          <span className="font-medium text-brand-ink">Pricing reflects current market rates.</span>
         )}
         <a href={sourcesHref} onClick={linkClick(sourcesHref)} className="font-medium text-brand-ink underline underline-offset-2">
           Price history

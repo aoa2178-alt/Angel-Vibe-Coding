@@ -33,8 +33,8 @@ export function ClosingBars({
   return (
     <figure className="win-tint rounded-2xl border p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold">Monthly cost</span>
-        <span className="kicker">Closing the gap</span>
+        <span className="text-sm font-semibold">Monthly cost by option</span>
+        <span className="kicker">Gap to lowest cost</span>
       </figcaption>
 
       <div className="mt-5 space-y-4">
@@ -97,7 +97,7 @@ export function ClosingBars({
               <div className="mt-1 flex h-4 items-center justify-between gap-3 font-mono text-[11px] text-muted">
                 <span>
                   {isWinner ? (
-                    "The line to beat"
+                    "Lowest cost"
                   ) : (
                     <>
                       <Odometer text={`+${formatUsd(extra)}`} /> a month more

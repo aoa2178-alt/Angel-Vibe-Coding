@@ -1,12 +1,12 @@
-import { ArrowLeft, ArrowRight, Check, Link2 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { ArrowLeft, ArrowRight, Check, Link2, Menu, RotateCcw, X } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
 import { OPTIONS } from "./options";
 import { PillBar, SiteFooter } from "./Site";
 import { STEPS, ownedClusterGpus, planQuery, readPlan, stepHref, type Plan, type StepRoute } from "@/lib/plan";
 import { cheapest, compare, facilityKwPerGpu, formatTokensM } from "@/lib/tco";
 
-export type PageRoute = StepRoute | "sources";
+export type PageRoute = StepRoute | "sources" | "faq";
 
 /** The plan for a step page: read from the URL once, and written back to it on every change so it's always shareable. */
 export function usePlan(route: PageRoute, init: (p: Plan) => Plan = (p) => p) {
@@ -19,11 +19,66 @@ export function usePlan(route: PageRoute, init: (p: Plan) => Plan = (p) => p) {
 
 export const formatKw = (kw: number) => (kw >= 1000 ? `${(kw / 1000).toFixed(kw >= 10_000 ? 0 : 1)} MW` : `${kw.toFixed(kw >= 100 ? 0 : 1)} kW`);
 
-/** 1 Worth it · 2 Run it · 3 Power it · Result, then Sources. Every link carries the plan. */
+/** 1 Evaluate AI ROI · 2 Compare compute costs · 3 Power planning · Recommendation, then Sources. Every link carries the plan. */
+/** The steps as one dropdown in the navbar, for screens too narrow for the full links. */
+function StepMenu({ route, plan }: { route: PageRoute; plan: Plan }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => box.current && !box.current.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  const items = [
+    ...STEPS.map((st, i) => ({ href: stepHref(st.route, plan), label: st.label, short: i < 3 ? `Step ${i + 1}` : "Decision", current: st.route === route })),
+    { href: `/sources${planQuery(plan)}`, label: "Sources", short: "Sources", current: route === "sources" },
+    { href: `/faq${planQuery(plan)}`, label: "FAQ", short: "FAQ", current: route === "faq" },
+  ];
+  return (
+    <div ref={box} className="relative lg:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-label={open ? "Close menu" : "Open menu"}
+        className="grid size-10 place-items-center rounded-[5px] border border-line bg-surface text-ink transition hover:border-brand"
+      >
+        {open ? <X className="size-4" aria-hidden /> : <Menu className="size-4" aria-hidden />}
+      </button>
+      {open && (
+        <nav aria-label="Steps" className="absolute right-0 top-full z-40 mt-2 w-64 rounded-[7px] border border-line bg-surface p-1.5 shadow-[0_10px_35px_rgb(26_39_48/0.12)]">
+          {items.map((it) => (
+            <a
+              key={it.href}
+              href={it.href}
+              onClick={(e) => {
+                setOpen(false);
+                linkClick(it.href)(e);
+              }}
+              aria-current={it.current ? "page" : undefined}
+              className={`block rounded-[5px] px-3 py-2.5 text-sm transition ${it.current ? "bg-brand-soft font-semibold text-brand-ink" : "text-ink hover:bg-sunken"}`}
+            >
+              {it.label}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
 function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan: Plan; compact?: boolean }) {
   const sources = `/sources${planQuery(plan)}`;
+  const faq = `/faq${planQuery(plan)}`;
   return (
-    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-1 lg:flex"}>
+    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-5 self-stretch lg:flex xl:gap-7"}>
       {STEPS.map((s, i) => {
         const href = stepHref(s.route, plan);
         const current = s.route === route;
@@ -34,12 +89,16 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
             href={href}
             onClick={linkClick(href)}
             aria-current={current ? "step" : undefined}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition ${
-              current ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"
-            }`}
+            className={
+              compact
+                ? `flex shrink-0 items-center gap-1.5 rounded px-3 py-2 text-sm font-medium transition ${current ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+                : `relative flex h-full shrink-0 items-center gap-1.5 text-sm transition ${
+                    current ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"
+                  }`
+            }
           >
-            {n && (
-              <span className={`grid size-5 place-items-center rounded-full font-mono text-[11px] font-semibold ${current ? "bg-brand text-white" : "bg-sunken text-ink-2"}`}>
+            {n && compact && (
+              <span className={`grid size-5 place-items-center rounded-full font-mono text-[11px] font-semibold ${current ? "bg-brand text-white" : "bg-sunken text-muted"}`}>
                 {n}
               </span>
             )}
@@ -47,14 +106,30 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
           </a>
         );
       })}
-      <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden />
+      <span className="h-5 w-px shrink-0 self-center bg-line" aria-hidden />
       <a
         href={sources}
         onClick={linkClick(sources)}
         aria-current={route === "sources" ? "page" : undefined}
-        className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium transition ${route === "sources" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`}
+        className={
+          compact
+            ? `shrink-0 rounded px-3 py-2 text-sm font-medium transition ${route === "sources" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+            : `relative flex h-full shrink-0 items-center text-sm transition ${route === "sources" ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"}`
+        }
       >
         Sources
+      </a>
+      <a
+        href={faq}
+        onClick={linkClick(faq)}
+        aria-current={route === "faq" ? "page" : undefined}
+        className={
+          compact
+            ? `shrink-0 rounded px-3 py-2 text-sm font-medium transition ${route === "faq" ? "bg-brand-soft text-brand-ink" : "text-ink-2 hover:bg-sunken hover:text-ink"}`
+            : `relative flex h-full shrink-0 items-center text-sm transition ${route === "faq" ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#4f9588]" : "text-muted hover:text-ink"}`
+        }
+      >
+        FAQ
       </a>
     </nav>
   );
@@ -69,7 +144,7 @@ export function WorkloadStrip({ plan, route }: { plan: Plan; route: PageRoute })
   const kw = owned * facilityKwPerGpu(plan.assumptions);
   const edit = stepHref("run-it", plan);
   return (
-    <div className="mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm">
+    <div className="mx-auto mt-2 flex max-w-[1320px] flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm">
       <span className="font-mono text-ink">
         {formatTokensM(plan.workload.tokensM)} tokens/mo <span className="text-muted">→</span> {rented} GPU{rented === 1 ? "" : "s"}{" "}
         <span className="text-muted">({owned} if owned)</span> <span className="text-muted">→</span> {formatKw(kw)}
@@ -84,6 +159,23 @@ export function WorkloadStrip({ plan, route }: { plan: Plan; route: PageRoute })
         </a>
       )}
     </div>
+  );
+}
+
+/** Back to the example case: shown only once something differs from it. */
+export function ResetPlan({ plan }: { plan: Plan }) {
+  if (!planQuery(plan)) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => window.location.assign(window.location.pathname)}
+      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink transition hover:border-brand"
+      aria-label="Reset to the example case"
+      title="Reset to the example case"
+    >
+      <RotateCcw className="size-3.5" aria-hidden />
+      <span className="hidden xl:inline">Reset</span>
+    </button>
   );
 }
 
@@ -108,7 +200,7 @@ export function CopyLinkButton({ label = "Save plan" }: { label?: string }) {
         aria-label={`${label}: copy a link to it`}
       >
         {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
-        <span className="hidden sm:inline">{copied ? "Link copied" : label}</span>
+        <span className="hidden xl:inline">{copied ? "Link copied" : label}</span>
       </button>
       <span className="sr-only" aria-live="polite">
         {copied ? "Link to your plan copied" : ""}
@@ -147,10 +239,11 @@ export function PlanFrame({
       <PillBar
         logoTagline
         center={<StepTracker route={route} plan={plan} />}
-        actions={actions ?? <CopyLinkButton />}
-        below={
-          <div className="mx-auto mt-2 max-w-[1200px] rounded-2xl border border-line bg-surface p-1 lg:hidden print:hidden">
-            <StepTracker route={route} plan={plan} compact />
+        actions={
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ResetPlan plan={plan} />
+            {actions ?? <CopyLinkButton />}
+            <StepMenu route={route} plan={plan} />
           </div>
         }
       />
@@ -163,7 +256,7 @@ export function PlanFrame({
       {bare ? (
         <main>{children}</main>
       ) : (
-      <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
+      <main className="mx-auto max-w-[1320px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
         {children}
 
         {i >= 0 && (
@@ -174,7 +267,7 @@ export function PlanFrame({
                 onClick={linkClick(stepHref(prev.route, plan))}
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-3 font-semibold transition hover:border-brand"
               >
-                <ArrowLeft className="size-4" aria-hidden /> {i - 1 < 3 ? `${i}. ` : ""}
+                <ArrowLeft className="size-4" aria-hidden />
                 {prev.label}
               </a>
             ) : (
@@ -186,7 +279,7 @@ export function PlanFrame({
                 onClick={linkClick(stepHref(next.route, plan))}
                 className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-white transition hover:bg-brand-ink"
               >
-                Next: {i + 1 < 3 ? `${i + 2}. ` : ""}
+                Next:{" "}
                 {next.label} <ArrowRight className="size-4" aria-hidden />
               </a>
             )}

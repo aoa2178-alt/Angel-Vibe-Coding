@@ -43,22 +43,22 @@ export function PillBar({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-30 px-3 pt-3 print:hidden">
-      <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-3 pr-2 sm:pl-4">
+    <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm print:hidden">
+      <div className="mx-auto flex h-[72px] max-w-[1320px] items-center gap-3 px-3 sm:gap-10 sm:px-8">
         <Logo tagline={logoTagline} />
         {center}
         {!center && nav.length > 0 && (
-          <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Sections" className="hidden items-center gap-7 self-stretch lg:flex">
             {nav.map((n) => (
               <NavLink
                 key={n.href}
                 item={n}
-                className="rounded-full px-3 py-2 text-sm font-medium text-ink-2 transition hover:bg-sunken hover:text-ink"
+                className="flex h-full items-center text-sm text-muted transition hover:text-ink"
               />
             ))}
           </nav>
         )}
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {actions ?? (
             <a
               href="/run-it"
@@ -85,7 +85,7 @@ export function PillBar({
       </div>
       {below}
       {open && (
-        <nav id="site-menu" aria-label="Sections" className="mx-auto mt-2 max-w-[1200px] rounded-3xl border border-line bg-surface p-2 lg:hidden">
+        <nav id="site-menu" aria-label="Sections" className="mx-auto max-w-[1320px] border-t border-line bg-surface p-2 lg:hidden">
           {nav.map((n) => (
             <NavLink
               key={n.href}
@@ -105,21 +105,22 @@ export function SiteHeader({ nav }: { nav: NavItem[] }) {
 }
 
 const FOOTER_LINKS: NavItem[] = [
-  { href: "/worth-it", label: "1 · Is it worth it?" },
-  { href: "/run-it", label: "2 · How to run it" },
-  { href: "/power-it", label: "3 · Can we power it?" },
-  { href: "/result", label: "Your result" },
+  { href: "/worth-it", label: "Evaluate AI ROI" },
+  { href: "/run-it", label: "Compare compute costs" },
+  { href: "/power-it", label: "Power planning" },
+  { href: "/result", label: "Recommendation" },
   { href: "/sources", label: "Sources" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-bg">
-      <div className="mx-auto grid max-w-[1200px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-[1320px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
           <Logo tagline={false} />
           <p className="mt-4 max-w-sm text-sm leading-6 text-ink-2">
-            An AI compute cost-of-ownership calculator: pay per token, rent cloud GPUs, or own the hardware.
+            Total-cost-of-ownership analysis for running AI: pay-per-token API, rented GPUs or owned infrastructure.
           </p>
         </div>
         <div>
@@ -141,7 +142,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-line">
-        <p className="mx-auto max-w-[1200px] px-4 py-5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
+        <p className="mx-auto max-w-[1320px] px-4 py-5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-6">
           © 2026 Breakeven · Excludes taxes, egress and setup costs
         </p>
       </div>

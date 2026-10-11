@@ -2,6 +2,7 @@
 // priorities (step 2's "beyond cost"), and power (step 3). It lives in the URL, so every step link carries it.
 // Volume has one source of truth, tokens a month (v); step 1's "tokens per task" is derived from it.
 import { readCase, readCaseParams, writeCaseParams } from "./businessCaseShare";
+import { altDefaults, necessity, readAlt, writeAlt, type Alternatives } from "./necessity";
 import { PRODUCT_TEMPLATE, freemium, productTokensM, type ProductInputs } from "./freemium";
 import type { OpsSettings } from "./operate";
 import { readMode, readOps, readProduct, writeOps, writeProduct, type Mode } from "./opsShare";
@@ -15,10 +16,10 @@ import { VOLUME_MAX_M, gpusNeeded, type Assumptions, type Workload } from "./tco
 export type StepRoute = "worth-it" | "run-it" | "power-it" | "result";
 
 export const STEPS: { route: StepRoute; label: string; question: string }[] = [
-  { route: "worth-it", label: "Worth it", question: "Is AI worth it for this work?" },
-  { route: "run-it", label: "Run it", question: "How should we run it?" },
-  { route: "power-it", label: "Power it", question: "Can we power it?" },
-  { route: "result", label: "The call", question: "The call: how to run it, and is it worth it?" },
+  { route: "worth-it", label: "Evaluate AI ROI", question: "AI business case" },
+  { route: "run-it", label: "Compare compute costs", question: "Deployment cost comparison" },
+  { route: "power-it", label: "Power planning", question: "Power and grid readiness" },
+  { route: "result", label: "Recommendation", question: "Deployment recommendation" },
 ];
 
 export interface Plan {
@@ -28,6 +29,8 @@ export interface Plan {
   templateId: TemplateId | null;
   /** Step-1 inputs. Tokens per task and output share are derived from the workload, so their values here are ignored. */
   roi: RoiInputs;
+  /** Step 1's necessity test: the non-AI alternatives and the cash share of freed hours */
+  alt: Alternatives;
   weights: Weights;
   scores: Scores;
   /** A "what if you grow" cluster size for step 3; null means the GPUs you'd own at your volume */
@@ -44,7 +47,7 @@ export interface Plan {
 
 export type Current = "none" | "api" | "rent" | "own" | "mix";
 export const CURRENTS: { id: Current; label: string }[] = [
-  { id: "none", label: "Not using AI yet" },
+  { id: "none", label: "No AI in production yet" },
   { id: "api", label: "Pay-per-token API" },
   { id: "rent", label: "Rented cloud GPUs" },
   { id: "own", label: "Own GPUs" },
@@ -61,6 +64,7 @@ export function readPlan(search: string): Plan {
     assumptions,
     templateId: c.templateId,
     roi: c.inputs,
+    alt: readAlt(params, c.templateId),
     weights: c.weights,
     scores: c.scores,
     clusterGpus: readClusterGpus(params),
@@ -75,6 +79,7 @@ export function readPlan(search: string): Plan {
 export function planQuery(plan: Plan) {
   const params = new URLSearchParams(estimateQuery(plan.workload, plan.assumptions));
   writeCaseParams(params, { templateId: plan.templateId, inputs: plan.roi, weights: plan.weights, scores: plan.scores }, ["tokensPerTask", "outputShare"]);
+  writeAlt(params, plan.alt, plan.templateId);
   if (plan.clusterGpus !== null) params.set("g", String(plan.clusterGpus));
   writeBridge(params, plan.bridge);
   writeOps(params, plan.ops);
@@ -99,6 +104,8 @@ export function roiInputsOf(plan: Plan): RoiInputs {
 
 export const planRoi = (plan: Plan) => roi(roiInputsOf(plan), plan.assumptions, plan.workload.utilization);
 
+export const planNecessity = (plan: Plan) => necessity(roiInputsOf(plan), plan.alt, plan.assumptions, plan.workload.utilization, plan.templateId);
+
 /** Picking a template sets step 1's inputs and the volume they imply. */
 export function applyTemplate(plan: Plan, id: TemplateId): Plan {
   const t = templateById(id).inputs;
@@ -106,6 +113,7 @@ export function applyTemplate(plan: Plan, id: TemplateId): Plan {
     ...plan,
     templateId: id,
     roi: { ...t },
+    alt: altDefaults(id, plan.alt?.cashShare),
     workload: { ...plan.workload, tokensM: clampVolume((t.tasksPerMonth * t.tokensPerTask) / 1e6), outputShare: t.outputShare },
   };
 }

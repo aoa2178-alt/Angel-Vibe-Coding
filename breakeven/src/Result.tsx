@@ -1,15 +1,18 @@
 import { ArrowRight, Printer } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
 import { DecisionReport } from "@/components/DecisionReport";
+import { CallShare, HowSolid } from "@/components/CallTools";
+import { Fold } from "@/components/Fold";
 import { CallChecks, CallJudgment, CallLanding, CallMeasures, CallRecommendation } from "@/components/TheCall";
 import { callOf } from "@/lib/call";
 import { OPTIONS } from "@/components/options";
 import { CopyLinkButton, PlanFrame, formatKw, usePlan } from "@/components/PlanFrame";
 import { SummaryStat, joinLabels, months, percent } from "@/components/ui";
 import { hybrid, maxUtilizationFor, responseTime, retirement } from "@/lib/operate";
-import { clusterGpusOf, ownedClusterGpus, planFreemium, planRoi, roiInputsOf, stepHref } from "@/lib/plan";
+import { clusterGpusOf, ownedClusterGpus, planFreemium, planNecessity, planRoi, roiInputsOf, stepHref } from "@/lib/plan";
+import { VERDICT_LABELS } from "@/lib/necessity";
 import { templateById, type RoiInputs, type RoiResult } from "@/lib/roi";
 import { OPTION_IDS, advantages, scorecard } from "@/lib/scorecard";
 import { bestStrategy, facilityKw, formatMoney, strategies, totalOver } from "@/lib/speedToPower";
@@ -26,6 +29,7 @@ export function Result() {
   const recommended: OptionId = card.winner ?? winner;
   const product = plan.mode === "product" ? planFreemium(plan) : null;
   const r = plan.templateId && !product ? planRoi(plan) : null;
+  const need = r ? planNecessity(plan) : null;
   const inputs = roiInputsOf(plan);
   const owned = ownedClusterGpus(plan);
   const ownedKw = owned * facilityKwPerGpu(assumptions);
@@ -41,6 +45,7 @@ export function Result() {
   const retire = retirement(assumptions, plan.ops);
   const ownsGpus = recommended === "own" || split.best === "split";
 
+  const root = useRef<HTMLElement>(null);
   return (
     <PlanFrame
       route="result"
@@ -60,33 +65,36 @@ export function Result() {
         </>
       }
     >
-      <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
+      <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">The call · Breakeven</p>
+          <p className="kicker">Recommendation · Breakeven</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">{title}</h1>
-          <p className="mt-2 text-lg font-medium text-ink-2">How should we run it, and is it worth it?</p>
+          <p className="mt-2 text-lg font-medium text-ink-2">AI deployment recommendation</p>
           <p className="mt-2 text-sm text-muted">
             Prepared {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} · {formatTokensM(workload.tokensM)} tokens a
             month · Illustrative estimate, USD
           </p>
         </header>
 
-        <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-          <SummaryStat label="Run it on" value={OPTIONS[recommended].short} />
+        <dl className={`mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line ${need ? "sm:grid-cols-5" : "sm:grid-cols-4"}`}>
+          <SummaryStat label="Deployment" value={OPTIONS[recommended].short} />
           <SummaryStat label="AI cost / month" value={formatUsd(costs[recommended].monthly)} />
           {product ? (
             <SummaryStat label="Margin / month" value={product.margin >= 0 ? formatUsd(product.margin) : `−${formatUsd(-product.margin)}`} />
           ) : (
             <SummaryStat label="Savings / month" value={r ? (r.savings > 0 ? formatUsd(r.savings) : `−${formatUsd(-r.savings)}`) : "Step 1 skipped"} />
           )}
+          {need && <SummaryStat label="AI decision" value={VERDICT_LABELS[need.verdict]} />}
           <SummaryStat label="Power if owned" value={formatKw(ownedKw)} />
         </dl>
 
         <CallRecommendation call={call} plan={plan} setPlan={setPlan} />
+        <CallShare root={root} />
 
-        <p className="kicker mt-10">2 · Why: the evidence</p>
+        <div className="mt-6 grid gap-3">
+          <Fold id="evidence" title="Evidence" sub="Business case, make-or-buy and power readiness">
 
-        <Section n="a" title="Is it worth it?">
+        <Section n="a" title="Business case">
           {product ? (
             <p>
               {plan.product.users.toLocaleString("en-US")} users a month, {percent(plan.product.paidShare)} paying {formatUsd(plan.product.price)}, bring in{" "}
@@ -99,6 +107,7 @@ export function Result() {
                 : `That loses ${formatUsd(-product.margin)} a month: free users cost more than paying users bring in.`}
             </p>
           ) : r ? (
+            <>
             <p>
               Today {inputs.tasksPerMonth.toLocaleString("en-US")} tasks a month cost {formatUsd(r.humanCost)} in people's time. With AI solving{" "}
               {percent(inputs.aiSuccess)} of them and people reviewing its work and handling the rest, the same work costs {formatUsd(r.aiCost)},
@@ -109,6 +118,13 @@ export function Result() {
               {r.savings > 0 &&
                 `In operating terms, the budget moves from people to tokens: ${formatUsd(r.escalationCost + r.reviewCost)} on people and ${formatUsd(r.computeCost)} on compute.`}
             </p>
+            {need && (
+              <p className="mt-3">
+                <span className="font-semibold text-ink">AI necessity test: {VERDICT_LABELS[need.verdict]}.</span> {need.reason}
+                {need.missing.length > 0 && ` To confirm: ${need.missing.map((m) => (/^[A-Z]{2}/.test(m.label) ? m.label : m.label.charAt(0).toLowerCase() + m.label.slice(1))).join(", ")}.`}
+              </p>
+            )}
+            </>
           ) : (
             <p>
               You went straight to the cost comparison.{" "}
@@ -119,7 +135,7 @@ export function Result() {
           )}
         </Section>
 
-        <Section n="b" title="How should we run it? Make or buy">
+        <Section n="b" title="Make or buy">
           <div className={`theme-${recommended} win-border rounded-2xl border-2 p-5`}>
             <p className="flex items-center gap-2.5 text-2xl font-extrabold tracking-tight text-ink">
               <span className={`size-3.5 shrink-0 rounded-full ${OPTIONS[recommended].swatch}`} aria-hidden />
@@ -163,7 +179,7 @@ export function Result() {
           </p>
         </Section>
 
-        <Section n="c" title="Can we power it?">
+        <Section n="c" title="Power readiness">
           <p>
             Owning at this volume means {owned.toLocaleString("en-US")} GPUs in whole servers, about {formatKw(ownedKw)} of facility power.{" "}
             {assumptions.powerLimitKw > 0 &&
@@ -180,17 +196,30 @@ export function Result() {
             </p>
           )}
         </Section>
-
-        <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
-        <CallLanding call={call} />
-        <CallMeasures call={call} plan={plan} />
-        <CallJudgment />
+          </Fold>
+          <Fold id="checks" title="What would change the recommendation" sub="The flip points and the cost checks, and how solid the call is">
+            <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
+            <HowSolid checks={call.checks} />
+          </Fold>
+          <Fold id="landing" title="Implementation plan" sub="30, 60 and 90 days, and who owns each part">
+            <CallLanding call={call} />
+          </Fold>
+          <Fold id="measures" title="Success measures" sub={`Cost per million tokens ≤ ${formatUsd(costs[recommended].perM, 2)}${r ? " · cost per task handled" : ""}`}>
+            <CallMeasures call={call} plan={plan} />
+          </Fold>
+          <Fold id="judgments" title="Key judgments" sub="Like for like, prices that move, a conservative queueing model, and what's left out">
+            <CallJudgment />
+          </Fold>
+        </div>
 
         <DecisionReport plan={plan} />
 
         <p className="mt-8 border-t border-line pt-4 text-xs leading-5 text-muted">
-          Every number is an editable assumption with a source on the Sources page. Illustrative, not quotes; excludes taxes, egress and
-          change-management costs.
+          Illustrative estimates, not quotes. Assumptions on the Sources page;{" "}
+          <a href="/faq#excluded" onClick={linkClick("/faq#excluded")} className="underline underline-offset-2">
+            what is excluded
+          </a>
+          .
         </p>
       </article>
     </PlanFrame>

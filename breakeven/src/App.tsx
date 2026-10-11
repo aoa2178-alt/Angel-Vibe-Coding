@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { Methodology } from "./Methodology";
 import { PowerIt } from "./PowerIt";
@@ -7,9 +8,9 @@ import { RunIt } from "./RunIt";
 import { WorthIt } from "./WorthIt";
 import { legacyRedirect } from "@/lib/plan";
 
-type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources";
+type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources" | "faq";
 
-const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources"];
+const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources", "faq"];
 
 /** Old links (/calculator, /business-case, /speed-to-power, /methodology, /?v=) move to the new routes, keeping their plan. */
 function resolve(): View {
@@ -22,11 +23,12 @@ function resolve(): View {
 
 const TITLES: Record<View, string> = {
   landing: "Breakeven · AI infrastructure cost, at your volume",
-  "worth-it": "Breakeven · 1. Is AI worth it?",
-  "run-it": "Breakeven · 2. How should we run it?",
-  "power-it": "Breakeven · 3. Can we power it?",
-  result: "Breakeven · The call",
+  "worth-it": "Breakeven · Evaluate AI ROI",
+  "run-it": "Breakeven · Compare compute costs",
+  "power-it": "Breakeven · Power planning",
+  result: "Breakeven · Recommendation",
   sources: "Breakeven · Sources",
+  faq: "Breakeven · FAQ",
 };
 
 export default function App() {
@@ -55,6 +57,8 @@ export default function App() {
       return <Result key={view} />;
     case "sources":
       return <Methodology key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

@@ -27,25 +27,25 @@ export const ROI_TEMPLATES: { id: TemplateId; label: string; blurb: string; inpu
   {
     id: "support",
     label: "Customer support",
-    blurb: "AI answers tickets; people take the ones it can't solve.",
+    blurb: "AI resolves tickets; agents handle escalations.",
     inputs: { tasksPerMonth: 20_000, humanMinutes: 8, hourlyCost: 40, aiSuccess: 0.6, reviewMinutes: 1, tokensPerTask: 6_000, outputShare: 0.2, setupCost: 50_000 },
   },
   {
     id: "documents",
     label: "Document processing",
-    blurb: "AI reads invoices and forms and fills in the fields.",
+    blurb: "AI extracts data from invoices and forms.",
     inputs: { tasksPerMonth: 50_000, humanMinutes: 5, hourlyCost: 35, aiSuccess: 0.85, reviewMinutes: 0.5, tokensPerTask: 8_000, outputShare: 0.1, setupCost: 40_000 },
   },
   {
     id: "sales",
     label: "Sales emails",
-    blurb: "AI drafts personalized outreach; reps edit and send.",
+    blurb: "AI drafts personalized outreach; reps review and send.",
     inputs: { tasksPerMonth: 10_000, humanMinutes: 10, hourlyCost: 60, aiSuccess: 0.7, reviewMinutes: 2, tokensPerTask: 3_000, outputShare: 0.4, setupCost: 20_000 },
   },
   {
     id: "coding",
     label: "Coding agent",
-    blurb: "An agent takes small tickets end to end; engineers review.",
+    blurb: "An agent completes small tickets end to end; engineers review.",
     inputs: { tasksPerMonth: 8_000, humanMinutes: 15, hourlyCost: 90, aiSuccess: 0.4, reviewMinutes: 5, tokensPerTask: 500_000, outputShare: 0.25, setupCost: 25_000 },
   },
 ];

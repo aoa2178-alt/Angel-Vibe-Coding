@@ -149,3 +149,8 @@ input[type="range"] {
 /* Animations wait until their section scrolls into view (see useInView). */
 .mb-paused [style*="mb-"] { animation-play-state: paused; }
 @keyframes mb-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* Landing motion: region pulses on the map, the code caret, toolkit labels dropping into a pile. */
+@keyframes pulse { from { transform: scale(1); opacity: 0.45; } to { transform: scale(2.6); opacity: 0; } }
+@keyframes caret { 50% { opacity: 0; } }
+@keyframes fall { from { transform: translateY(-240px) rotate(0deg); opacity: 0; } }

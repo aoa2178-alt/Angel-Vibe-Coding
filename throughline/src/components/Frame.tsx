@@ -34,7 +34,7 @@ export function Mark({ className = "size-[18px]" }: { className?: string }) {
 export function Logo() {
   return (
     <a href="/" onClick={linkClick("/")} className="flex shrink-0 items-center gap-2.5" aria-label="Throughline home">
-      <span className="grid size-8 place-items-center rounded-[6px] bg-brand text-on-brand">
+      <span className="logo-mark grid size-8 place-items-center rounded-[6px] bg-brand text-on-brand">
         <Mark />
       </span>
       <span className="text-[17px] font-semibold tracking-[-0.03em] lowercase">throughline</span>
@@ -225,9 +225,11 @@ function CaseBar({ s, onSwitch }: { s: Scenario; onSwitch: (id: Product["id"]) =
   );
 }
 
-export function Header({ route, s, actions }: { route?: PageRoute; s?: Scenario; actions?: ReactNode }) {
+export function Header({ route, s, actions, tone = "light" }: { route?: PageRoute; s?: Scenario; actions?: ReactNode; tone?: "light" | "dark" }) {
+  // The landing opens on a dark stage, so its header is dark too (the accent becomes the logo tile).
+  const look = tone === "dark" ? "border-white/10 bg-[#141b3d]/95 text-white [&_.logo-mark]:bg-accent" : "border-line bg-surface/95";
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm print:hidden">
+    <header className={`sticky top-0 z-30 border-b backdrop-blur-sm print:hidden ${look}`}>
       <div className="mx-auto flex h-16 max-w-[1320px] items-center gap-3 px-4 sm:gap-10 sm:px-8">
         <Logo />
         {route && s && <NavLinks route={route} s={s} />}

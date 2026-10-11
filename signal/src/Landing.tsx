@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { Reach } from "@/components/Reach";
+import { BEACON_COLORS, Beacon, beaconPerDot } from "@/components/Beacon";
 import { CountrySelect, Footer, Header, href, linkClick } from "@/components/Frame";
 import { TrustTag } from "@/components/ui";
 import { DEFAULT_AFFORD, afford } from "@/lib/afford";
@@ -35,7 +35,7 @@ export function Landing() {
           <>
             <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-muted md:flex">
               <a href="#how" className="transition hover:text-ink">
-                How it works
+                Approach
               </a>
               <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-ink">
                 Sources
@@ -52,40 +52,55 @@ export function Landing() {
       />
 
       <main>
-        <section className="mx-auto max-w-[1320px] px-4 pt-16 text-center sm:px-8 sm:pt-24">
-          <p className="kicker">Connecting the offline</p>
-          <h1 className="mx-auto mt-4 max-w-3xl text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.045em] text-balance sm:text-6xl">
-            Who is <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">offline</span>, and why?
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-ink-2">On World Bank data: the phone, the data plan, or no signal at all.</p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-5">
-            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-              Start <ArrowRight className="size-4" aria-hidden />
-            </a>
-            <a href={faq} onClick={linkClick(faq)} className="inline-flex items-center gap-1.5 font-semibold text-ink transition hover:text-brand-ink">
-              See the method <ArrowRight className="size-4" aria-hidden />
-            </a>
+        {/* The beacon: one lit tower alone on a dusk plain, the country's people dotted across it. */}
+        <section className="relative h-[calc(100dvh-4rem)] max-h-[860px] min-h-[600px] overflow-hidden bg-[#0b2a30] text-[#eef6f7]" aria-label="Country preview">
+          <Beacon
+            key={iso}
+            online={g.pop - g.offline}
+            covered={g.covered}
+            noSignal={g.noSignal}
+            ariaLabel={`${name}'s people on a plain around a signal tower: ${people(g.pop - g.offline)} online, ${people(g.covered)} with a signal but not online, ${people(g.noSignal)} with no signal`}
+          />
+          <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-12 text-center sm:px-8 sm:pt-16">
+            <p className="kicker !text-[#a9c9cd]">Connecting the offline</p>
+            <h1 className="mx-auto mt-4 max-w-3xl text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.045em] text-balance sm:text-6xl">
+              Who is <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">offline</span>, and why?
+            </h1>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-[1320px] flex-wrap items-end justify-between gap-5 px-4 pb-6 sm:px-8">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <CountrySelect value={iso} onChange={setIso} className="w-60 max-w-full" />
+                <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-accent px-4 py-2 text-sm font-semibold text-ink transition hover:opacity-90">
+                  View analysis <ArrowRight className="size-4" aria-hidden />
+                </a>
+              </div>
+              <p className="mt-3 text-[13px] text-[#a9c9cd]">
+                One dot = {people(beaconPerDot(g.pop))} people · {c.region} · {c.income}
+              </p>
+            </div>
+            <dl className="grid gap-1 text-right text-sm">
+              {(
+                [
+                  ["Online", g.pop - g.offline, BEACON_COLORS.online],
+                  ["Signal, not online", g.covered, BEACON_COLORS.covered],
+                  ["No signal", g.noSignal, BEACON_COLORS.noSignal],
+                ] as const
+              ).map(([label, value, color]) => (
+                <div key={label} className="flex items-center justify-end gap-2">
+                  <dt className="inline-flex items-center gap-1.5 text-[#c9dfe2]">
+                    <i className="inline-block size-2.5 rounded-[3px]" style={{ background: color }} />
+                    {label}
+                  </dt>
+                  <dd className="w-16 font-mono font-semibold">{people(value)}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </section>
 
-        <section className="mx-auto mt-12 max-w-[1100px] px-4 sm:px-8" aria-label="Country preview">
-          <div className="mb-3 flex flex-wrap items-center justify-center gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Country</span>
-            <CountrySelect value={iso} onChange={setIso} className="w-64 max-w-full" />
-          </div>
-          <div className="rounded-[8px] border border-line bg-surface p-4 pb-12 sm:p-6 sm:pb-14">
-            <Reach
-              key={iso}
-              ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
-              format={people}
-              parts={[
-                { label: "Online", value: g.pop - g.offline, color: "#0b4f5c" },
-                { label: "Has a signal, not online", value: g.covered, color: "#4fa3b0" },
-                { label: "No signal", value: g.noSignal, color: "#c4b5e6" },
-              ]}
-            />
-          </div>
-          <div className="relative mx-auto -mt-8 max-w-[960px] rounded-[8px] border border-line bg-surface p-4 shadow-[0_10px_30px_rgb(15_42_48/0.08)] sm:mx-8 sm:p-5">
+        <section className="mx-auto max-w-[1100px] px-4 pt-10 sm:px-8" aria-label="Country summary">
+          <div className="rounded-[8px] border border-line bg-surface p-4 sm:p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-3 text-sm">
               <span className="font-semibold">{name}</span>
               <span className="text-xs text-muted">
@@ -126,9 +141,9 @@ export function Landing() {
           </div>
         </section>
 
-        <section id="how" className="mt-16 scroll-mt-20 bg-brand text-on-brand">
+        <section id="how" className="mt-14 scroll-mt-20 bg-brand text-on-brand">
           <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-8">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em]">How it works</h2>
+            <h2 className="text-2xl font-semibold tracking-[-0.03em]">Approach</h2>
             <ol className="mt-8 grid gap-8 md:grid-cols-3">
               {STEPS.map((st) => (
                 <li key={st.title} className="border-t border-white/25 pt-4">

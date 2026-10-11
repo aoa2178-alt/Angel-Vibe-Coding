@@ -1,5 +1,5 @@
 import { Bars } from "@/components/Bars";
-import { Crowd } from "@/components/Crowd";
+import { Panorama } from "@/components/Panorama";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Fold } from "@/components/Fold";
 import { Card, Kicker, Stat } from "@/components/ui";
@@ -38,15 +38,13 @@ export function GapStep() {
           <Stat trust="modeled" label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
         </div>
         <div className="mt-6">
-          <Crowd
+          <Panorama
             key={c.iso3}
-            ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
+            ariaLabel={`${name}'s population as a landscape: ${people(g.pop - g.offline)} online, ${people(g.covered)} with a signal but not online, ${people(g.noSignal)} with no signal`}
             format={people}
-            parts={[
-              { label: "Online", value: g.pop - g.offline, color: GREEN },
-              { label: "Has a signal, not online (usage gap)", value: g.covered, color: CORAL },
-              { label: "No signal (coverage gap)", value: g.noSignal, color: BLUE },
-            ]}
+            online={g.pop - g.offline}
+            covered={g.covered}
+            noSignal={g.noSignal}
           />
         </div>
         <p className="mt-4 max-w-3xl text-[15px] leading-7 text-ink-2">

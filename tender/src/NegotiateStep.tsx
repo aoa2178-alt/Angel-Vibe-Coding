@@ -1,3 +1,4 @@
+import { PriceLine } from "@/components/Collage";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Card, Kicker, Stat } from "@/components/ui";
 import { negotiation, structures } from "@/lib/analysis";
@@ -9,15 +10,6 @@ export function NegotiateStep() {
   const n = negotiation(s);
   const st = structures(s);
   const best = st.reduce((a, b) => (b.total < a.total ? b : a));
-  const lo = Math.min(n.zone.low, n.target) * 0.9;
-  const hi = Math.max(n.zone.high, n.quoted) * 1.05;
-  const x = (v: number) => `${((v - lo) / (hi - lo)) * 100}%`;
-  const marks = [
-    { v: n.floor, label: "Supplier's floor", sub: "should-cost, 5% margin" },
-    { v: n.target, label: "Our target", sub: "price risen only with costs" },
-    { v: n.quoted, label: "Their quote", sub: n.best.bid.supplier },
-    { v: n.walkAway, label: "Our walk-away", sub: `matches ${n.next.bid.supplier}'s total` },
-  ];
 
   return (
     <Frame route="negotiate" s={s} setS={setS}>
@@ -36,17 +28,8 @@ export function NegotiateStep() {
 
       <Card className="mt-6">
         <Kicker method="Bargaining zone">Price per transformer</Kicker>
-        <div className="relative mt-10 mb-16 h-3 rounded-full bg-sunken" role="img" aria-label={marks.map((m) => `${m.label} ${formatMoney(m.v)}`).join(", ")}>
-          <div className="absolute inset-y-0 rounded-full bg-brand-soft ring-1 ring-brand" style={{ left: x(n.zone.low), width: `calc(${x(n.zone.high)} - ${x(n.zone.low)})` }} />
-          {marks.map((m, i) => (
-            <div key={m.label} className="absolute top-1/2 -translate-x-1/2" style={{ left: x(m.v) }}>
-              <span className={`block size-3.5 -translate-y-1/2 rounded-full border-2 border-surface ${m.label === "Our target" ? "bg-brand" : "bg-ink-2"}`} />
-              <span className={`absolute left-1/2 w-28 -translate-x-1/2 text-center text-xs ${i % 2 ? "top-3" : "-top-12"}`}>
-                <span className="block font-semibold">{m.label}</span>
-                <span className="block font-mono">{formatMoney(m.v)}</span>
-              </span>
-            </div>
-          ))}
+        <div className="mt-4 mb-2">
+          <PriceLine s={s} />
         </div>
         <p className="text-sm leading-6 text-ink-2">
           Any price between the supplier's floor ({formatMoney(n.floor)}) and our walk-away ({formatMoney(n.walkAway)}) is a deal both sides could accept. Open near the should-cost (

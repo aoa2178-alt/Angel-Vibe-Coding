@@ -1,5 +1,6 @@
 import { CapacityChart } from "@/components/CapacityChart";
 import { Expansion } from "@/components/Expansion";
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Gantt } from "@/components/Gantt";
 import { Card, PHASE_COLOR } from "@/components/ui";
@@ -14,7 +15,7 @@ export function TimelineStep() {
   return (
     <Frame route="timeline" s={s} setS={setS}>
       <StepHeading route="timeline" campus={campus}>
-        Every phase waits on its slowest dependency: that's its critical path. Everything else has slack.
+        Go-live by phase, and the milestone each phase is waiting on.
       </StepHeading>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -32,8 +33,8 @@ export function TimelineStep() {
               <p className="mt-3 font-mono text-3xl font-semibold tracking-tight">{formatMonth(p.now.live)}</p>
               <p className="text-sm text-muted">{p.delay > 0 ? `${p.delay.toFixed(1)} months later than planned (${formatMonth(p.base.live)})` : "go-live in this plan"}</p>
               <p className="mt-4 text-[15px] leading-7 text-ink-2">
-                Waiting on <span className="font-semibold text-ink">{lowerFirst(critical.label)}</span>, then {months(p.phase.commissioningMonths)} of
-                commissioning. Next tightest: {lowerFirst(MILESTONES.find((m) => m.id === runnerUp.id)!.label)}, with {runnerUp.slack.toFixed(1)} months of slack.
+                Critical path: <span className="font-semibold text-ink">{lowerFirst(critical.label)}</span>, then {months(p.phase.commissioningMonths)} of
+                commissioning. Next: {lowerFirst(MILESTONES.find((m) => m.id === runnerUp.id)!.label)}, {runnerUp.slack.toFixed(1)} months of slack.
               </p>
               {(target !== null || actual !== null || p.phase.status) && (
                 <p className="mt-3 rounded-xl bg-sunken px-3 py-2 text-sm leading-6">
@@ -54,12 +55,12 @@ export function TimelineStep() {
 
       <div className="mt-6 grid gap-6">
         <Gantt plans={plans} />
-        <CapacityChart plans={plans} />
-        <Expansion s={s} setS={setS} campus={campus} />
-        <p className="text-xs leading-5 text-muted">
-          Construction starts, targets and go-live dates marked as public come from the Sources page. Milestone dates inside each phase are
-          assumptions fitted to those public dates; slip them in step 3.
-        </p>
+        <Fold id="capacity" title="Capacity online over time" sub="Facility megawatts live each month, planned and with current slips">
+          <CapacityChart plans={plans} />
+        </Fold>
+        <Fold id="expansion" title="Capacity strategy: build now or phase it?" sub="Expected value of building the later phases early, under demand uncertainty">
+          <Expansion s={s} setS={setS} campus={campus} />
+        </Fold>
       </div>
     </Frame>
   );

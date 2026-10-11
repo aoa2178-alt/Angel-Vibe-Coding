@@ -1,5 +1,6 @@
 import { ArrowUpRight, RotateCcw } from "lucide-react";
 import { anim, useInView } from "@/components/Motion";
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Hedge } from "@/components/Hedge";
 import { Card, NumberField, PHASE_COLOR, Stat } from "@/components/ui";
@@ -23,7 +24,7 @@ export function DelaysStep() {
   return (
     <Frame route="delays" s={s} setS={setS}>
       <StepHeading route="delays" campus={campus}>
-        Slip any milestone and watch go-live and the bill move. A slip only costs money once it eats through that milestone's slack.
+        Slip a milestone to see the effect on go-live and cost. A slip costs nothing until it uses up its slack.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
@@ -33,7 +34,7 @@ export function DelaysStep() {
             <p className="mt-2 font-mono text-4xl font-semibold tracking-tight sm:text-5xl">{formatMoney(totalCost)}</p>
             <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/15 pt-4">
               {plans.map((p) => (
-                <Stat key={p.phase.id} dark label={`${p.phase.name} · per month late`} value={formatMoney(p.monthly.total)} sub={p.delay > 0 ? `${p.delay.toFixed(1)} months late → ${formatMonth(p.now.live)}` : `live ${formatMonth(p.now.live)}`} />
+                <Stat trust="modeled" key={p.phase.id} dark label={`${p.phase.name} · per month late`} value={formatMoney(p.monthly.total)} sub={p.delay > 0 ? `${p.delay.toFixed(1)} months late → ${formatMonth(p.now.live)}` : `live ${formatMonth(p.now.live)}`} />
               ))}
             </div>
           </div>
@@ -67,12 +68,11 @@ export function DelaysStep() {
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-xs leading-5 text-muted">Each line: the cost if that milestone slipped 3 more months, on top of today's slips.</p>
+              <p className="mt-3 text-xs leading-5 text-muted">Cost if each milestone slipped 3 more months.</p>
             </Card>
           )}
 
-          <Card>
-            <p className="kicker">What a month late costs</p>
+          <Fold id="delay-assumptions" title="Cost of delay assumptions" sub="Revenue basis, pricing, build cost and cost of capital">
             <div className="mt-3 flex gap-2" role="group" aria-label="Revenue basis">
               {(["lease", "gpu"] as const).map((b) => (
                 <button
@@ -98,15 +98,12 @@ export function DelaysStep() {
               <NumberField label="Build cost" unit="$ millions per MW of IT" value={s.settings.capexPerMw} step={0.5} onChange={(v) => set({ capexPerMw: v })} />
               <NumberField label="Cost of capital" unit="per year (0.09 = 9%)" value={s.settings.costOfCapital} step={0.01} max={0.5} onChange={(v) => set({ costOfCapital: v })} />
             </div>
-            <p className="mt-3 text-xs leading-5 text-muted">
-              Lost revenue plus the interest on capital that's built but idle. All assumptions; see Sources for the reasoning.
-            </p>
-          </Card>
+          </Fold>
         </div>
 
         <Card>
           <div className="flex items-baseline justify-between gap-3">
-            <p className="kicker">Slip a milestone</p>
+            <p className="kicker">Milestone slips</p>
             {slipped && (
               <button type="button" onClick={() => setS({ ...s, slips: {} })} className="inline-flex items-center gap-1 text-xs font-medium text-ink underline decoration-brand decoration-2 underline-offset-2">
                 <RotateCcw className="size-3" aria-hidden /> Reset slips
@@ -160,12 +157,16 @@ export function DelaysStep() {
             href={breakevenLink(plans)}
             className="mt-6 inline-flex items-center gap-1.5 rounded-xl border border-line px-3 py-2 text-sm font-semibold transition hover:border-ink"
           >
-            Grid running late? Compare ways to bridge it in Breakeven <ArrowUpRight className="size-4" aria-hidden />
+            Grid connection late? Compare bridging options in Breakeven <ArrowUpRight className="size-4" aria-hidden />
           </a>
         </Card>
       </div>
 
-      <Hedge s={s} setS={setS} campus={campus} />
+      <div className="mt-8">
+        <Fold id="hedge" title="Long-lead equipment: spare transformers" sub="Why transformer lead times run to years, and how many spares to hold">
+          <Hedge s={s} setS={setS} campus={campus} />
+        </Fold>
+      </div>
     </Frame>
   );
 }

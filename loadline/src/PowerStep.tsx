@@ -1,4 +1,6 @@
 import { Card, FactList, NumberField, PHASE_COLOR, SourceLink, Stat } from "@/components/ui";
+import { Fold } from "@/components/Fold";
+import { SitePlan } from "@/components/SitePlan";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { DATA, campusById, formatMoney, formatMw, plan, type Settings } from "@/lib/model";
 
@@ -19,18 +21,25 @@ export function PowerStep() {
   return (
     <Frame route="power" s={s} setS={setS}>
       <StepHeading route="power" campus={campus}>
-        From the GPU plan to megawatts at the meter, and the electricity bill once it's fully running.
+        GPU plan to facility megawatts and annual energy cost at full build.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">{campus.tagline}</p>
         <div className="mt-4 grid grid-cols-2 gap-5 lg:grid-cols-4">
-          <Stat dark label="GPUs at full build" value={totals.gpus.toLocaleString("en-US")} sub={profile.label} />
-          <Stat dark label="IT power" value={formatMw(totals.it)} sub="what the computers draw" />
-          <Stat dark label="Facility power" value={formatMw(totals.facility)} sub={`IT × PUE ${s.settings.pue}`} />
-          <Stat dark label="Electricity per year" value={formatMoney(totals.energy)} sub={`at $${s.settings.pricePerMwh}/MWh`} />
+          <Stat trust="assumption" dark label="GPUs at full build" value={totals.gpus.toLocaleString("en-US")} sub={profile.label} />
+          <Stat trust="modeled" dark label="IT power" value={formatMw(totals.it)} sub="what the computers draw" />
+          <Stat trust="modeled" dark label="Facility power" value={formatMw(totals.facility)} sub={`IT × PUE ${s.settings.pue}`} />
+          <Stat trust="modeled" dark label="Electricity per year" value={formatMoney(totals.energy)} sub={`at $${s.settings.pricePerMwh}/MWh`} />
         </div>
       </div>
+
+      <Card className="mt-6">
+        <p className="kicker">Site plan</p>
+        <div className="mt-4">
+          <SitePlan plans={plans} />
+        </div>
+      </Card>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <div className="grid gap-4">
@@ -68,16 +77,13 @@ export function PowerStep() {
             </Card>
           ))}
 
-          <Card>
-            <p className="kicker">What's public</p>
-            <div className="mt-2">
-              <FactList facts={campus.facts} />
-            </div>
-          </Card>
+          <Fold id="public" title="Public disclosures" sub={`What ${campus.company} has said about this campus, with sources`}>
+            <FactList facts={campus.facts} />
+          </Fold>
         </div>
 
         <Card className="lg:sticky lg:top-40">
-          <p className="kicker">Power assumptions</p>
+          <p className="kicker">Assumptions</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <NumberField label="Electricity price" unit="$ per MWh" value={s.settings.pricePerMwh} step={1} onChange={(v) => set({ pricePerMwh: v })} />
             <NumberField label="PUE" unit="facility ÷ IT power" value={s.settings.pue} step={0.01} min={1} max={3} onChange={(v) => set({ pue: v })} />

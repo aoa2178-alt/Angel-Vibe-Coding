@@ -407,7 +407,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
 
         <div className="ai-build-grid" id="ai-builds-grid" onClick={openFromCard}>
           <article className="ai-build-card">
-            <BreakevenProject />
+            <div className="ai-build-card__media">
+              <BreakevenProject />
+              <img className="ai-build-card__shot" src="/shots/breakeven.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>01 / AI economics</span>
@@ -427,7 +430,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <LoadlineProject />
+            <div className="ai-build-card__media">
+              <LoadlineProject />
+              <img className="ai-build-card__shot" src="/shots/loadline.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>02 / Data centers</span>
@@ -447,7 +453,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <ThroughlineProject />
+            <div className="ai-build-card__media">
+              <ThroughlineProject />
+              <img className="ai-build-card__shot" src="/shots/throughline.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>03 / Supply chain</span>
@@ -467,7 +476,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <KeelProject />
+            <div className="ai-build-card__media">
+              <KeelProject />
+              <img className="ai-build-card__shot" src="/shots/keel.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>04 / Operating rhythm</span>
@@ -487,7 +499,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <TenderProject />
+            <div className="ai-build-card__media">
+              <TenderProject />
+              <img className="ai-build-card__shot" src="/shots/tender.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>05 / Procurement</span>
@@ -507,7 +522,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <BuildoutProject />
+            <div className="ai-build-card__media">
+              <BuildoutProject />
+              <img className="ai-build-card__shot" src="/shots/buildout.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>06 / Capital intelligence</span>
@@ -527,7 +545,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <WhereAILivesProject />
+            <div className="ai-build-card__media">
+              <WhereAILivesProject />
+              <img className="ai-build-card__shot" src="/shots/where-ai-lives.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>07 / Site selection</span>
@@ -547,7 +568,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
           </article>
 
           <article className="ai-build-card">
-            <SignalProject />
+            <div className="ai-build-card__media">
+              <SignalProject />
+              <img className="ai-build-card__shot" src="/shots/signal.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
                 <span>08 / Digital inclusion</span>

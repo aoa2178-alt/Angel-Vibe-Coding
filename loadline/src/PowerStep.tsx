@@ -1,5 +1,6 @@
 import { Card, FactList, NumberField, PHASE_COLOR, SourceLink, Stat } from "@/components/ui";
 import { Fold } from "@/components/Fold";
+import { SitePlan } from "@/components/SitePlan";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { DATA, campusById, formatMoney, formatMw, plan, type Settings } from "@/lib/model";
 
@@ -32,6 +33,13 @@ export function PowerStep() {
           <Stat trust="modeled" dark label="Electricity per year" value={formatMoney(totals.energy)} sub={`at $${s.settings.pricePerMwh}/MWh`} />
         </div>
       </div>
+
+      <Card className="mt-6">
+        <p className="kicker">Site plan</p>
+        <div className="mt-4">
+          <SitePlan plans={plans} />
+        </div>
+      </Card>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <div className="grid gap-4">

@@ -27,10 +27,10 @@ export function PlanStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Plan at {pct(s.settings.serviceLevel, 1)} service</p>
             <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat dark label="Safety stock" value={formatUnits(plan.safetyStock)} sub={`${(plan.safetyStock / plan.monthlyDemand).toFixed(2)} months of demand`} />
-              <Stat dark label="Order size" value={formatUnits(plan.eoq)} sub={plan.rawEoq < plan.monthlyDemand ? "every month" : `every ${(plan.eoq / plan.monthlyDemand).toFixed(1)} months`} />
-              <Stat dark label="Fill rate" value={pct(plan.fillRate, 1)} sub="of demand met from stock" />
-              <Stat dark label="Cost a year" value={formatMoney(plan.totalCost)} sub="holding + orders + shortages" />
+              <Stat trust="modeled" dark label="Safety stock" value={formatUnits(plan.safetyStock)} sub={`${(plan.safetyStock / plan.monthlyDemand).toFixed(2)} months of demand`} />
+              <Stat trust="modeled" dark label="Order size" value={formatUnits(plan.eoq)} sub={plan.rawEoq < plan.monthlyDemand ? "every month" : `every ${(plan.eoq / plan.monthlyDemand).toFixed(1)} months`} />
+              <Stat trust="modeled" dark label="Fill rate" value={pct(plan.fillRate, 1)} sub="of demand met from stock" />
+              <Stat trust="modeled" dark label="Cost a year" value={formatMoney(plan.totalCost)} sub="holding + orders + shortages" />
             </div>
           </div>
 

@@ -74,9 +74,9 @@ export function AllocateStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">{RULES.find((x) => x.id === s.rule)!.label}</p>
             <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3">
-              <Stat dark label="Revenue" value={formatMoney(a.revenue)} />
-              <Stat dark label="Margin" value={formatMoney(a.margin)} />
-              <Stat dark label="Margin lost to the cut" value={formatMoney(a.marginLost)} />
+              <Stat trust="modeled" dark label="Revenue" value={formatMoney(a.revenue)} />
+              <Stat trust="modeled" dark label="Margin" value={formatMoney(a.margin)} />
+              <Stat trust="modeled" dark label="Margin lost to the cut" value={formatMoney(a.marginLost)} />
             </div>
           </div>
 

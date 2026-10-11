@@ -35,6 +35,7 @@ export function Landing() {
             Throughline forecasts demand from real public US data, turns it into a supply plan with safety stock and launch quantities, splits scarce supply across
             regions, and shows how small swings grow up the chain.
           </p>
+          <p className="mt-3 text-sm text-muted">Pick a case below: each opens as a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
         </section>
 
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6" aria-label="Products">

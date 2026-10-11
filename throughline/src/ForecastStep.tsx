@@ -64,8 +64,8 @@ export function ForecastStep() {
               {pct(Math.abs(nextYear / lastYear - 1), 1)} on the last 12
             </p>
             <div className="mt-4 grid grid-cols-2 gap-3 border-t border-white/15 pt-4">
-              <Stat dark label="Error (WAPE)" value={pct(chosen.wape, 1)} sub="share of demand missed" />
-              <Stat dark label="Bias" value={`${chosen.bias >= 0 ? "+" : "−"}${pct(Math.abs(chosen.bias), 1)}`} sub={chosen.bias >= 0 ? "over-forecasts" : "under-forecasts"} />
+              <Stat trust="modeled" dark label="Error (WAPE)" value={pct(chosen.wape, 1)} sub="share of demand missed" />
+              <Stat trust="modeled" dark label="Bias" value={`${chosen.bias >= 0 ? "+" : "−"}${pct(Math.abs(chosen.bias), 1)}`} sub={chosen.bias >= 0 ? "over-forecasts" : "under-forecasts"} />
             </div>
           </div>
 

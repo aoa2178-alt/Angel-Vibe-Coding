@@ -108,10 +108,10 @@ export function DeliverStep() {
           </Card>
           <div className="grid grid-cols-2 gap-4">
             <Card>
-              <Stat label="Days late, on average" value={Math.abs(chosen.avgDaysLate) < 0.05 ? "0.0" : `${chosen.avgDaysLate > 0 ? "+" : "−"}${Math.abs(chosen.avgDaysLate).toFixed(1)}`} sub={`${s.ship}: actual − promised`} />
+              <Stat trust="data" label="Days late, on average" value={Math.abs(chosen.avgDaysLate) < 0.05 ? "0.0" : `${chosen.avgDaysLate > 0 ? "+" : "−"}${Math.abs(chosen.avgDaysLate).toFixed(1)}`} sub={`${s.ship}: actual − promised`} />
             </Card>
             <Card>
-              <Stat label="Profit margin" value={pct(chosen.margin, 1)} sub={`on ${s.ship} orders`} />
+              <Stat trust="data" label="Profit margin" value={pct(chosen.margin, 1)} sub={`on ${s.ship} orders`} />
             </Card>
           </div>
         </div>

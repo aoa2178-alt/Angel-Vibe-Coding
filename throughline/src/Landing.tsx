@@ -114,7 +114,7 @@ export function Landing() {
             <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Product</span>
             <ProductSelect value={id} onChange={setId} className="w-72 max-w-full" />
           </div>
-          <div className="aspect-[720/260] rounded-[8px] border border-line bg-surface p-3">
+          <div className="rounded-[8px] border border-line bg-surface p-3 pb-12">
             <FlowChart key={id} r={r} />
           </div>
           <div className="relative mx-auto -mt-10 max-w-[960px] rounded-[8px] border border-line bg-surface p-4 shadow-[0_10px_30px_rgb(20_26_51/0.08)] sm:mx-8 sm:p-5">

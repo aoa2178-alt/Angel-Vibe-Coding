@@ -1,5 +1,6 @@
 import { Bars } from "@/components/Bars";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, NumberField, Slider, Stat } from "@/components/ui";
 import { DEFAULT_AFFORD, afford, defaultDataPrice, leverCost, type AffordSettings } from "@/lib/afford";
 import { DATA_TARGET, HANDSET_TARGET } from "@/lib/assumptions";
@@ -37,7 +38,7 @@ export function AffordStep() {
   return (
     <Frame route="afford" s={s} setS={setS}>
       <StepHeading route="afford">
-        Being online takes a phone and a data plan. A plan is affordable under {pct(DATA_TARGET)} of monthly income (UN target); a phone, when the cash needed is under {pct(HANDSET_TARGET)} (GSMA).
+        Who can afford a phone and a data plan, by income fifth, and what each lever changes.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -126,8 +127,7 @@ export function AffordStep() {
             <p className="mt-2 font-mono text-2xl font-semibold">{usd(cost.total)}</p>
             <p className="text-xs text-muted">a year in taxes forgone and subsidies, if everyone who can afford it gets online ({usd(cost.perUser, 2)} per user)</p>
           </Card>
-          <Card>
-            <Kicker>Prices (editable)</Kicker>
+          <Fold id="prices" title="Price assumptions" sub="Data plan, smartphone, taxes and pay-as-you-go terms">
             <div className="mt-3 grid grid-cols-2 gap-3">
               <NumberField label="2GB plan, $/month" unit={`default ${usd(defaultDataPrice(c), 2)} (ITU, ${c.income.toLowerCase()})`} value={Number((a.dataPrice ?? defaultDataPrice(c)).toFixed(2))} step={0.1} onChange={(x) => set({ dataPrice: x })} />
               <NumberField label="Entry smartphone, $" unit="default $54 (GSMA)" value={a.phonePrice} step={1} onChange={(x) => set({ phonePrice: x })} />
@@ -141,7 +141,7 @@ export function AffordStep() {
                 Use the ITU default data price
               </button>
             )}
-          </Card>
+          </Fold>
         </div>
       </div>
     </Frame>

@@ -1,6 +1,7 @@
 import { Bars } from "@/components/Bars";
 import { Crowd } from "@/components/Crowd";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, Stat } from "@/components/ui";
 import { byIso, pct, people, share, shortName, v, yearOf } from "@/lib/data";
 import { barrierRows, gap, groupRows } from "@/lib/gap";
@@ -26,7 +27,7 @@ export function GapStep() {
   return (
     <Frame route="gap" s={s} setS={setS}>
       <StepHeading route="gap">
-        Most people offline already live within reach of a signal. The question is what keeps them off: the phone, the data, or the skills to use it.
+        How many people are offline, how many have no signal, and what keeps the rest off.
       </StepHeading>
 
       <Card>
@@ -50,7 +51,7 @@ export function GapStep() {
         </div>
         <p className="mt-4 max-w-3xl text-[15px] leading-7 text-ink-2">
           {people(g.offline)} people in {name} are offline. About {people(g.noSignal)} of them have no mobile-broadband signal where they live; the other {people(g.covered)} could
-          connect today but don't. Closing the usage gap is about price and skills (step 2); closing the coverage gap is about building (step 3).
+          connect today but don't. Closing the usage gap is about price and skills (Affordability); closing the coverage gap is about building (Coverage and funding).
         </p>
       </Card>
 
@@ -110,8 +111,8 @@ export function GapStep() {
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <Kicker>The wider picture</Kicker>
+      <div className="mt-6">
+      <Fold id="wider" title="Electricity, accounts and mobile money" sub="The wider picture: what a phone connects to">
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Stat trust="data" label="Has electricity" value={pct(share(c, "electricity"))} sub={`${yearOf(c, "electricity") ?? ""}`} />
           <Stat trust="data" label="Mobile money account" value={pct(share(c, "mobileMoney"))} sub="adults, Findex 2025" />
@@ -119,10 +120,11 @@ export function GapStep() {
           <Stat trust="data" label="Mobile subscriptions" value={v(c, "mobileSubs") === null ? "–" : `${Math.round(v(c, "mobileSubs")!)} per 100`} sub="SIMs, not people" />
         </div>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
-          Mobile money shows what a phone can do for people with low incomes (M-Pesa in Kenya is the classic case). The same pay-as-you-go rails can finance the phone itself, which step 2 tests.
+          Mobile money shows what a phone can do for people with low incomes (M-Pesa in Kenya is the classic case). The same pay-as-you-go rails can finance the phone itself, which Affordability tests.
           Electricity matters too: a phone needs charging, so a coverage plan without power reaches fewer people.
         </p>
-      </Card>
+      </Fold>
+      </div>
     </Frame>
   );
 }

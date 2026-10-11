@@ -54,7 +54,7 @@ export function Call() {
 
       <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">The call · {name}</p>
+          <p className="kicker">Recommendation · {name}</p>
           <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where should {name}'s next dollar for connectivity go?</h2>
           <p className="mt-2 text-sm text-muted">
             {people(g.offline)} people offline · {c.region} · {c.income} · World Bank data retrieved {RETRIEVED}
@@ -63,7 +63,7 @@ export function Call() {
 
         {/* 1. The recommendation, answer first */}
         <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
-          <p className="kicker">1 · My recommendation</p>
+          <p className="kicker">Recommendation</p>
           <p className="mt-2 text-xl font-bold leading-snug tracking-tight sm:text-2xl">
             <Cascade
               key={`${c.iso3}-${lead.id}`}
@@ -104,7 +104,7 @@ export function Call() {
 
         {/* 2. Why: the comparison */}
         <section className="mt-8">
-          <p className="kicker">2 · Why</p>
+          <p className="kicker">Evidence</p>
           <div className="mt-3">
             <Bars
               title="Public money per person newly online, each lever on its own"
@@ -146,7 +146,7 @@ export function Call() {
 
         {/* 3. What would change my mind */}
         <section data-call-text className="mt-8">
-          <p className="kicker">3 · What would change my mind</p>
+          <p className="kicker">What would change the recommendation</p>
           <ul className="mt-3 space-y-2 text-[15px] leading-7 text-ink-2">
             {sens.map((x) => (
               <li key={x.label} className="flex gap-2.5">
@@ -161,7 +161,7 @@ export function Call() {
 
         {/* 4. How to land it */}
         <section data-call-text className="mt-8">
-          <p className="kicker">4 · How to land it</p>
+          <p className="kicker">Implementation</p>
           <div ref={landing.ref} className={`mt-3 grid gap-3 sm:grid-cols-3 ${landing.paused}`}>
             {[
               {
@@ -204,7 +204,7 @@ export function Call() {
 
         {/* 5. How we'd know it worked */}
         <section data-call-text className="mt-8">
-          <p className="kicker">5 · How we'd know it worked</p>
+          <p className="kicker">Success measures</p>
           <div className="mt-3 overflow-auto rounded-lg border border-line">
             <table className="w-full text-left text-sm">
               <thead className="bg-sunken text-xs text-muted">
@@ -250,7 +250,7 @@ export function Call() {
 
         {/* 6. Judgment calls */}
         <section data-call-text className="mt-8">
-          <p className="kicker">6 · My judgment calls</p>
+          <p className="kicker">Judgment calls</p>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-[15px] leading-7 text-ink-2">
             <li>
               <span className="font-semibold text-ink">One yardstick for every lever:</span> public money per person newly online, counted the same way for towers and for prices. Comparing total spend would favor whatever is

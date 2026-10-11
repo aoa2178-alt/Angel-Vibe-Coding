@@ -1,6 +1,7 @@
 import { Bars, Stack } from "@/components/Bars";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { LineChart } from "@/components/LineChart";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, NumberField, Slider, Stat } from "@/components/ui";
 import { afford } from "@/lib/afford";
 import { TECHS, allocate, curve, defaultGap, fullCost, funding, lifetime, tranches, uncovered, type Area, type BuildSettings } from "@/lib/build";
@@ -37,7 +38,7 @@ export function BuildStep() {
   return (
     <Frame route="build" s={s} setS={setS}>
       <StepHeading route="build">
-        For people with no signal at all: pick the cheapest way to reach each area, fund the cheapest people first, then split the bill between operators, the universal service fund and the public purse.
+        The cheapest way to cover each area, a budget that connects the most people, and who pays.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -159,10 +160,9 @@ export function BuildStep() {
               <Slider label="Go online once covered" value={b.adoption} display={pct(b.adoption)} min={0.1} max={1} step={0.05} onChange={(x) => set({ adoption: x })} />
             </div>
           </Card>
-          <Card>
-            <Kicker>Money (editable)</Kicker>
+          <Fold id="money" title="Financial assumptions" sub="Revenue per user, margin, levy, horizon and discount rate">
             <div className="mt-3 grid grid-cols-2 gap-3">
-              <NumberField label="Revenue per user, $/mo" unit="default: step 2's data price" value={Number(arpu.toFixed(2))} step={0.1} onChange={(x) => set({ arpu: x })} />
+              <NumberField label="Revenue per user, $/mo" unit="default: the data price" value={Number(arpu.toFixed(2))} step={0.1} onChange={(x) => set({ arpu: x })} />
               <NumberField label="Operator margin" unit="share of revenue" value={b.margin} step={0.05} max={1} onChange={(x) => set({ margin: x })} />
               <NumberField label="USF levy" unit="share of telecom revenue" value={b.levy} step={0.005} max={0.2} onChange={(x) => set({ levy: x })} />
               <NumberField label="Years" unit="horizon" value={b.years} step={1} min={1} max={30} onChange={(x) => set({ years: x })} />
@@ -171,7 +171,7 @@ export function BuildStep() {
             <p className="mt-3 text-xs text-muted">
               The default "no signal" share is GSMA's regional coverage gap ({c.region}). {name}'s own figure may differ; set it above.
             </p>
-          </Card>
+          </Fold>
         </div>
       </div>
     </Frame>

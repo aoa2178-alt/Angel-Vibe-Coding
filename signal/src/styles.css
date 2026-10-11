@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
 /*
- * Signal: "Field radio", picked by Angel. Clean off-white, signal green for the interface, coral as the accent.
- * Chart series use a validated set (green #17703d, coral #f0875a, blue #2a78d6: lightness band and colorblind separation
- * pass; coral sits under 3:1 contrast, so every chart carries visible value labels and a table view). Text never uses
- * series colors.
+ * Signal: "Horizon", picked by Angel. Cool white, deep teal for structure and buttons, sun yellow as the one accent.
+ * Chart series use a validated set (teal #00879e, sun #d4920a, indigo #5a4fcf: lightness band, chroma and colorblind
+ * separation pass; sun sits under 3:1 contrast, so every chart carries visible value labels and a table view). Text never
+ * uses series colors. The token names (s-green, s-coral, s-blue) are kept from the first look so chart code is unchanged.
  */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 7px;
+  --radius-3xl: 8px;
+  --color-accent: var(--accent);
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 
   --color-bg: var(--bg);
@@ -31,24 +36,26 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f5f0;
+  --bg: #f3f7f8;
   --surface: #ffffff;
-  --sunken: #eceee6;
-  --line: #dcdfd5;
-  --ink: #1c2321;
-  --ink-2: #3c4642;
-  --muted: #56605a;
-  --brand: #1f8a4c;
-  --brand-ink: #17703d;
-  --brand-soft: #e3f1e8;
+  --sunken: #e8f0f2;
+  --line: #dbe6e8;
+  --ink: #0f2a30;
+  --ink-2: #3a5157;
+  --muted: #52666b;
+  --brand: #0b4f5c;
+  --brand-ink: #0b6475;
+  --brand-soft: #dcecef;
   --on-brand: #ffffff;
-  --coral: #e4572e;
-  --coral-ink: #b23d18;
-  --coral-soft: #fbe7df;
+  --accent: #e9a91c;
+  --accent-ink: #8a6200;
+  --coral: #b7791f;
+  --coral-ink: #8a6200;
+  --coral-soft: #fbf1d6;
   /* Chart series (validated set) */
-  --s-green: #17703d;
-  --s-coral: #f0875a;
-  --s-blue: #2a78d6;
+  --s-green: #00879e;
+  --s-coral: #d4920a;
+  --s-blue: #5a4fcf;
 }
 
 body {
@@ -57,6 +64,15 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Geist throughout, JetBrains Mono for figures. Corners stay small (5–8px). */
+.font-extrabold {
+  font-weight: 600;
+}
+a.rounded-full,
+button.rounded-full {
+  border-radius: 6px;
 }
 
 :focus-visible {
@@ -74,7 +90,7 @@ input[type="range"] {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--brand-ink);
+  color: var(--accent-ink);
 }
 
 .glide {

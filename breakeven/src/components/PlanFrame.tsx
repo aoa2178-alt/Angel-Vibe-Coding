@@ -36,7 +36,7 @@ function StepMenu({ route, plan }: { route: PageRoute; plan: Plan }) {
     };
   }, [open]);
   const items = [
-    ...STEPS.map((st, i) => ({ href: stepHref(st.route, plan), label: i < 3 ? `${i + 1} · ${st.label}` : st.label, short: i < 3 ? `Step ${i + 1}` : "Decision", current: st.route === route })),
+    ...STEPS.map((st, i) => ({ href: stepHref(st.route, plan), label: st.label, short: i < 3 ? `Step ${i + 1}` : "Decision", current: st.route === route })),
     { href: `/sources${planQuery(plan)}`, label: "Sources", short: "Sources", current: route === "sources" },
     { href: `/faq${planQuery(plan)}`, label: "FAQ", short: "FAQ", current: route === "faq" },
   ];
@@ -267,7 +267,7 @@ export function PlanFrame({
                 onClick={linkClick(stepHref(prev.route, plan))}
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-3 font-semibold transition hover:border-brand"
               >
-                <ArrowLeft className="size-4" aria-hidden /> {i - 1 < 3 ? `${i}. ` : ""}
+                <ArrowLeft className="size-4" aria-hidden />
                 {prev.label}
               </a>
             ) : (
@@ -279,7 +279,7 @@ export function PlanFrame({
                 onClick={linkClick(stepHref(next.route, plan))}
                 className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-white transition hover:bg-brand-ink"
               >
-                Next: {i + 1 < 3 ? `${i + 2}. ` : ""}
+                Next:{" "}
                 {next.label} <ArrowRight className="size-4" aria-hidden />
               </a>
             )}

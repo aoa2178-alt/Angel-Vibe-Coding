@@ -3814,3 +3814,53 @@ blockquote {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* Black header and stage around the white story column. */
+.project-detail__header {
+  color: #fff;
+  background: var(--ink);
+  border-bottom-color: var(--ink);
+}
+.project-detail__header .project-detail__tags {
+  color: #a9bcff;
+}
+.project-detail__header .project-detail__close {
+  color: #fff;
+  border-color: rgb(255 255 255 / 0.6);
+  background: transparent;
+}
+.project-detail__header .project-detail__close:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.project-detail__stage {
+  color: #fff;
+  background: var(--ink);
+}
+.project-detail__stage .project-detail__toolbar {
+  border-bottom-color: rgb(255 255 255 / 0.15);
+}
+.project-detail__stage .project-detail__address::before {
+  background: #a9bcff;
+}
+.project-detail__stage .project-detail__tool:hover {
+  color: #a9bcff;
+}
+.project-detail__stage .project-detail__viewport {
+  background: var(--ink);
+}
+.project-detail__stage .project-detail__preview img {
+  border-color: rgb(255 255 255 / 0.15);
+  box-shadow: 0 20px 50px rgb(0 0 0 / 0.5);
+}
+.project-detail__stage .project-detail__try:hover {
+  color: var(--ink);
+  background: #fff;
+}
+.project-detail__stage .project-detail__status {
+  color: rgb(255 255 255 / 0.7);
+}
+.project-detail__header :focus-visible,
+.project-detail__stage :focus-visible {
+  outline-color: #a9bcff;
+}

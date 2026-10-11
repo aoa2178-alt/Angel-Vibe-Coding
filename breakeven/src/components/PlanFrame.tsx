@@ -19,11 +19,11 @@ export function usePlan(route: PageRoute, init: (p: Plan) => Plan = (p) => p) {
 
 export const formatKw = (kw: number) => (kw >= 1000 ? `${(kw / 1000).toFixed(kw >= 10_000 ? 0 : 1)} MW` : `${kw.toFixed(kw >= 100 ? 0 : 1)} kW`);
 
-/** 1 Worth it · 2 Run it · 3 Power it · Result, then Sources. Every link carries the plan. */
+/** 1 Evaluate AI ROI · 2 Compare compute costs · 3 Power planning · Recommendation, then Sources. Every link carries the plan. */
 function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan: Plan; compact?: boolean }) {
   const sources = `/sources${planQuery(plan)}`;
   return (
-    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-6 self-stretch lg:flex"}>
+    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-6 self-stretch xl:flex"}>
       {STEPS.map((s, i) => {
         const href = stepHref(s.route, plan);
         const current = s.route === route;
@@ -179,7 +179,7 @@ export function PlanFrame({
           </div>
         }
         below={
-          <div className="mx-auto max-w-[1320px] border-t border-line bg-surface p-1 lg:hidden print:hidden">
+          <div className="mx-auto max-w-[1320px] border-t border-line bg-surface p-1 xl:hidden print:hidden">
             <StepTracker route={route} plan={plan} compact />
           </div>
         }

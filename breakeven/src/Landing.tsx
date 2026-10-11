@@ -22,7 +22,7 @@ const QUESTIONS: { n: number; href: string; kind: IsoKind; theme: string; label:
     href: "/worth-it",
     kind: "tokens",
     theme: "theme-api",
-    label: "Worth it",
+    label: "Evaluate AI ROI",
     title: "Is AI worth it for this work?",
     body: "Compare what the work costs your people today with what it costs once AI does most of it: savings, payback and ROI.",
   },
@@ -31,7 +31,7 @@ const QUESTIONS: { n: number; href: string; kind: IsoKind; theme: string; label:
     href: "/run-it",
     kind: "datacenter",
     theme: "theme-rent",
-    label: "Run it",
+    label: "Compare compute costs",
     title: "How should we run it?",
     body: "Pay per token, rent cloud GPUs, or own them: what each costs at your volume, where the answer flips, and what fits beyond cost.",
   },
@@ -40,7 +40,7 @@ const QUESTIONS: { n: number; href: string; kind: IsoKind; theme: string; label:
     href: "/power-it",
     kind: "power",
     theme: "",
-    label: "Power it",
+    label: "Power planning",
     title: "Can we power it?",
     body: "If you own, how much power you need, what your power budget allows, and what to do when the grid connection is late.",
   },
@@ -241,7 +241,7 @@ export function Landing() {
               ))}
             </ol>
             <p className="mt-6 text-ink-2">
-              Then <span className="font-semibold text-ink">The call</span>: my recommendation first, what would change it, how to land it and how we'd know it worked, ready
+              Then the <span className="font-semibold text-ink">Recommendation</span>: my recommendation first, what would change it, how to land it and how we'd know it worked, ready
               to print or share.
             </p>
           </div>

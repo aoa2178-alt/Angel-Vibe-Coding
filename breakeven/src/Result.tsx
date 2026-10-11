@@ -64,7 +64,7 @@ export function Result() {
     >
       <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">The call · Breakeven</p>
+          <p className="kicker">Recommendation · Breakeven</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">{title}</h1>
           <p className="mt-2 text-lg font-medium text-ink-2">How should we run it, and is it worth it?</p>
           <p className="mt-2 text-sm text-muted">
@@ -74,7 +74,7 @@ export function Result() {
         </header>
 
         <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-          <SummaryStat label="Run it on" value={OPTIONS[recommended].short} />
+          <SummaryStat label="Run on" value={OPTIONS[recommended].short} />
           <SummaryStat label="AI cost / month" value={formatUsd(costs[recommended].monthly)} />
           {product ? (
             <SummaryStat label="Margin / month" value={product.margin >= 0 ? formatUsd(product.margin) : `−${formatUsd(-product.margin)}`} />

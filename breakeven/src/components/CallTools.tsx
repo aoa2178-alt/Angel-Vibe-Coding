@@ -19,9 +19,9 @@ export function HowSolid({ checks }: { checks: { label: string; holds: boolean }
   const flips = checks.filter((c) => !c.holds);
   const verdict = changed === 0 ? "Example case" : flips.length === 0 ? "Robust" : "Sensitive";
   return (
-    <section data-call-text className="mt-4 rounded-2xl border border-line bg-surface p-5 sm:p-6" aria-label="How solid is this call?">
+    <section data-call-text className="mt-4 rounded-2xl border border-line bg-surface p-5 sm:p-6" aria-label="How solid is this recommendation?">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="kicker">How solid is this call?</p>
+        <p className="kicker">How solid is this recommendation?</p>
         <span className="rounded-full border border-line px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-ink">{verdict}</span>
       </div>
       <dl className="mt-3 grid gap-3 text-sm leading-6 sm:grid-cols-3">
@@ -39,7 +39,7 @@ export function HowSolid({ checks }: { checks: { label: string; holds: boolean }
           <dd className="mt-1 text-ink-2">
             {changed === 0 ? (
               <>
-                <span className="font-semibold text-ink">None yet.</span> This is the example case: change the inputs to make the call yours.
+                <span className="font-semibold text-ink">None yet.</span> This is the example case: change the inputs to make it yours.
               </>
             ) : (
               <>
@@ -70,7 +70,7 @@ const ASK =
 function callText(root: HTMLElement | null) {
   const app = document.title.split("·")[0].trim();
   const parts = root ? [...root.querySelectorAll<HTMLElement>("[data-call-text]")].map((e) => e.innerText.trim()) : [];
-  return { app, body: `${app}: the call\n${window.location.href}\n\n${parts.join("\n\n")}` };
+  return { app, body: `${app}: recommendation\n${window.location.href}\n\n${parts.join("\n\n")}` };
 }
 
 /** Copy the call as text, or hand it to an AI assistant to argue with. */
@@ -83,7 +83,7 @@ export function CallShare({ root }: { root: RefObject<HTMLElement | null> }) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      window.prompt("Copy the call:", body);
+      window.prompt("Copy the recommendation:", body);
     }
   };
   const ask = (site: string) => {
@@ -96,7 +96,7 @@ export function CallShare({ root }: { root: RefObject<HTMLElement | null> }) {
     <div className="mt-4 flex flex-wrap items-center gap-2 print:hidden">
       <button type="button" onClick={copy} className={btn}>
         {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
-        {copied ? "Copied" : "Copy the call as text"}
+        {copied ? "Copied" : "Copy as text"}
       </button>
       <span className="ml-1 text-xs text-muted">
         <Sparkles className="mr-1 inline size-3.5 align-[-2px]" aria-hidden />

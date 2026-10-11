@@ -22,10 +22,10 @@ function resolve(): View {
 
 const TITLES: Record<View, string> = {
   landing: "Breakeven · AI infrastructure cost, at your volume",
-  "worth-it": "Breakeven · 1. Is AI worth it?",
-  "run-it": "Breakeven · 2. How should we run it?",
-  "power-it": "Breakeven · 3. Can we power it?",
-  result: "Breakeven · The call",
+  "worth-it": "Breakeven · Evaluate AI ROI",
+  "run-it": "Breakeven · Compare compute costs",
+  "power-it": "Breakeven · Power planning",
+  result: "Breakeven · Recommendation",
   sources: "Breakeven · Sources",
 };
 

@@ -15,10 +15,10 @@ import { VOLUME_MAX_M, gpusNeeded, type Assumptions, type Workload } from "./tco
 export type StepRoute = "worth-it" | "run-it" | "power-it" | "result";
 
 export const STEPS: { route: StepRoute; label: string; question: string }[] = [
-  { route: "worth-it", label: "Worth it", question: "Is AI worth it for this work?" },
-  { route: "run-it", label: "Run it", question: "How should we run it?" },
-  { route: "power-it", label: "Power it", question: "Can we power it?" },
-  { route: "result", label: "The call", question: "The call: how to run it, and is it worth it?" },
+  { route: "worth-it", label: "Evaluate AI ROI", question: "Is AI worth it for this work?" },
+  { route: "run-it", label: "Compare compute costs", question: "How should we run it?" },
+  { route: "power-it", label: "Power planning", question: "Can we power it?" },
+  { route: "result", label: "Recommendation", question: "Recommendation: how to run it, and is it worth it?" },
 ];
 
 export interface Plan {

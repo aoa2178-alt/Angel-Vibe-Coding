@@ -89,7 +89,7 @@ export function Landing() {
           </div>
 
           <div className="-mt-6 sm:-mt-16">
-            <IsoCampus key={id} plans={plans} links={links} />
+            <IsoCampus key={id} campusId={id} plans={plans} links={links} />
           </div>
 
           <nav aria-label="Pages" className="relative z-10 mx-auto -mt-10 mb-8 flex w-fit max-w-[calc(100%-2rem)] flex-wrap justify-center gap-1 rounded-full border border-line bg-surface/85 p-1.5 backdrop-blur-sm sm:-mt-16">

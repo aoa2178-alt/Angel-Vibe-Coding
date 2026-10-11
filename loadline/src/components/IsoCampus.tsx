@@ -62,25 +62,10 @@ function Turbine({ x, y, delay }: { x: number; y: number; delay: number }) {
   );
 }
 
-/** A floating page label with a leader line; the whole label is a link. */
-function Label({ x, y, z, text, to }: { x: number; y: number; z: number; text: string; to: string }) {
-  const T = useContext(Theme);
-  const [sx, sy] = P(x, y, z);
-  return (
-    <a href={to} onClick={linkClick(to)} className="iso-label">
-      <line x1={sx} y1={sy} x2={sx} y2={sy - 26} stroke={C.white} strokeOpacity={0.5} />
-      <rect x={sx - text.length * 5.2 - 10} y={sy - 50} width={text.length * 10.4 + 20} height={24} rx={4} fill="#0d1418" fillOpacity={0.75} stroke={T.lit} strokeOpacity={0.8} />
-      <text x={sx} y={sy - 33} textAnchor="middle" fontSize={14} fill={C.white} className="font-display" fontWeight={700} letterSpacing="0.08em">
-        {text.toUpperCase()}
-      </text>
-    </a>
-  );
-}
-
 /**
  * The campus at night, drawn from the plan: one hall per building, lit when its phase is live and scaffolded (with a crane)
- * while it's still being built, all fed by one substation, with power flowing along the lines. The substation, the newest
- * halls, the clock tower and the office are labelled links to the four pages.
+ * while it's still being built, all fed by one substation, with power flowing along the lines. The substation, the halls,
+ * the clock tower and the office link to the four pages (no floating labels; the page nav sits below).
  */
 export function IsoCampus({ campusId, plans, links }: { campusId: string; plans: PhasePlan[]; links: { power: string; timeline: string; delays: string; brief: string } }) {
   const T = PALETTES[campusId] ?? DEFAULT;
@@ -89,7 +74,6 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
     .map((h, i) => ({ ...h, x: 1 + (i % 4) * 5.2, y: 1 + Math.floor(i / 4) * 4.4 }));
   const facility = plans.reduce((n, p) => n + p.facilityMw, 0);
   const firstBuild = halls.find((h) => !h.live);
-  const lastHall = halls[halls.length - 1]!;
   const sx = 24.5;
   const sy = -0.5;
 
@@ -101,7 +85,7 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
     const H = 1.3;
     items.push([
       h.x + h.y,
-      <g key={`hall-${i}`} className="iso-bld">
+      <a key={`hall-${i}`} href={links.timeline} onClick={linkClick(links.timeline)} className="iso-bld">
         <title>
           {h.p.phase.name}, building {h.k + 1}: {h.live ? `live since ${formatMonth(h.p.now.live)}` : `live ${formatMonth(h.p.now.live)}`}
         </title>
@@ -124,7 +108,7 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
             })}
           </>
         )}
-      </g>,
+      </a>,
     ]);
   });
   if (firstBuild) {
@@ -145,8 +129,8 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
   }
   items.push([
     sx + sy,
-    <g key="substation" className="iso-bld">
-      <title>Substation: {formatMw(facility)} of facility power</title>
+    <a key="substation" href={links.power} onClick={linkClick(links.power)} className="iso-bld">
+      <title>Power demand: {formatMw(facility)} of facility load</title>
       <Box x={sx} y={sy} w={5} d={4} h={0.12} top={T.road} />
       {[0, 1, 2].map((k) => (
         <Box key={`t${k}`} x={sx + 0.6 + k * 1.5} y={sy + 0.8} w={1} d={1.1} h={1.2} top={T.litTop} />
@@ -154,11 +138,11 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
       {[0, 1, 2].map((k) => (
         <Box key={`p${k}`} x={sx + 0.8 + k * 1.5} y={sy + 2.6} w={0.5} d={0.5} h={2.2} />
       ))}
-    </g>,
+    </a>,
   ]);
   items.push([
     15,
-    <g key="hq" className="iso-bld">
+    <a key="hq" href={links.brief} onClick={linkClick(links.brief)} className="iso-bld">
       <title>Recommendation</title>
       <Box x={0.5} y={13.5} w={3} d={3} h={4.2} />
       <Box x={0.9} y={13.9} w={2.2} d={2.2} h={4.8} top={T.litTop} />
@@ -168,17 +152,17 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
           <polygon points={pts([[3.5, 13.75, z], [3.5, 16.25, z], [3.5, 16.25, z + 0.35], [3.5, 13.75, z + 0.35]])} fill={T.lit} opacity={0.5} />
         </g>
       ))}
-    </g>,
+    </a>,
   ]);
   const [tx, ty] = P(9.4, 16.4, 5.2);
   items.push([
     25,
-    <g key="tower" className="iso-bld">
+    <a key="tower" href={links.delays} onClick={linkClick(links.delays)} className="iso-bld">
       <title>Cost of delay</title>
       <Box x={8.9} y={15.8} w={1.3} d={1.3} h={5.6} />
       <circle cx={tx} cy={ty} r={7} fill={T.top} stroke={T.lit} strokeWidth={1.6} />
       <line x1={tx} y1={ty} x2={tx} y2={ty - 5} stroke={C.white} strokeWidth={1.4} className="iso-spin" style={{ animationDuration: "6s" }} />
-    </g>,
+    </a>,
   ]);
   ([[5, 18.5], [13, 18], [14.5, 14.5], [25, 18.5], [27, 9], [29, 13], [-1, 10], [6, 13.5], [24, 14]] as const).forEach(([x, y]) => items.push([x + y, <Tree key={`tree-${x}-${y}`} x={x} y={y} />]));
   ([[30.5, -1], [30.5, 4], [30.5, 9]] as const).forEach(([x, y], i) => items.push([x + y + 1, <Turbine key={`wt-${i}`} x={x} y={y} delay={i} />]));
@@ -236,7 +220,6 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
   const [maxX] = P(31, -4);
   const [, minY] = P(-4, -4, 8);
   const [, maxY] = P(31, 23);
-  const build = firstBuild ?? lastHall;
   const live = halls.filter((h) => h.live).length;
 
   return (
@@ -257,10 +240,6 @@ export function IsoCampus({ campusId, plans, links }: { campusId: string; plans:
           <rect x={7} y={-4} width={6} height={7} rx={1} fill={C.build} />
         </g>
       </g>
-      <Label x={sx + 2.5} y={sy + 2} z={2.6} text="Power demand" to={links.power} />
-      <Label x={build.x + 2} y={build.y + 1.5} z={firstBuild ? 4.6 : 1.9} text="Delivery schedule" to={links.timeline} />
-      <Label x={9.5} y={16.4} z={6.6} text="Cost of delay" to={links.delays} />
-      <Label x={2} y={15} z={5.4} text="Recommendation" to={links.brief} />
       </Theme.Provider>
     </svg>
   );

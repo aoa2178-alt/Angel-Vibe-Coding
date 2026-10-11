@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
-import { CalcPod, CostPod, PAGES } from "@/components/Handheld";
+import { CostPod, PAGES } from "@/components/Handheld";
 import { PillBar, SiteFooter } from "@/components/Site";
 
 const NAV = [
@@ -66,24 +66,21 @@ export function Landing() {
           <CostPod />
         </section>
 
-        {/* Approach: the four pages, with the pocket calculator. */}
+        {/* Approach: three analyses and the recommendation. */}
         <section id="how" className="dark-scope scroll-mt-20">
-          <div className="mx-auto grid max-w-[1320px] items-center gap-12 px-4 py-20 sm:px-8 sm:py-24 lg:grid-cols-[1.1fr_1fr]">
-            <div>
-              <p className="kicker">Approach</p>
-              <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Three analyses and a recommendation.</h2>
-              <ol className="mt-8 grid gap-5">
-                {PAGES.map((p) => (
-                  <li key={p.href} className="border-t border-white/20 pt-4">
-                    <a href={p.href} onClick={linkClick(p.href)} className="font-semibold text-white hover:underline">
-                      {p.label}
-                    </a>
-                    <p className="mt-1 text-[15px] leading-6 text-white/75">{p.body}</p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-            <CalcPod />
+          <div className="mx-auto max-w-[1320px] px-4 py-20 sm:px-8 sm:py-24">
+            <p className="kicker">Approach</p>
+            <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Three analyses and a recommendation.</h2>
+            <ol className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+              {PAGES.map((p) => (
+                <li key={p.href} className="border-t border-white/20 pt-5">
+                  <a href={p.href} onClick={linkClick(p.href)} className="font-semibold text-white hover:underline">
+                    {p.label}
+                  </a>
+                  <p className="mt-1.5 text-[15px] leading-6 text-white/75">{p.body}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 

@@ -4,6 +4,7 @@ import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
 import { Fold } from "@/components/Fold";
+import { CalcPad } from "@/components/Handheld";
 import { Odometer } from "@/components/Odometer";
 import { RunningItWell } from "@/components/Operate";
 import { OPTIONS } from "@/components/options";
@@ -32,15 +33,6 @@ import {
   type Assumptions,
   type Workload,
 } from "@/lib/tco";
-
-// The volume slider is logarithmic: 0–1000 maps to 10M–100B tokens a month.
-const SLIDER_STEPS = 1000;
-const toSlider = (m: number) => Math.round((Math.log10(m / VOLUME_MIN_M) / Math.log10(VOLUME_MAX_M / VOLUME_MIN_M)) * SLIDER_STEPS);
-const fromSlider = (s: number) => {
-  const m = VOLUME_MIN_M * Math.pow(VOLUME_MAX_M / VOLUME_MIN_M, s / SLIDER_STEPS);
-  const p = Math.pow(10, Math.floor(Math.log10(m)) - 1); // keep two significant figures
-  return Math.round(m / p) * p;
-};
 
 const ASSUMPTION_FIELDS: { key: keyof Assumptions; label: string; unit: string; step: number }[] = [
   { key: "apiInputPerM", label: "API price, input", unit: "$ / M tokens", step: 0.1 },
@@ -112,61 +104,28 @@ export function RunIt() {
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
             <p className="kicker">01 · Workload</p>
 
-            <div className="mt-4 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
-              {PRESETS.map((p) => {
-                const active = workload.tokensM === p.tokensM;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setW({ tokensM: p.tokensM })}
-                    className={`rounded-xl border px-3 py-2.5 text-left transition ${
-                      active ? "border-brand bg-brand text-white" : "border-line bg-bg hover:border-brand"
-                    }`}
-                  >
-                    <span className="block text-sm font-semibold leading-tight">{p.label}</span>
-                    <span className={`mt-0.5 block font-mono text-xs ${active ? "text-white/80" : "text-muted"}`}>{formatTokensM(p.tokensM)}/mo</span>
-                  </button>
-                );
-              })}
+            <div className="mt-4">
+              <CalcPad tokensM={workload.tokensM} onChange={(m) => setW({ tokensM: m })} costs={costs} presets={PRESETS} />
             </div>
 
-            <div className="mt-6">
-              <div className="flex items-end justify-between gap-3">
-                <label htmlFor="volume" className="text-sm font-medium">
-                  Tokens per month <span className="font-mono text-brand-ink">= {formatTokensM(workload.tokensM)}</span>
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    aria-label="Tokens per month, in millions"
-                    type="number"
-                    min={VOLUME_MIN_M}
-                    max={VOLUME_MAX_M}
-                    value={workload.tokensM}
-                    onChange={(e) => {
-                      const v = Number(e.target.value);
-                      if (Number.isFinite(v) && v > 0) setW({ tokensM: Math.min(VOLUME_MAX_M * 10, v) });
-                    }}
-                    className="w-28 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
-                  />
-                  <span className="font-mono text-sm text-muted">M</span>
-                </div>
-              </div>
-              <input
-                id="volume"
-                type="range"
-                min={0}
-                max={SLIDER_STEPS}
-                value={toSlider(Math.min(Math.max(workload.tokensM, VOLUME_MIN_M), VOLUME_MAX_M))}
-                onChange={(e) => setW({ tokensM: fromSlider(Number(e.target.value)) })}
-                aria-valuetext={`${formatTokensM(workload.tokensM)} tokens per month`}
-                className="mt-3 w-full"
-              />
-              <div className="mt-1 flex justify-between font-mono text-[11px] text-muted">
-                <span>10M</span>
-                <span>1B</span>
-                <span>100B</span>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <label htmlFor="volume-exact" className="text-sm font-medium">
+                Exact tokens per month
+              </label>
+              <div className="flex items-center gap-1.5">
+                <input
+                  id="volume-exact"
+                  type="number"
+                  min={VOLUME_MIN_M}
+                  max={VOLUME_MAX_M}
+                  value={workload.tokensM}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v) && v > 0) setW({ tokensM: Math.min(VOLUME_MAX_M * 10, v) });
+                  }}
+                  className="w-28 rounded-lg border border-line bg-bg px-2 py-1 text-right font-mono text-sm"
+                />
+                <span className="font-mono text-sm text-muted">M</span>
               </div>
             </div>
 

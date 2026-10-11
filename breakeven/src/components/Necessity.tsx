@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { linkClick } from "./Brand";
+import { DecisionMap } from "./DecisionMap";
 import { Fold } from "./Fold";
 import { NumberField, months } from "./ui";
 import { CASES, HORIZON_MONTHS, VERDICT_LABELS, type Alternatives, type NecessityResult } from "@/lib/necessity";
@@ -84,6 +85,8 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
             </tbody>
           </table>
         </div>
+
+        <DecisionMap plan={plan} />
 
         <p className="mt-4 text-sm text-muted">
           Cash counts {Math.round(plan.alt.cashShare * 100)}% of freed hours

@@ -238,8 +238,14 @@ function SignalProject() {
   );
 }
 
+// The intro splash plays once per visit, not every time someone comes back to the home page.
+let introShown = false;
+
 function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: string }) {
-  const [introVisible, setIntroVisible] = useState(view === "home");
+  const [introVisible, setIntroVisible] = useState(view === "home" && !introShown);
+  useEffect(() => {
+    introShown = true;
+  }, []);
   const [introLeaving, setIntroLeaving] = useState(false);
 
   const enterSite = () => {
@@ -307,7 +313,12 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
       )}
 
       <header className="topbar">
-        <Link className="brand" to="/" aria-label="Portfolio home">
+        <Link
+          className="brand"
+          to="/"
+          aria-label="Portfolio home"
+          onClick={() => view === "home" && window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
           {view === "home" ? "Toki's Portfolio" : "Toki's Blog"}
         </Link>
         <p className="role">Angel Toki Ade-Oduntan</p>

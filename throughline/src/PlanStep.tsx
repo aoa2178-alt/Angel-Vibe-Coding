@@ -1,3 +1,4 @@
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { LineChart } from "@/components/LineChart";
 import { Card, Kicker, NumberField, Slider, Stat } from "@/components/ui";
@@ -19,7 +20,7 @@ export function PlanStep() {
   return (
     <Frame route="plan" s={s} setS={setS}>
       <StepHeading route="plan" product={product}>
-        A monthly plan that keeps enough stock to hit the service level without tying up more cash than it needs to.
+        Inventory to meet the service level at the lowest total cost.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
@@ -58,8 +59,7 @@ export function PlanStep() {
             </p>
           </Card>
 
-          <Card>
-            <Kicker method="Cost vs service">The price of the last few points</Kicker>
+          <Fold id="cost-vs-service" title="Cost of service level" sub="Annual holding, ordering and shortage cost at each service level">
             <ul className="mt-3 grid gap-2">
               {curve.map((c) => {
                 const max = Math.max(...curve.map((x) => x.total));
@@ -81,7 +81,7 @@ export function PlanStep() {
               Total cost a year is lowest at about {pct(cheapest.serviceLevel, 1)} service. Going from 95% to 99% adds {formatUnits(at99.safetyStock - at95.safetyStock)} units of
               safety stock and {formatMoney(at99.holding - at95.holding)} a year in holding cost. Click a level to plan at it.
             </p>
-          </Card>
+          </Fold>
         </div>
 
         <div className="grid gap-4">

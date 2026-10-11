@@ -1,3 +1,4 @@
+import { Fold } from "@/components/Fold";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Card, Kicker, Pills, SourceLink, Stat } from "@/components/ui";
 import { DELIVERY, MARKETS, MARKET_LABEL, MODES, REGION_MARKETS, byMode, cell, onTime, spread, topLateLanes, worstCategories, type Mode } from "@/lib/delivery";
@@ -27,8 +28,7 @@ export function DeliverStep() {
   return (
     <Frame route="deliver" s={s} setS={setS}>
       <StepHeading route="deliver" product={product}>
-        {formatUnits(DELIVERY.totalOrders)} real orders from a public supply chain dataset show what makes deliveries late, and what doesn't. Use them as the benchmark for{" "}
-        {product.name}'s distribution.
+        On-time performance from {formatUnits(DELIVERY.totalOrders)} real orders, as a benchmark for {product.name}'s distribution.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -117,7 +117,9 @@ export function DeliverStep() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="mt-6">
+      <Fold id="late-detail" title="Late orders by lane and category" sub="Where late orders concentrate, and why the product mix doesn't explain it">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
         <Card>
           <Kicker>Where late orders pile up</Kicker>
           <ul className="mt-3 grid gap-2 text-sm">
@@ -152,6 +154,8 @@ export function DeliverStep() {
             (or the carrier) will.
           </p>
         </Card>
+      </div>
+      </Fold>
       </div>
 
       <p className="mt-6 text-xs leading-5 text-muted">

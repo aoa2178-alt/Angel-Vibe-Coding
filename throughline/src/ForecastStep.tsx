@@ -30,8 +30,7 @@ export function ForecastStep() {
   return (
     <Frame route="forecast" s={s} setS={setS}>
       <StepHeading route="forecast" product={product}>
-        Three standard methods, each tested on the last 12 months it didn't see. The most accurate one sets the plan, and its error sets the
-        safety stock in step 2.
+        Three methods, each tested on the 12 months it didn't see. The most accurate sets the plan.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
@@ -94,9 +93,7 @@ export function ForecastStep() {
                 );
               })}
             </ul>
-            <p className="mt-3 text-xs leading-5 text-muted">
-              WAPE = total size of the misses ÷ total demand, over the 12 held-out months. Lower is better.
-            </p>
+            <p className="mt-3 text-xs leading-5 text-muted">WAPE: share of demand missed over the 12 held-out months. Lower is better.</p>
           </Card>
         </div>
       </div>

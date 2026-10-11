@@ -5,11 +5,12 @@ import { ForecastStep } from "./ForecastStep";
 import { Landing } from "./Landing";
 import { PlanStep } from "./PlanStep";
 import { DeliverStep } from "./DeliverStep";
+import { Faq } from "./Faq";
 import { RippleStep } from "./RippleStep";
 import { Sources } from "./Sources";
 
-type View = "landing" | "forecast" | "plan" | "allocate" | "ripple" | "deliver" | "brief" | "sources";
-const VIEWS: View[] = ["forecast", "plan", "allocate", "ripple", "deliver", "brief", "sources"];
+type View = "landing" | "forecast" | "plan" | "allocate" | "ripple" | "deliver" | "brief" | "sources" | "faq";
+const VIEWS: View[] = ["forecast", "plan", "allocate", "ripple", "deliver", "brief", "sources", "faq"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -18,13 +19,14 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Throughline · How much should we build?",
-  forecast: "Throughline · 1. Forecast",
-  plan: "Throughline · 2. Plan",
-  allocate: "Throughline · 3. Allocate",
-  ripple: "Throughline · 4. Ripple",
-  deliver: "Throughline · 5. Deliver",
-  brief: "Throughline · The call",
+  forecast: "Throughline · Forecast",
+  plan: "Throughline · Supply plan",
+  allocate: "Throughline · Allocation",
+  ripple: "Throughline · Bullwhip",
+  deliver: "Throughline · Delivery",
+  brief: "Throughline · Recommendation",
   sources: "Throughline · Sources",
+  faq: "Throughline · FAQ",
 };
 
 export default function App() {
@@ -56,6 +58,8 @@ export default function App() {
       return <Brief key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

@@ -23,7 +23,7 @@ export function Sources() {
     <Frame route="sources" s={s} setS={setS}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">Real demand, fictional products</h1>
+        <h1 className="mt-2 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl">Real demand, fictional products</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           The demand history is real public US data, downloaded {DATA.retrieved}. The products, the company and their prices are made up, so nothing here is
           any company's confidential data. Every assumption is editable in the app.
@@ -63,7 +63,7 @@ export function Sources() {
         ))}
 
         <Card>
-          <p className="kicker">Delivery benchmark (step 5)</p>
+          <p className="kicker">Delivery benchmark</p>
           <p className="mt-2 text-[15px] leading-7 text-ink-2">
             {DELIVERY.source.authors} ({DELIVERY.source.year}). <span className="italic">{DELIVERY.source.title}</span>, version {DELIVERY.source.version}. Mendeley Data.{" "}
             <SourceLink href={DELIVERY.source.doi}>{DELIVERY.source.doi.replace("https://", "")}</SourceLink>. Licensed {DELIVERY.source.license}.

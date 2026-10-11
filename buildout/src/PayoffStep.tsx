@@ -26,10 +26,10 @@ export function PayoffStep() {
       <div className="mt-4 rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">{c.short}, last 12 months to {formatQuarter(h.quarter)}</p>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Capex intensity" value={p.intensity === null ? "–" : pct(p.intensity, 1)} sub="capex ÷ revenue" />
-          <Stat dark label="Free cash flow" value={p.fcf === null ? "–" : formatMillions(p.fcf)} sub="operating cash − capex" />
-          <Stat dark label="Depreciation" value={p.da === null ? "not reported" : formatMillions(p.da)} sub={p.daGrowth === null ? "" : `${signedPct(p.daGrowth)} on a year ago`} />
-          <Stat dark label="Capex ÷ depreciation" value={p.capexToDa === null ? "–" : `${p.capexToDa.toFixed(1)}×`} sub="above 1×, future depreciation keeps rising" />
+          <Stat trust="data" dark label="Capex intensity" value={p.intensity === null ? "–" : pct(p.intensity, 1)} sub="capex ÷ revenue" />
+          <Stat trust="data" dark label="Free cash flow" value={p.fcf === null ? "–" : formatMillions(p.fcf)} sub="operating cash − capex" />
+          <Stat trust="data" dark label="Depreciation" value={p.da === null ? "not reported" : formatMillions(p.da)} sub={p.daGrowth === null ? "" : `${signedPct(p.daGrowth)} on a year ago`} />
+          <Stat trust="data" dark label="Capex ÷ depreciation" value={p.capexToDa === null ? "–" : `${p.capexToDa.toFixed(1)}×`} sub="above 1×, future depreciation keeps rising" />
         </div>
       </div>
 

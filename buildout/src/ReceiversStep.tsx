@@ -26,10 +26,10 @@ export function ReceiversStep() {
           Last 12 months to {formatQuarter(r.quarter)} vs to {formatQuarter(r.base)}
         </p>
         <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Spenders' capex" value={signedPct(r.capexGrowth)} sub={`+${formatMillions(r.addedCapex)} a year`} />
-          <Stat dark label="Receivers' revenue" value={signedPct(r.revenueGrowth)} sub={`+${formatMillions(r.addedRevenue)} a year`} />
-          <Stat dark label="Read-through" value={r.perDollar === null ? "–" : `$${r.perDollar.toFixed(2)}`} sub="extra supplier revenue per extra $1 of capex" />
-          <Stat dark label="Biggest winner" value={[...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.c.short} sub={signedPct([...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.growth ?? 0)} />
+          <Stat trust="data" dark label="Spenders' capex" value={signedPct(r.capexGrowth)} sub={`+${formatMillions(r.addedCapex)} a year`} />
+          <Stat trust="data" dark label="Receivers' revenue" value={signedPct(r.revenueGrowth)} sub={`+${formatMillions(r.addedRevenue)} a year`} />
+          <Stat trust="modeled" dark label="Read-through" value={r.perDollar === null ? "–" : `$${r.perDollar.toFixed(2)}`} sub="extra supplier revenue per extra $1 of capex" />
+          <Stat trust="data" dark label="Biggest winner" value={[...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.c.short} sub={signedPct([...r.byReceiver].sort((a, b) => (b.growth ?? 0) - (a.growth ?? 0))[0]!.growth ?? 0)} />
         </div>
       </div>
 

@@ -38,6 +38,7 @@ export function Landing() {
               See the spend <ArrowRight className="size-4" aria-hidden />
             </a>
           </div>
+          <p className="mt-3 text-sm text-muted">Opens on a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
           <dl className="mt-10 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
             {[
               [`Capex, ${formatQuarter(h.quarter)}`, formatMillions(h.capex)],

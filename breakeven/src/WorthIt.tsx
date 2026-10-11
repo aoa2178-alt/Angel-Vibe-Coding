@@ -1,5 +1,6 @@
 import { TriangleAlert } from "lucide-react";
 import { linkClick } from "@/components/Brand";
+import { Fold } from "@/components/Fold";
 import { Odometer } from "@/components/Odometer";
 import { OPTIONS } from "@/components/options";
 import { PlanFrame, StepHeading, usePlan } from "@/components/PlanFrame";
@@ -157,7 +158,9 @@ function RoiStep({
           </div>
 
           <CostCompare r={r} />
-          <OperatingModel inputs={inputs} r={r} />
+          <Fold id="operating-model" title="Operating model" sub="People and token capital: hours freed, full-time equivalents, and spend on tokens vs people">
+            <OperatingModel inputs={inputs} r={r} />
+          </Fold>
         </section>
       </div>
     </div>

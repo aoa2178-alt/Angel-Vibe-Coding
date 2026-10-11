@@ -11,11 +11,11 @@ const seconds = (s: number) => (!Number.isFinite(s) ? "forever" : s < 10 ? `${s.
 const gpuCount = (n: number) => `${n.toLocaleString("en-US")} GPU${n === 1 ? "" : "s"}`;
 
 /** Step 2's "Running it well": how hot to run the fleet, how much of it to own, and when to retire it. */
-export function RunningItWell({ plan, setPlan }: { plan: Plan; setPlan: SetPlan }) {
+export function RunningItWell({ plan, setPlan, bare = false }: { plan: Plan; setPlan: SetPlan; bare?: boolean }) {
   const setOps = (patch: Partial<OpsSettings>) => setPlan((p) => ({ ...p, ops: { ...p.ops, ...patch } }));
   return (
-    <section id="running" className="mt-14 scroll-mt-24" aria-label="Running it well">
-      <div className="mb-6 max-w-2xl">
+    <section id="running" className={`${bare ? "" : "mt-14 "}scroll-mt-24`} aria-label="Running it well">
+      <div className={bare ? "sr-only" : "mb-6 max-w-2xl"}>
         <p className="kicker">Running it well</p>
         <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">How hot to run it, how much to own, when to retire it</h2>
         <p className="mt-2 text-ink-2">

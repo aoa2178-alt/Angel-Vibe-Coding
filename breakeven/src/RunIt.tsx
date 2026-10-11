@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
+import { Fold } from "@/components/Fold";
 import { Odometer } from "@/components/Odometer";
 import { RunningItWell } from "@/components/Operate";
 import { OPTIONS } from "@/components/options";
@@ -181,7 +182,7 @@ export function RunIt() {
             <PercentSlider
               id="utilization"
               label="GPU utilization you can sustain"
-              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs; higher means slower answers (see Running it well)."
+              hint="Traffic peaks leave GPUs partly idle. Lower means more GPUs; higher means slower answers (see Operating strategies)."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -286,29 +287,48 @@ export function RunIt() {
 
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
-            <div id="projection" className="min-w-0 scroll-mt-24">
-              <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
-            </div>
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
-              <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
-            </div>
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
-                <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
-                  <Sparkles className="size-4" />
-                </span>
-                <div>
-                  <p className="kicker">Where the answer flips</p>
-                  <p className="mt-1 text-sm leading-6 text-ink">
-                    {describeCrossovers(cross)} {describePower(workload, assumptions)}
-                  </p>
-                </div>
+            <div className="flex gap-3 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
+                <Sparkles className="size-4" />
+              </span>
+              <div>
+                <p className="kicker">Where the answer flips</p>
+                <p className="mt-1 text-sm leading-6 text-ink">
+                  {describeCrossovers(cross)} {describePower(workload, assumptions)}
+                </p>
               </div>
-              <Calculations workload={workload} assumptions={assumptions} costs={costs} />
             </div>
+
+            <Fold id="projection" title="See detailed cost curves" sub="Each option's monthly cost as volume grows, with the flip points">
+              <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
+            </Fold>
+            <Fold id="sensitivity" title="Sensitivity analysis" sub="Each assumption 25% lower and higher: which ones change the answer">
+              <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
+            </Fold>
+            <Fold id="beyond-cost" title="Beyond cost" sub="Weight cost, data control, launch, quality, ease and flexibility">
+              <p className="mb-4 max-w-2xl text-sm leading-6 text-ink-2">
+                The cheapest option isn't always the right one. Weight what matters to you and see which way to run AI scores best.
+              </p>
+              <Scorecard
+                costs={costs}
+                cheapestId={winner}
+                card={card}
+                weights={plan.weights}
+                scores={plan.scores}
+                onWeights={(w) => setPlan((p) => ({ ...p, weights: w }))}
+                onScore={(c, o, v) => setPlan((p) => ({ ...p, scores: { ...p.scores, [c]: { ...p.scores[c], [o]: v } } }))}
+                onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
+              />
+            </Fold>
+            <Fold id="operating" title="Operating strategies" sub="How hot to run GPUs, owning the base and renting the peaks, and when to retire them">
+              <RunningItWell plan={plan} setPlan={setPlan} bare />
+            </Fold>
+            <Fold id="behind" title="Behind the numbers" sub="The math with your numbers, and the cash view over the ownership period">
+              <div className="grid gap-4">
+                <Calculations workload={workload} assumptions={assumptions} costs={costs} />
+                <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
+              </div>
+            </Fold>
 
             <p className="text-xs leading-5 text-muted">
               “Rent” and “Own” mean running an open-weight model of similar size yourself. Frontier models like Claude and
@@ -317,29 +337,6 @@ export function RunIt() {
             </p>
           </section>
         </div>
-
-        <RunningItWell plan={plan} setPlan={setPlan} />
-
-        <section id="beyond-cost" className="mt-14 scroll-mt-24">
-          <div className="mb-6 max-w-2xl">
-            <p className="kicker">Beyond cost</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em]">Which option fits your priorities?</h2>
-            <p className="mt-2 text-ink-2">
-              The cheapest option isn't always the right one. Weight what matters to you, such as data control or time to launch, and see
-              which way to run AI scores best.
-            </p>
-          </div>
-          <Scorecard
-            costs={costs}
-            cheapestId={winner}
-            card={card}
-            weights={plan.weights}
-            scores={plan.scores}
-            onWeights={(w) => setPlan((p) => ({ ...p, weights: w }))}
-            onScore={(c, o, v) => setPlan((p) => ({ ...p, scores: { ...p.scores, [c]: { ...p.scores[c], [o]: v } } }))}
-            onResetScores={() => setPlan((p) => ({ ...p, scores: structuredClone(DEFAULT_SCORES) }))}
-          />
-        </section>
     </PlanFrame>
 
   );
@@ -385,13 +382,9 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
     { label: "Per M tokens", text: "monthly cost ÷ monthly volume in millions of tokens" },
   ];
   return (
-    <details className="group rounded-2xl border border-line bg-surface">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
-        <span className="kicker">Show calculations</span>
-        <span className="text-xs text-muted group-open:hidden">See the math with your numbers ▾</span>
-        <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
-      </summary>
-      <dl className="grid gap-2.5 border-t border-line px-5 py-4 text-sm">
+    <div className="rounded-[7px] border border-line bg-surface">
+      <p className="kicker px-5 pt-4">The math with your numbers</p>
+      <dl className="grid gap-2.5 px-5 py-4 text-sm">
         {lines.map((l) => (
           <div key={l.label} className="grid gap-0.5 sm:grid-cols-[9rem_1fr] sm:gap-4">
             <dt className="font-semibold text-ink">{l.label}</dt>
@@ -399,7 +392,7 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
           </div>
         ))}
       </dl>
-    </details>
+    </div>
   );
 }
 

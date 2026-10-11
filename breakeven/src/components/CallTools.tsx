@@ -69,7 +69,11 @@ const ASK =
 /** The call as plain text: every part of the page marked data-call-text, plus the link to this exact scenario. */
 function callText(root: HTMLElement | null) {
   const app = document.title.split("·")[0].trim();
+  // Folded sections are opened just long enough to read their text, then put back.
+  const closed = root ? [...root.querySelectorAll("details:not([open])")] : [];
+  closed.forEach((d) => d.setAttribute("open", ""));
   const parts = root ? [...root.querySelectorAll<HTMLElement>("[data-call-text]")].map((e) => e.innerText.trim()) : [];
+  closed.forEach((d) => d.removeAttribute("open"));
   return { app, body: `${app}: recommendation\n${window.location.href}\n\n${parts.join("\n\n")}` };
 }
 

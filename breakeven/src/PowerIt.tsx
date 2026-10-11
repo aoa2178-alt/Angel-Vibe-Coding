@@ -1,6 +1,7 @@
 import { Zap } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
+import { Fold } from "@/components/Fold";
 import { BridgeChart, type StrategyMeta } from "@/components/BridgeChart";
 import { Odometer } from "@/components/Odometer";
 import { PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
@@ -283,10 +284,8 @@ export function PowerIt() {
 
             <StrategyBars all={all} delay={delay} winner={winner} />
 
-            <BridgeChart all={all} delay={delay} stretches={stretches} meta={STRATEGY_META} />
-
-            <div className="grid items-start gap-4 xl:grid-cols-2">
-              <div className="flex gap-3 rounded-2xl border border-line bg-surface p-4 sm:p-5">
+            <div className="grid items-start gap-4">
+              <div className="flex gap-3 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
                 <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
                   <Zap className="size-4" />
                 </span>
@@ -298,8 +297,14 @@ export function PowerIt() {
                   </p>
                 </div>
               </div>
-              <StrategyTable all={all} delay={delay} />
             </div>
+
+            <Fold id="wait-chart" title="See the cost of the wait" sub="Each option's extra cost as the grid delay grows, with the switch points">
+              <BridgeChart all={all} delay={delay} stretches={stretches} meta={STRATEGY_META} />
+            </Fold>
+            <Fold id="bridge-numbers" title="Behind the numbers" sub="Lead times, one-time costs and monthly costs for each option">
+              <StrategyTable all={all} delay={delay} />
+            </Fold>
 
             <p className="text-xs leading-5 text-muted">
               Batteries alone can't power a site with no grid connection: they only carry a partial, curtailable connection through cutbacks.
@@ -365,13 +370,8 @@ function StrategyBars({ all, delay, winner }: { all: ReturnType<typeof strategie
 
 function StrategyTable({ all, delay }: { all: ReturnType<typeof strategies>; delay: number }) {
   return (
-    <details className="group rounded-2xl border border-line bg-surface">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4">
-        <span className="kicker">Show the numbers</span>
-        <span className="text-xs text-muted group-open:hidden">Lead times and costs ▾</span>
-        <span className="hidden text-xs text-muted group-open:inline">Hide ▴</span>
-      </summary>
-      <div className="overflow-x-auto border-t border-line px-5 py-4">
+    <div>
+      <div className="overflow-x-auto">
         <table className="w-full min-w-[460px] text-left text-sm">
           <thead>
             <tr className="border-b border-line font-mono text-[11px] uppercase tracking-wider text-muted">
@@ -401,7 +401,7 @@ function StrategyTable({ all, delay }: { all: ReturnType<typeof strategies>; del
           Until an option is ready, you rent ({formatMoney(all.wait.monthlyRunning)} a month extra). Negative means cheaper than grid power.
         </p>
       </div>
-    </details>
+    </div>
   );
 }
 

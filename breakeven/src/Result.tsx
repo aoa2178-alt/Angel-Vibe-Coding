@@ -4,6 +4,7 @@ import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
 import { DecisionReport } from "@/components/DecisionReport";
 import { CallShare, HowSolid } from "@/components/CallTools";
+import { Fold } from "@/components/Fold";
 import { CallChecks, CallJudgment, CallLanding, CallMeasures, CallRecommendation } from "@/components/TheCall";
 import { callOf } from "@/lib/call";
 import { OPTIONS } from "@/components/options";
@@ -88,7 +89,8 @@ export function Result() {
         <HowSolid checks={call.checks} />
         <CallShare root={root} />
 
-        <p className="kicker mt-10">2 · Why: the evidence</p>
+        <div className="mt-8">
+          <Fold id="evidence" title="2 · Why: the evidence" sub="Is it worth it, how to run it (make or buy), and can we power it">
 
         <Section n="a" title="Is it worth it?">
           {product ? (
@@ -184,11 +186,17 @@ export function Result() {
             </p>
           )}
         </Section>
+          </Fold>
+        </div>
 
         <CallChecks call={call} extra={r ? [...roiRisks(inputs, r), "Template figures are illustrative. Replace them with your own volumes, handling times and pay rates."] : []} />
         <CallLanding call={call} />
-        <CallMeasures call={call} plan={plan} />
-        <CallJudgment />
+        <div className="mt-8">
+          <Fold id="measures" title="How we'd know it worked, and my judgment calls" sub="The measures to track, today vs aim, and the calls behind the recommendation">
+            <CallMeasures call={call} plan={plan} />
+            <CallJudgment />
+          </Fold>
+        </div>
 
         <DecisionReport plan={plan} />
 

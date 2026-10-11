@@ -28,10 +28,10 @@ export function PlanStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">The plan for the year</p>
             <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Stat dark label="Revenue" value={formatMoney(total(p, "revenue"))} sub={`API ${formatMoney(total(p, "apiRevenue"))} · Enterprise ${formatMoney(total(p, "enterpriseRevenue"))}`} />
-              <Stat dark label="Enterprise ARR, Dec" value={formatMoney(last.arr)} sub={`from ${formatMoney(st.startingArr)}`} />
-              <Stat dark label="Commercial opex" value={formatMoney(total(p, "opex"))} sub={`${Math.round(last.headcount)} people by December`} />
-              <Stat dark label="Contribution" value={formatMoney(total(p, "contribution"))} sub="gross profit − commercial opex" />
+              <Stat trust="modeled" dark label="Revenue" value={formatMoney(total(p, "revenue"))} sub={`API ${formatMoney(total(p, "apiRevenue"))} · Enterprise ${formatMoney(total(p, "enterpriseRevenue"))}`} />
+              <Stat trust="modeled" dark label="Enterprise ARR, Dec" value={formatMoney(last.arr)} sub={`from ${formatMoney(st.startingArr)}`} />
+              <Stat trust="modeled" dark label="Commercial opex" value={formatMoney(total(p, "opex"))} sub={`${Math.round(last.headcount)} people by December`} />
+              <Stat trust="modeled" dark label="Contribution" value={formatMoney(total(p, "contribution"))} sub="gross profit − commercial opex" />
             </div>
           </div>
 

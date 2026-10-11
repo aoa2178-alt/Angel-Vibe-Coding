@@ -29,17 +29,17 @@ export function ReviewStep() {
         <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Year to date, through {r.monthName}</p>
           <div className="mt-3 grid grid-cols-3 gap-4">
-            <Stat dark label="Plan" value={formatMoney(r.ytd.plan)} />
-            <Stat dark label="Actual" value={formatMoney(r.ytd.actual)} />
-            <Stat dark label="Gap" value={signed(ytdGap, formatMoney)} sub={signed(ytdGap / r.ytd.plan, (v) => pct(v, 1))} />
+            <Stat trust="modeled" dark label="Plan" value={formatMoney(r.ytd.plan)} />
+            <Stat trust="assumption" dark label="Actual" value={formatMoney(r.ytd.actual)} />
+            <Stat trust="modeled" dark label="Gap" value={signed(ytdGap, formatMoney)} sub={signed(ytdGap / r.ytd.plan, (v) => pct(v, 1))} />
           </div>
         </div>
         <div className="rounded-2xl border border-line bg-surface p-5 sm:p-7">
           <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-muted">Full year</p>
           <div className="mt-3 grid grid-cols-3 gap-4">
-            <Stat label="Plan" value={formatMoney(r.fy.plan)} />
-            <Stat label="Re-forecast" value={formatMoney(r.fy.forecast)} sub="actuals + today's run-rate" />
-            <Stat label="Gap to close" value={formatMoney(Math.max(0, r.fy.gap))} sub={r.fy.gap > 0 ? "see step 3" : "ahead of plan"} />
+            <Stat trust="modeled" label="Plan" value={formatMoney(r.fy.plan)} />
+            <Stat trust="modeled" label="Re-forecast" value={formatMoney(r.fy.forecast)} sub="actuals + today's run-rate" />
+            <Stat trust="modeled" label="Gap to close" value={formatMoney(Math.max(0, r.fy.gap))} sub={r.fy.gap > 0 ? "see step 3" : "ahead of plan"} />
           </div>
         </div>
       </div>

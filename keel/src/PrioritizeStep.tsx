@@ -31,10 +31,10 @@ export function PrioritizeStep() {
           <div className="rounded-2xl bg-panel p-5 text-panel-ink">
             <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">Funded portfolio</p>
             <div className="mt-3 grid grid-cols-2 gap-4">
-              <Stat dark label="Expected revenue" value={formatMoney(p.expected)} sub="this year, risk-weighted" />
-              <Stat dark label="Of the gap" value={gap > 0 ? pct(closed) : "n/a"} sub={gap > 0 ? `of ${formatMoney(gap)}` : "already ahead of plan"} />
-              <Stat dark label="Spend" value={formatMoney(p.cost)} sub={`of ${formatMoney(s.budget)}`} />
-              <Stat dark label="People" value={`${p.headcount}`} sub={`of ${s.people}`} />
+              <Stat trust="modeled" dark label="Expected revenue" value={formatMoney(p.expected)} sub="this year, risk-weighted" />
+              <Stat trust="modeled" dark label="Of the gap" value={gap > 0 ? pct(closed) : "n/a"} sub={gap > 0 ? `of ${formatMoney(gap)}` : "already ahead of plan"} />
+              <Stat trust="modeled" dark label="Spend" value={formatMoney(p.cost)} sub={`of ${formatMoney(s.budget)}`} />
+              <Stat trust="modeled" dark label="People" value={`${p.headcount}`} sub={`of ${s.people}`} />
             </div>
           </div>
         </div>

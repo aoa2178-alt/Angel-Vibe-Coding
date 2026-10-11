@@ -50,6 +50,7 @@ export function Landing() {
               Jump to the {r.monthName} review
             </a>
           </div>
+          <p className="mt-3 text-sm text-muted">Opens on a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
           <dl className="mt-10 grid max-w-3xl grid-cols-3 gap-px overflow-hidden rounded-2xl border border-line bg-line">
             {[
               ["Plan for the year", formatMoney(r.fy.plan)],

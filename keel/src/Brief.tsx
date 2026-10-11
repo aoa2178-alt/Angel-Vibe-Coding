@@ -22,6 +22,12 @@ export function Brief() {
     headline: call.gap > 0
       ? `Fund ${p.funded.length} initiatives for ${formatMoney(p.cost)} and ${p.headcount} people: they should recover about ${formatMoney(p.expected)} (${pct(call.closed)} of the gap). Reset the forecast for the other ${formatMoney(call.residual)} now, not in November.`
       : `We're on plan: keep the ${formatMoney(s.budget)} in reserve and fund only what clears its cost.`,
+    numbers: [
+      { label: "Full-year gap to plan", value: formatMoney(Math.max(0, call.gap)), sub: "forecast against the annual plan", trust: "modeled" },
+      { label: "Recovered by funded work", value: formatMoney(p.expected), sub: `${pct(call.closed)} of the gap · ${p.funded.length} initiatives`, trust: "modeled" },
+      { label: "Left to reset", value: formatMoney(Math.max(0, call.residual)), sub: "the gap funding can't close", trust: "modeled" },
+    ],
+    evidenceSub: "OKR scorecard, the variance bridge and the funding portfolio",
     bullets: [
       ...(call.drag && call.drag.effect < 0 ? [{ label: "What caused it", text: `${lowerFirst(call.drag.label)}: ${signed(call.drag.effect, formatMoney)} of revenue to date, the biggest single driver.` }] : []),
       { label: "Fund", text: p.funded.length ? p.funded.map((x) => `${lowerFirst(x.initiative.name)} (${x.initiative.owner}, ${formatMoney(x.expected)} expected)`).join("; ") : "nothing: no initiative fits what's left." },
@@ -64,12 +70,6 @@ export function Brief() {
             <Printer className="size-4" aria-hidden /> Print or save PDF
           </button>
         </header>
-
-        <p className="mt-6 text-xl font-semibold leading-8 tracking-tight">
-          {r.fy.gap > 0
-            ? `We're ${formatMoney(Math.abs(r.ytd.actual - r.ytd.plan))} ${r.ytd.actual < r.ytd.plan ? "behind" : "ahead of"} plan year to date and forecast ${formatMoney(r.fy.gap)} short for the year. The funded initiatives below should recover about ${formatMoney(p.expected)} of it.`
-            : `We're ${formatMoney(Math.abs(r.ytd.actual - r.ytd.plan))} ${r.ytd.actual < r.ytd.plan ? "behind" : "ahead of"} plan year to date and forecast to finish ${formatMoney(-r.fy.gap)} ahead.`}
-        </p>
 
         <CallBlocks c={content}>
         <section className="mt-7">

@@ -3509,11 +3509,10 @@ blockquote {
   border: 1px solid var(--line);
   border-radius: 10px;
   color: var(--ink);
-  background: var(--paper);
+  background: #fff;
 }
 .project-detail::backdrop {
-  background: rgb(21 77 242 / 0.18);
-  backdrop-filter: blur(3px);
+  background: rgb(22 24 23 / 0.45);
 }
 .project-detail[open] {
   animation: project-detail-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -3537,7 +3536,7 @@ blockquote {
   gap: 1.5rem;
   padding: 1.25rem 1.5rem 1.1rem 2rem;
   border-bottom: 1px solid var(--line);
-  background: var(--soft-blue);
+  background: #fff;
 }
 .project-detail__tags {
   font-family: "DM Mono", monospace;
@@ -3560,7 +3559,7 @@ blockquote {
   padding: 0.6rem 0.9rem;
   border: 1px solid var(--ink);
   border-radius: 999px;
-  background: var(--paper);
+  background: #fff;
   font-family: "DM Mono", monospace;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
@@ -3722,7 +3721,7 @@ blockquote {
   position: relative;
   flex: 1;
   min-height: 0;
-  background: var(--soft-blue);
+  background: #fff;
 }
 .project-detail__viewport iframe {
   display: block;
@@ -3748,7 +3747,7 @@ blockquote {
   object-fit: contain;
   border: 1px solid var(--line);
   border-radius: 6px;
-  box-shadow: 0 18px 40px rgb(21 77 242 / 0.16);
+  box-shadow: 0 16px 40px rgb(22 24 23 / 0.14);
 }
 .project-detail__try {
   display: inline-flex;

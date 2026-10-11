@@ -21,6 +21,7 @@ export const transformerIsLate: Scenario = {
   ],
   estMinutes: "5–7 min",
   role: "Program Lead, Hall B",
+  clock: { label: "Until the CEO review", count: 3, unit: "days" },
   company: "Meridian Compute",
   app: { name: "Tender", href: "https://tender-six-iota.vercel.app/bids", label: "Compare the four transformer bids on total cost in Tender" },
 

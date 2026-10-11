@@ -20,6 +20,7 @@ export const juneReview: Scenario = {
   ],
   estMinutes: "5–7 min",
   role: "Head of Strategy & Operations, Commercial",
+  clock: { label: "Until the board meets", count: 3, unit: "days" },
   company: "Halcyon AI",
   app: { name: "Keel", href: "https://keel-one-rho.vercel.app/review", label: "See June's variance bridge and the funding portfolio in Keel" },
 

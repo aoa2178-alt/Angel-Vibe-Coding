@@ -7,11 +7,10 @@ export function cx(...classes: (string | false | null | undefined)[]) {
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 const buttonStyles: Record<ButtonVariant, string> = {
-  primary:
-    "bg-accent text-accent-ink hover:brightness-110 shadow-[0_0_0_1px_oklch(0.8_0.12_215/0.4),0_8px_24px_-8px_oklch(0.8_0.12_215/0.5)]",
+  primary: "bg-accent text-accent-ink hover:brightness-110 shadow-[0_6px_18px_-8px_rgb(36_83_255/0.6)]",
   secondary: "bg-panel-2 text-ink border border-line hover:border-line-strong hover:bg-line/60",
   ghost: "text-ink-2 hover:text-ink hover:bg-panel-2",
-  danger: "bg-bad text-bg hover:brightness-110",
+  danger: "bg-bad text-white hover:brightness-110",
 };
 
 export function Button({
@@ -43,6 +42,31 @@ export function Card({ className, children }: { className?: string; children: Re
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <p className={cx("font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-accent", className)}>{children}</p>
+  );
+}
+
+/** The deadline as a mission clock: "T–28:00 DAYS", with the colon blinking once a second. */
+export function Countdown({ clock, size = "lg" }: { clock: { label: string; count: number; unit: string }; size?: "sm" | "lg" }) {
+  const value = String(clock.count).padStart(2, "0");
+  if (size === "sm")
+    return (
+      <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-ink" aria-label={`${clock.label}: ${clock.count} ${clock.unit}`}>
+        T–{value}
+        <span className="blink text-accent" aria-hidden>
+          :
+        </span>
+        00 {clock.unit}
+      </span>
+    );
+  return (
+    <div aria-label={`${clock.label}: ${clock.count} ${clock.unit}`}>
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">{clock.label}</p>
+      <p className="mt-1 font-serif text-4xl font-extrabold leading-none tracking-tight text-ink sm:text-5xl" aria-hidden>
+        T–{value}
+        <span className="blink text-accent">:</span>
+        00 <span className="font-mono text-base font-semibold uppercase tracking-[0.1em] text-muted">{clock.unit}</span>
+      </p>
+    </div>
   );
 }
 

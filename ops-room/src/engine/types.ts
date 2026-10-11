@@ -105,6 +105,8 @@ export interface Scenario {
   intro: string[];
   estMinutes: string;
   role: string;
+  /** The deadline you're up against, shown as a countdown ("T–3:00 DAYS") on the case and in the brief. */
+  clock?: { label: string; count: number; unit: "days" | "hours" };
   /** The portfolio app that runs this scenario's numbers, linked from the debrief. */
   app?: { name: string; href: string; label: string };
   company: string;

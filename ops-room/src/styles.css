@@ -1,37 +1,38 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. All colors are oklch, registered as Tailwind colors in @theme
- * (e.g. --color-panel -> bg-panel, text-panel). The Ops Room uses a single dark
- * "command center" palette: slate surfaces, a cyan accent for actions, amber for alerts,
- * and green/amber/red for metric status.
+ * Design tokens, registered as Tailwind colors in @theme (e.g. --color-panel -> bg-panel, text-panel).
+ * The Ops Room: "Noir, Cobalt", picked by Angel. A light case-file look: warm white paper, black ink,
+ * a dramatic serif for headlines, one cobalt accent for actions, amber for alerts, and green/amber/red
+ * for metric status (always with a word, never color alone).
  */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
 
-  --color-bg: oklch(0.155 0.014 252);
-  --color-panel: oklch(0.195 0.017 252);
-  --color-panel-2: oklch(0.235 0.02 252);
-  --color-line: oklch(0.3 0.02 252);
-  --color-line-strong: oklch(0.4 0.025 252);
-  --color-ink: oklch(0.96 0.006 252);
-  --color-ink-2: oklch(0.8 0.015 252);
-  --color-muted: oklch(0.66 0.02 252);
+  --color-bg: #faf9f6;
+  --color-panel: #ffffff;
+  --color-panel-2: #f3f2ee;
+  --color-line: #e7e4dc;
+  --color-line-strong: #cfcbc1;
+  --color-ink: #141414;
+  --color-ink-2: #3d3b36;
+  --color-muted: #5d5a54;
 
-  --color-accent: oklch(0.8 0.12 215);
-  --color-accent-ink: oklch(0.18 0.03 230);
-  --color-alert: oklch(0.82 0.14 75);
-  --color-good: oklch(0.78 0.15 158);
-  --color-watch: oklch(0.83 0.14 85);
-  --color-bad: oklch(0.7 0.18 25);
+  --color-accent: #2453ff;
+  --color-accent-ink: #ffffff;
+  --color-alert: #b45309;
+  --color-good: #1f8a5b;
+  --color-watch: #b7791f;
+  --color-bad: #c0262d;
 
-  --color-tone-amber: oklch(0.8 0.13 70);
-  --color-tone-sky: oklch(0.78 0.11 230);
-  --color-tone-violet: oklch(0.74 0.13 295);
-  --color-tone-emerald: oklch(0.78 0.13 160);
-  --color-tone-rose: oklch(0.74 0.15 10);
-  --color-tone-slate: oklch(0.72 0.03 252);
+  --color-tone-amber: #b45309;
+  --color-tone-sky: #0369a1;
+  --color-tone-violet: #6d28d9;
+  --color-tone-emerald: #047857;
+  --color-tone-rose: #be123c;
+  --color-tone-slate: #475569;
 
   --animate-rise: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-pop: pop 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -48,16 +49,14 @@
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   background-color: var(--color-bg);
-  background-image:
-    radial-gradient(1200px 500px at 85% -10%, oklch(0.8 0.12 215 / 0.07), transparent 60%),
-    radial-gradient(900px 400px at -10% 110%, oklch(0.82 0.14 75 / 0.04), transparent 60%);
+  background-image: radial-gradient(1100px 520px at 20% -10%, rgb(36 83 255 / 0.07), transparent 60%);
   background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -66,7 +65,34 @@ body {
 }
 
 ::selection {
-  background: oklch(0.8 0.12 215 / 0.35);
+  background: rgb(36 83 255 / 0.18);
+}
+
+/* Headlines in the serif; everything else stays in Inter. */
+h1,
+.font-serif {
+  font-variant-numeric: lining-nums;
+}
+h1 {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Motion outside the theme, so it is always emitted: the blinking countdown colon, the case file dropping onto the desk, the stamp. */
+@keyframes blink {
+  50% { opacity: 0.15; }
+}
+@keyframes drop {
+  from { opacity: 0; transform: rotate(-8deg) translateY(-40px); }
+}
+@keyframes stamp {
+  from { opacity: 0; transform: rotate(8deg) scale(2.2); }
+}
+
+/* The countdown's colon blinks, once a second. */
+.blink {
+  animation: blink 1s steps(2) infinite;
 }
 
 :focus-visible {
@@ -75,7 +101,7 @@ body {
 }
 
 dialog::backdrop {
-  background: oklch(0.1 0.01 252 / 0.7);
+  background: rgb(20 20 20 / 0.45);
   backdrop-filter: blur(2px);
 }
 

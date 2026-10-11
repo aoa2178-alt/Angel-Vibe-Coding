@@ -1,18 +1,21 @@
 import { ArrowRight, Target, TriangleAlert } from "lucide-react";
 import { MessageList } from "@/components/MessageCard";
-import { Button, Card, Eyebrow, SectionTitle } from "@/components/ui";
+import { Button, Card, Countdown, Eyebrow, SectionTitle } from "@/components/ui";
 import type { Scenario } from "@/engine/types";
 
 export function Brief({ scenario, onContinue }: { scenario: Scenario; onContinue: () => void }) {
   const { brief } = scenario;
   return (
     <div className="grid gap-8">
-      <div className="animate-rise">
-        <Eyebrow>Situation brief</Eyebrow>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-balance sm:text-4xl">{scenario.title}</h1>
-        <p className="mt-2 text-ink-2">
-          You're the {scenario.role} at {scenario.company}. Here's what you're walking into.
-        </p>
+      <div className="flex animate-rise flex-wrap items-end justify-between gap-6">
+        <div>
+          <Eyebrow>Situation brief</Eyebrow>
+          <h1 className="mt-2 text-3xl tracking-tight text-balance sm:text-5xl">{scenario.title}</h1>
+          <p className="mt-2 text-ink-2">
+            You're the {scenario.role} at {scenario.company}. Here's what you're walking into.
+          </p>
+        </div>
+        {scenario.clock && <Countdown clock={scenario.clock} />}
       </div>
 
       <div className="grid gap-3">
@@ -27,7 +30,7 @@ export function Brief({ scenario, onContinue }: { scenario: Scenario; onContinue
         <div className="flex gap-3 rounded-2xl border border-alert/40 bg-alert/[0.07] p-4 sm:p-5" role="alert">
           <TriangleAlert className="mt-0.5 size-5 shrink-0 text-alert" aria-hidden />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-alert">Incoming · Supplier alert</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-alert">Incoming · Alert</p>
             <p className="mt-1 text-lg font-semibold leading-snug">{brief.alert.title}</p>
             <p className="mt-1.5 text-[15px] text-ink-2">{brief.alert.body}</p>
           </div>

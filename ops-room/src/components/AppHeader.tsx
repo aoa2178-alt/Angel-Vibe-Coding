@@ -3,14 +3,15 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Button, cx } from "./ui";
 
 export function Logo({ onClick }: { onClick?: () => void }) {
+  // A door left ajar: you're walking into the room.
   const mark = (
-    <span className="flex items-center gap-2.5">
-      <svg viewBox="0 0 32 32" className="size-7 shrink-0" aria-hidden>
-        <rect width="32" height="32" rx="8" className="fill-panel-2" />
-        <circle cx="16" cy="16" r="9" fill="none" className="stroke-alert" strokeWidth="2.5" />
-        <circle cx="16" cy="16" r="3" className="fill-alert" />
+    <span className="flex items-center gap-2">
+      <svg viewBox="0 0 24 24" className="size-6 shrink-0 text-ink" fill="none" aria-hidden>
+        <path d="M5 21V3h11v18" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M16 3l4 2v14l-4 2" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" opacity="0.55" />
+        <circle cx="13" cy="12" r="1.5" className="fill-accent" />
       </svg>
-      <span className="text-[15px] font-bold tracking-tight text-ink">The Ops Room</span>
+      <span className="font-serif text-[19px] font-extrabold tracking-tight text-ink">The Ops Room</span>
     </span>
   );
   if (!onClick) return mark;

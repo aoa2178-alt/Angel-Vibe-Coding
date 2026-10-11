@@ -19,6 +19,7 @@ export const shouldThisBeAi: Scenario = {
   ],
   estMinutes: "5–7 min",
   role: "Head of Support Operations",
+  clock: { label: "Until the CEO wants an answer", count: 4, unit: "days" },
   company: "Larkspur Health",
   app: { name: "Breakeven", href: "https://breakeven-silk.vercel.app/worth-it?t=support", label: "Run the AI necessity test on the support case in Breakeven" },
 

@@ -18,6 +18,7 @@ export const fourWeeksToLaunch: Scenario = {
   ],
   estMinutes: "5–7 min",
   role: "Head of Operations",
+  clock: { label: "Until the promised ship date", count: 28, unit: "days" },
   company: "Halcyon Compute",
 
   people: {

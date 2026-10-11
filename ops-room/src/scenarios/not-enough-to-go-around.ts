@@ -18,6 +18,7 @@ export const notEnoughToGoAround: Scenario = {
   ],
   estMinutes: "5–7 min",
   role: "Supply Planning Lead",
+  clock: { label: "Until the allocation locks", count: 20, unit: "hours" },
   company: "Northbeam Systems",
   app: { name: "Throughline", href: "https://throughline-gilt.vercel.app/allocate?p=server", label: "Compare the allocation rules on the AI server in Throughline" },
 

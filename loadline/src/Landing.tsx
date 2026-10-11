@@ -1,9 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { CampusSelect, Footer, Header, href, linkClick } from "@/components/Frame";
-import { anim } from "@/components/Motion";
+import { IsoCampus } from "@/components/IsoCampus";
 import { TrustTag } from "@/components/ui";
-import { CAMPUSES, MILESTONES, campusById, defaultSettings, formatMoney, formatMonth, formatMw, lowerFirst, monthIndex, plan, resolveFirst, type PhasePlan } from "@/lib/model";
+import { CAMPUSES, MILESTONES, campusById, defaultSettings, formatMoney, formatMw, lowerFirst, monthIndex, plan, resolveFirst } from "@/lib/model";
 import { switchCampus } from "@/lib/scenario";
 
 const STEPS = [
@@ -11,48 +11,7 @@ const STEPS = [
   { title: "Delivery schedule", body: "Go-live by phase and the milestone on the critical path." },
   { title: "Cost of delay", body: "The value of each month late, and what to resolve first." },
 ];
-
-/** Each phase as a row: construction start to go-live, its milestones as dots, the critical one in the accent colour. */
-function MilestoneMap({ plans }: { plans: PhasePlan[] }) {
-  const from = Math.min(...plans.map((p) => monthIndex(p.phase.start)));
-  const to = Math.max(...plans.map((p) => p.now.live)) + 1;
-  const W = 520;
-  const rowH = 64;
-  const H = plans.length * rowH + 28;
-  const x = (m: number) => 18 + ((m - from) / (to - from)) * (W - 36);
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" role="img" aria-label={plans.map((p) => `${p.phase.name}: live ${formatMonth(p.now.live)}, waiting on ${lowerFirst(MILESTONES.find((m) => m.id === p.now.critical)!.label)}`).join("; ")}>
-      {plans.map((p, i) => {
-        const y = 30 + i * rowH;
-        const start = monthIndex(p.phase.start);
-        return (
-          <g key={p.phase.id} style={anim("fade", 600, 150 + i * 150)}>
-            <text x={18} y={y - 10} fontSize="11" fill="var(--muted)" fontFamily="var(--font-mono)">
-              {p.phase.name.toUpperCase()} · {formatMw(p.facilityMw)}
-            </text>
-            <line x1={x(start)} x2={x(p.now.live)} y1={y + 6} y2={y + 6} stroke="var(--line)" strokeWidth="8" strokeLinecap="round" />
-            <text x={x(start)} y={y + 30} fontSize="10" fill="var(--muted)" fontFamily="var(--font-mono)">
-              start {formatMonth(start)}
-            </text>
-            {p.now.deps.map((d) => (
-              <circle key={d.id} cx={x(d.at)} cy={y + 6} r={d.id === p.now.critical ? 7 : 4.5} fill={d.id === p.now.critical ? "var(--brand)" : "var(--muted)"} stroke="var(--surface)" strokeWidth="2" />
-            ))}
-            <line x1={x(p.now.live)} x2={x(p.now.live)} y1={y - 4} y2={y + 16} stroke="var(--ink)" strokeWidth="2" />
-            <text x={x(p.now.live) - 8} y={y - 10} fontSize="11" textAnchor="end" fill="var(--ink)" fontFamily="var(--font-mono)">
-              live {formatMonth(p.now.live)}
-            </text>
-          </g>
-        );
-      })}
-      <g fontSize="10" fontFamily="var(--font-mono)" fill="var(--muted)">
-        <circle cx={W - 178} cy={H - 8} r="5" fill="var(--brand)" />
-        <text x={W - 169} y={H - 4.5}>critical path</text>
-        <circle cx={W - 76} cy={H - 8} r="3.5" fill="var(--muted)" />
-        <text x={W - 68} y={H - 4.5}>milestone</text>
-      </g>
-    </svg>
-  );
-}
+const TODAY = monthIndex(new Date().toISOString().slice(0, 10));
 
 export function Landing() {
   const [id, setId] = useState(CAMPUSES[0]!.id);
@@ -61,8 +20,10 @@ export function Landing() {
   const top = resolveFirst(campus, defaultSettings(campus))[0]!;
   const topPlan = plans.find((p) => p.phase.id === top.phaseId)!;
   const facility = plans.reduce((n, p) => n + p.facilityMw, 0);
-  const energy = plans.reduce((n, p) => n + p.annualEnergy, 0);
-  const start = href("power", switchCampus(id));
+  const buildings = plans.reduce((n, p) => n + p.phase.buildings, 0);
+  const live = plans.filter((p) => p.now.live <= TODAY).reduce((n, p) => n + p.phase.buildings, 0);
+  const sc = switchCampus(id);
+  const links = { power: href("power", sc), timeline: href("timeline", sc), delays: href("delays", sc), brief: href("brief", sc) };
   const faq = "/faq";
 
   return (
@@ -81,7 +42,7 @@ export function Landing() {
                 FAQ
               </a>
             </nav>
-            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3.5 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
+            <a href={links.power} onClick={linkClick(links.power)} className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3.5 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
               Start <ArrowRight className="size-4" aria-hidden />
             </a>
           </>
@@ -89,72 +50,65 @@ export function Landing() {
       />
 
       <main>
-        <section className="mx-auto max-w-[1320px] px-4 pb-8 pt-14 sm:px-8 sm:pt-20">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
+        {/* The campus at night, as the hero: its labelled buildings are the four pages. */}
+        <section className="relative overflow-hidden" aria-label="Campus">
+          <div className="relative z-10 mx-auto flex max-w-[1320px] flex-wrap items-start justify-between gap-6 px-4 pt-10 sm:px-8 sm:pt-14">
+            <div className="max-w-xl">
               <p className="kicker">AI campus delivery</p>
-              <h1 className="mt-4 max-w-3xl text-[2.6rem] font-bold leading-[1.02] tracking-[-0.04em] sm:text-6xl">
-                Can this campus go live{" "}
-                <span className="whitespace-nowrap underline decoration-brand decoration-[5px] underline-offset-[10px]">on time</span>?
+              <h1 className="mt-3 text-[2.4rem] font-bold leading-[1.04] tracking-[-0.04em] sm:text-6xl">
+                Can this campus go live <span className="whitespace-nowrap underline decoration-brand decoration-[5px] underline-offset-[10px]">on time</span>?
               </h1>
-              <p className="mt-5 max-w-xl text-lg leading-8 text-ink-2">The critical path, the cost of every month late, and what to resolve first.</p>
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <CampusSelect value={id} onChange={setId} className="w-80 max-w-full" />
+                <a href={links.power} onClick={linkClick(links.power)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-4 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
+                  Open this campus <ArrowRight className="size-4" aria-hidden />
+                </a>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-4">
-              <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-                Start <ArrowRight className="size-4" aria-hidden />
-              </a>
-              <a href={faq} onClick={linkClick(faq)} className="inline-flex items-center gap-1.5 font-semibold text-ink transition hover:text-brand-ink">
-                See the method <ArrowRight className="size-4" aria-hidden />
-              </a>
-            </div>
+            <dl className="grid gap-1 text-right font-mono text-xs text-muted">
+              <div>
+                <dd className="inline text-base font-semibold text-ink">{formatMw(facility)}</dd> <dt className="inline">facility power</dt>
+              </div>
+              <div>
+                <dd className="inline text-base font-semibold text-ink">
+                  {live}/{buildings}
+                </dd>{" "}
+                <dt className="inline">buildings live</dt>
+              </div>
+              <div>
+                <dd className="inline text-base font-semibold text-ink">{formatMoney(topPlan.monthly.total)}</dd>{" "}
+                <dt className="inline">
+                  a month late
+                  <TrustTag kind="modeled" />
+                </dt>
+              </div>
+              <div className="mt-1 max-w-xs text-[11px] leading-5">
+                Resolve first: {top.phaseName}, {lowerFirst(MILESTONES.find((m) => m.id === top.milestone)!.label)}
+              </div>
+            </dl>
           </div>
+
+          <div className="-mt-6 sm:-mt-16">
+            <IsoCampus key={id} plans={plans} links={links} />
+          </div>
+
+          <nav aria-label="Pages" className="relative z-10 mx-auto -mt-10 mb-8 flex w-fit max-w-[calc(100%-2rem)] flex-wrap justify-center gap-1 rounded-full border border-line bg-surface/85 p-1.5 backdrop-blur-sm sm:-mt-16">
+            {(
+              [
+                [links.power, "Power demand"],
+                [links.timeline, "Delivery schedule"],
+                [links.delays, "Cost of delay"],
+                [links.brief, "Recommendation"],
+              ] as const
+            ).map(([to, label]) => (
+              <a key={label} href={to} onClick={linkClick(to)} className="rounded-full px-4 py-2 text-sm text-ink transition hover:bg-brand-soft hover:text-brand-ink">
+                {label}
+              </a>
+            ))}
+          </nav>
         </section>
 
-        <section className="mx-auto max-w-[1320px] px-4 sm:px-8" aria-label="Case study preview">
-          <div className="mb-3 flex flex-wrap items-center gap-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Case study</span>
-            <CampusSelect value={id} onChange={setId} className="min-w-0 max-w-full sm:w-80" />
-          </div>
-          <div className="grid gap-3 md:grid-cols-3 md:grid-rows-[auto_auto]">
-            <div className="flex flex-col justify-between rounded-[7px] border border-brand bg-surface p-5 shadow-[inset_0_3px_0_var(--brand)] md:row-span-2">
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
-                Cost of a month late · {top.phaseName}
-                <TrustTag kind="modeled" />
-              </p>
-              <p key={id} className="my-6 font-mono text-5xl font-semibold tracking-[-0.03em] sm:text-6xl" style={anim("rise", 700, 100)}>
-                {formatMoney(topPlan.monthly.total)}
-              </p>
-              <p className="text-sm text-ink-2">
-                Lost revenue plus the carrying cost of idle capital, {campus.company} · {campus.site}.
-              </p>
-            </div>
-            <div className="min-h-[170px] rounded-[7px] border border-line bg-surface p-3 md:col-span-2">
-              <MilestoneMap key={id} plans={plans} />
-            </div>
-            <div className="rounded-[7px] border border-line bg-surface p-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
-                Facility power
-                <TrustTag kind="modeled" />
-              </p>
-              <p className="mt-2 font-mono text-3xl font-semibold tracking-tight">{formatMw(facility)}</p>
-            </div>
-            <div className="rounded-[7px] border border-line bg-surface p-5">
-              <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">
-                Electricity per year
-                <TrustTag kind="modeled" />
-              </p>
-              <p className="mt-2 font-mono text-3xl font-semibold tracking-tight">{formatMoney(energy)}</p>
-            </div>
-          </div>
-          <p className="mt-3 flex flex-wrap justify-between gap-2 rounded-[6px] bg-brand-soft px-4 py-3 text-sm text-brand-ink">
-            <span>
-              Resolve first: {top.phaseName}, {lowerFirst(MILESTONES.find((m) => m.id === top.milestone)!.label)}
-            </span>
-            <span className="font-mono font-semibold">+3 months = {formatMoney(top.cost)}</span>
-          </p>
-        </section>
-
-        <section id="how" className="mt-16 scroll-mt-20 bg-panel">
+        <section id="how" className="scroll-mt-20 bg-panel">
           <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-8">
             <h2 className="text-2xl font-bold tracking-[-0.02em]">How it works</h2>
             <ol className="mt-8 grid gap-8 md:grid-cols-3">
@@ -170,7 +124,7 @@ export function Landing() {
 
         <section className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-6 px-4 py-16 sm:px-8">
           <h2 className="text-3xl font-bold tracking-[-0.03em]">Model your own campus.</h2>
-          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
+          <a href={links.power} onClick={linkClick(links.power)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
             Start <ArrowRight className="size-4" aria-hidden />
           </a>
         </section>

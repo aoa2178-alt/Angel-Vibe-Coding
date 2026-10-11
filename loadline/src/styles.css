@@ -166,3 +166,18 @@ input[type="range"] {
 
 /* Animations wait until their section scrolls into view (see useInView). */
 .mb-paused [style*="mb-"] { animation-play-state: paused; }
+
+/* The night campus on the landing page: buildings lift on hover, power flows along the lines, turbines and the clock turn,
+   a truck drives past, the crane light blinks. With reduced motion the global rule above stops all of it. */
+.iso-bld { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.iso-bld:hover { transform: translateY(-6px); }
+.iso-label { cursor: pointer; }
+.iso-label:hover rect { stroke-opacity: 1; fill-opacity: 0.95; }
+.iso-flow { stroke-dasharray: 4 7; animation: iso-flow 1.2s linear infinite; }
+@keyframes iso-flow { to { stroke-dashoffset: -22; } }
+.iso-spin { transform-box: fill-box; transform-origin: center; animation: iso-spin 3.5s linear infinite; }
+@keyframes iso-spin { to { transform: rotate(360deg); } }
+.iso-truck { animation: iso-drive 9s linear infinite; }
+@keyframes iso-drive { to { transform: translate(var(--dx), var(--dy)); } }
+.iso-blink { animation: iso-blink 1.4s steps(2) infinite; }
+@keyframes iso-blink { 50% { opacity: 0.2; } }

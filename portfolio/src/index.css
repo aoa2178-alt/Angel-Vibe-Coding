@@ -2778,6 +2778,7 @@ blockquote {
 }
 
 .coffee-cup {
+  overflow: visible;
   width: clamp(5rem, 8vw, 8rem);
   height: clamp(5rem, 8vw, 8rem);
   flex: 0 0 auto;
@@ -3464,4 +3465,34 @@ blockquote {
   font-weight: 400;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+/* Steam drifts up off the coffee and fades, the two wisps out of step. */
+.coffee-steam {
+  animation: coffee-steam 2.8s ease-in-out infinite;
+}
+.coffee-steam--late {
+  animation-delay: 1.4s;
+}
+@keyframes coffee-steam {
+  0% {
+    opacity: 0;
+    transform: translate(0, 2px);
+  }
+  30% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(0.6px, -1.5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-0.4px, -4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coffee-steam {
+    animation: none !important;
+    opacity: 1;
+  }
 }

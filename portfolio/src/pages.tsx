@@ -939,7 +939,8 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             >
               <path d="M6 10h17v8a8 8 0 0 1-8 8h-1a8 8 0 0 1-8-8v-8Z" />
               <path d="M23 13h2a4 4 0 0 1 0 8h-3" />
-              <path d="M10 6c0-2 2-2 2-4M16 6c0-2 2-2 2-4" />
+              <path className="coffee-steam" d="M10 6c0-2 2-2 2-4" />
+              <path className="coffee-steam coffee-steam--late" d="M16 6c0-2 2-2 2-4" />
               <path d="M4 29h22" />
             </svg>
           </div>

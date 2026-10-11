@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import { useRef, type ReactNode } from "react";
 import { CallShare, HowSolid } from "./CallTools";
-import { Cascade, anim, useInView } from "./Motion";
+import { anim, useInView } from "./Motion";
 
 export interface CallCheck {
   label: string;
@@ -45,10 +45,10 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
   return (
     <div ref={root}>
       {c.demo && <p className="mt-6 rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm leading-6 text-ink-2">{c.demo}</p>}
-      <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
+      <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6">
         <p className="kicker">Recommendation</p>
         <p className="mt-1 text-sm text-muted">{c.decision}</p>
-        <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{typeof c.headline === "string" ? <Cascade text={c.headline} delay={150} /> : c.headline}</p>
+        <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{c.headline}</p>
         <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
           {c.bullets.map((b) => (
             <li key={b.label}>

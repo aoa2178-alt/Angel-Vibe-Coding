@@ -69,7 +69,7 @@ export function Landing() {
           <>
             <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-white/70 md:flex">
               <a href="#tiles" className="transition hover:text-white">
-                How it works
+                Approach
               </a>
               <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-white">
                 Sources
@@ -90,7 +90,7 @@ export function Landing() {
         <section className="relative h-[560px] overflow-hidden bg-[#141b3d] text-[#e7ebfb] sm:h-[600px]" aria-label="The bullwhip effect">
           <Waves ratios={ratios} sharedRatios={sharedRatios} shared={shared} className="absolute inset-0 h-full w-full" />
           <div className="relative mx-auto max-w-[1320px] px-4 pt-12 sm:px-8 sm:pt-16">
-            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9aa3c9]">EXP_04 // Bullwhip oscillation</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-[#9aa3c9]">Supply and demand planning</p>
             <h1 className="mt-3 max-w-3xl font-mono text-3xl font-medium leading-[1.15] tracking-[-0.02em] sm:text-5xl">
               How much to build,
               <br />
@@ -99,7 +99,7 @@ export function Landing() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <ProductSelect value={id} onChange={setId} className="w-64 max-w-full" />
               <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-accent px-4 py-2.5 text-sm font-semibold text-[#062b29] transition hover:opacity-90">
-                Plan this product <ArrowRight className="size-4" aria-hidden />
+                View analysis <ArrowRight className="size-4" aria-hidden />
               </a>
             </div>
           </div>

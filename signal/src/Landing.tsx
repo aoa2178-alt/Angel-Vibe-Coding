@@ -1,76 +1,165 @@
 import { ArrowRight } from "lucide-react";
-import { Footer, Logo, href, linkClick } from "@/components/Frame";
+import { useState } from "react";
+import { BEACON_COLORS, Beacon, beaconPerDot } from "@/components/Beacon";
+import { CountrySelect, Footer, Header, href, linkClick } from "@/components/Frame";
+import { TrustTag } from "@/components/ui";
 import { DEFAULT_AFFORD, afford } from "@/lib/afford";
-import { CASES, byIso, pct, people, shortName } from "@/lib/data";
-import { leverOptions, ranked } from "@/lib/call";
 import { DEFAULT_BUILD } from "@/lib/build";
+import { leverOptions, ranked } from "@/lib/call";
+import { byIso, pct, people, shortName, usd } from "@/lib/data";
 import { gap } from "@/lib/gap";
 import { DEFAULT_SCENARIO } from "@/lib/scenario";
 
 const STEPS = [
-  { n: 1, title: "Gap", body: "How many people are offline, how many have no signal at all, and why the rest don't connect: the phone, the data, or skills." },
-  { n: 2, title: "Afford", body: "Who can afford a phone and a data plan, fifth by fifth, and what pay-as-you-go phones, tax cuts and subsidies change." },
-  { n: 3, title: "Build", body: "The cheapest way to cover each area, a budget that connects the most people, and the split between operators, the universal service fund and donors." },
+  { title: "Access gap", body: "Who is offline, and whether a signal reaches them." },
+  { title: "Affordability", body: "Who can afford a phone and data, and what changes it." },
+  { title: "Coverage and funding", body: "What coverage costs, and who should pay." },
 ];
 
 export function Landing() {
-  const start = href("gap", DEFAULT_SCENARIO);
+  const [iso, setIso] = useState(DEFAULT_SCENARIO.country);
+  const c = byIso(iso)!;
+  const name = shortName(c);
+  const g = gap(c);
+  const today = afford(c, DEFAULT_AFFORD).share;
+  const financed = afford(c, { ...DEFAULT_AFFORD, payg: true }).share;
+  const lead = ranked(leverOptions(c, DEFAULT_AFFORD, DEFAULT_BUILD))[0];
+  const s = { ...DEFAULT_SCENARIO, country: iso };
+  const start = href("gap", s);
+  const faq = "/faq";
+
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 px-3 pt-3">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-4 pr-2">
-          <Logo />
-          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:opacity-90">
+      <Header
+        actions={
+          <>
+            <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-muted md:flex">
+              <a href="#how" className="transition hover:text-ink">
+                Approach
+              </a>
+              <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-ink">
+                Sources
+              </a>
+              <a href={faq} onClick={linkClick(faq)} className="transition hover:text-ink">
+                FAQ
+              </a>
+            </nav>
+            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3.5 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
+              Start <ArrowRight className="size-4" aria-hidden />
+            </a>
+          </>
+        }
+      />
+
+      <main>
+        {/* The beacon: one lit tower alone on a dusk plain, the country's people dotted across it. */}
+        <section className="relative h-[calc(100dvh-4rem)] max-h-[860px] min-h-[600px] overflow-hidden bg-[#0b2a30] text-[#eef6f7]" aria-label="Country preview">
+          <Beacon
+            key={iso}
+            online={g.pop - g.offline}
+            covered={g.covered}
+            noSignal={g.noSignal}
+            ariaLabel={`${name}'s people on a plain around a signal tower: ${people(g.pop - g.offline)} online, ${people(g.covered)} with a signal but not online, ${people(g.noSignal)} with no signal`}
+          />
+          <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-12 text-center sm:px-8 sm:pt-16">
+            <p className="kicker !text-[#a9c9cd]">Connecting the offline</p>
+            <h1 className="mx-auto mt-4 max-w-3xl text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.045em] text-balance sm:text-6xl">
+              Who is <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">offline</span>, and why?
+            </h1>
+          </div>
+          <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-[1320px] flex-wrap items-end justify-between gap-5 px-4 pb-6 sm:px-8">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <CountrySelect value={iso} onChange={setIso} className="w-60 max-w-full" />
+                <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-accent px-4 py-2 text-sm font-semibold text-ink transition hover:opacity-90">
+                  View analysis <ArrowRight className="size-4" aria-hidden />
+                </a>
+              </div>
+              <p className="mt-3 text-[13px] text-[#a9c9cd]">
+                One dot = {people(beaconPerDot(g.pop))} people · {c.region} · {c.income}
+              </p>
+            </div>
+            <dl className="grid gap-1 text-right text-sm">
+              {(
+                [
+                  ["Online", g.pop - g.offline, BEACON_COLORS.online],
+                  ["Signal, not online", g.covered, BEACON_COLORS.covered],
+                  ["No signal", g.noSignal, BEACON_COLORS.noSignal],
+                ] as const
+              ).map(([label, value, color]) => (
+                <div key={label} className="flex items-center justify-end gap-2">
+                  <dt className="inline-flex items-center gap-1.5 text-[#c9dfe2]">
+                    <i className="inline-block size-2.5 rounded-[3px]" style={{ background: color }} />
+                    {label}
+                  </dt>
+                  <dd className="w-16 font-mono font-semibold">{people(value)}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-[1100px] px-4 pt-10 sm:px-8" aria-label="Country summary">
+          <div className="rounded-[8px] border border-line bg-surface p-4 sm:p-5">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line pb-3 text-sm">
+              <span className="font-semibold">{name}</span>
+              <span className="text-xs text-muted">
+                {c.region} · {c.income}
+              </span>
+            </div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-[6px] border border-line p-3">
+                <p className="text-xs text-muted">
+                  People offline
+                  <TrustTag kind="data" />
+                </p>
+                <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight">{people(g.offline)}</p>
+              </div>
+              <div className="rounded-[6px] border border-line p-3">
+                <p className="text-xs text-muted">
+                  No signal at all
+                  <TrustTag kind="modeled" />
+                </p>
+                <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight">{people(g.noSignal)}</p>
+              </div>
+              <div className="rounded-[6px] border border-accent p-3 shadow-[inset_0_3px_0_var(--accent)]">
+                <p className="text-xs text-muted">
+                  Can afford, with phone financing
+                  <TrustTag kind="modeled" />
+                </p>
+                <p className="mt-1.5 font-mono text-2xl font-semibold tracking-tight">
+                  {pct(today)} → {pct(financed)}
+                </p>
+              </div>
+            </div>
+            {lead && Number.isFinite(lead.perPerson) && (
+              <p className="mt-3 flex flex-wrap justify-between gap-2 rounded-[5px] bg-coral-soft px-3 py-2 text-sm text-coral-ink">
+                <span>Lowest-cost lever: {lead.label}</span>
+                <span className="font-mono font-semibold">{usd(lead.perPerson)} per person online</span>
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section id="how" className="mt-14 scroll-mt-20 bg-brand text-on-brand">
+          <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-8">
+            <h2 className="text-2xl font-semibold tracking-[-0.03em]">Approach</h2>
+            <ol className="mt-8 grid gap-8 md:grid-cols-3">
+              {STEPS.map((st) => (
+                <li key={st.title} className="border-t border-white/25 pt-4">
+                  <h3 className="text-lg font-semibold">{st.title}</h3>
+                  <p className="mt-1.5 text-[15px] leading-6 text-white/75">{st.body}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-6 px-4 py-16 sm:px-8">
+          <h2 className="text-3xl font-semibold tracking-[-0.035em]">Plan for your own country.</h2>
+          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
             Start <ArrowRight className="size-4" aria-hidden />
           </a>
-        </div>
-      </header>
-      <main>
-        <section className="mx-auto max-w-[1200px] px-4 pb-14 pt-16 sm:px-6 sm:pt-24">
-          <p className="kicker">Digital access · development · public policy</p>
-          <h1 className="mt-5 max-w-4xl text-[3rem] font-extrabold leading-[0.98] tracking-[-0.05em] text-balance sm:text-7xl">
-            Who is offline, and what would it take to <span className="text-brand">connect them?</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-2 sm:text-xl sm:leading-9">
-            Signal sizes a country's digital divide on World Bank data, tests what makes being online affordable, and prices the build, down to who should pay for it.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-              Start with Nigeria <ArrowRight className="size-4" aria-hidden />
-            </a>
-          </div>
-          <ul className="mt-10 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-            {CASES.map((iso) => {
-              const c = byIso(iso)!;
-              const g = gap(c);
-              const a = afford(c, DEFAULT_AFFORD);
-              const lead = ranked(leverOptions(c, DEFAULT_AFFORD, DEFAULT_BUILD))[0]!;
-              const to = href("call", { ...DEFAULT_SCENARIO, country: iso });
-              return (
-                <li key={iso} className="bg-surface">
-                  <a href={to} onClick={linkClick(to)} className="block p-4 transition hover:bg-sunken">
-                    <span className="block text-sm font-semibold">{shortName(c)}</span>
-                    <span className="mt-1 block font-mono text-lg font-semibold">{people(g.offline)}</span>
-                    <span className="block text-xs text-muted">offline · {pct(a.share)} can afford a phone and data</span>
-                    <span className="mt-2 block text-xs font-semibold text-brand-ink">The call: {lead.id === "payg" ? "finance the phone" : lead.id === "towers" ? "build coverage" : lead.label.toLowerCase()} →</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-        <section className="mx-auto max-w-[1200px] px-4 pb-24 pt-8 sm:px-6">
-          <p className="kicker">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Three steps, then the call.</h2>
-          <ol className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-3">
-            {STEPS.map((st) => (
-              <li key={st.n} className="bg-surface p-7">
-                <span className="grid size-8 place-items-center rounded-full bg-brand font-mono text-sm font-semibold text-on-brand">{st.n}</span>
-                <h3 className="mt-6 text-xl font-bold tracking-tight">{st.title}</h3>
-                <p className="mt-2 text-[15px] leading-7 text-ink-2">{st.body}</p>
-              </li>
-            ))}
-          </ol>
         </section>
       </main>
       <Footer />

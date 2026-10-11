@@ -3,11 +3,12 @@ import { AffordStep } from "./AffordStep";
 import { BuildStep } from "./BuildStep";
 import { Call } from "./Call";
 import { GapStep } from "./GapStep";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { Sources } from "./Sources";
 
-type View = "landing" | "gap" | "afford" | "build" | "call" | "sources";
-const VIEWS: View[] = ["gap", "afford", "build", "call", "sources"];
+type View = "landing" | "gap" | "afford" | "build" | "call" | "sources" | "faq";
+const VIEWS: View[] = ["gap", "afford", "build", "call", "sources", "faq"];
 
 const resolve = (): View => {
   // The memo used to live at /brief; it is now The call.
@@ -18,11 +19,12 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Signal · Connecting the offline",
-  gap: "Signal · 1. Gap",
-  afford: "Signal · 2. Afford",
-  build: "Signal · 3. Build",
-  call: "Signal · The call",
+  gap: "Signal · Access gap",
+  afford: "Signal · Affordability",
+  build: "Signal · Coverage and funding",
+  call: "Signal · Recommendation",
   sources: "Signal · Sources",
+  faq: "Signal · FAQ",
 };
 
 export default function App() {
@@ -50,6 +52,8 @@ export default function App() {
       return <Call key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

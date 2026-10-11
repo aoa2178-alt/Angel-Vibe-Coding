@@ -48,7 +48,7 @@ export function Sources() {
     <Frame route="sources" s={s}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">Open data, cited assumptions</h1>
+        <h1 className="mt-2 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl">Open data, cited assumptions</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           {COUNTRIES.length} countries from the World Bank's free API, rebuilt with one script (<span className="font-mono text-base">scripts/build-data.mjs</span>). Retrieved {RETRIEVED}. Each value shows the latest year
           available.

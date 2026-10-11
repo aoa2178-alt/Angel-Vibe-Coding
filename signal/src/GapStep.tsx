@@ -1,6 +1,7 @@
 import { Bars } from "@/components/Bars";
-import { Crowd } from "@/components/Crowd";
+import { Panorama } from "@/components/Panorama";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, Stat } from "@/components/ui";
 import { byIso, pct, people, share, shortName, v, yearOf } from "@/lib/data";
 import { barrierRows, gap, groupRows } from "@/lib/gap";
@@ -26,31 +27,29 @@ export function GapStep() {
   return (
     <Frame route="gap" s={s} setS={setS}>
       <StepHeading route="gap">
-        Most people offline already live within reach of a signal. The question is what keeps them off: the phone, the data, or the skills to use it.
+        How many people are offline, how many have no signal, and what keeps the rest off.
       </StepHeading>
 
       <Card>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Population" value={people(g.pop)} sub={`${yearOf(c, "pop")}`} />
-          <Stat label="Online" value={pct(g.online)} sub={`World Bank, ${yearOf(c, "internet")}`} />
-          <Stat label="Offline" value={people(g.offline)} />
-          <Stat label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
+          <Stat trust="data" label="Population" value={people(g.pop)} sub={`${yearOf(c, "pop")}`} />
+          <Stat trust="data" label="Online" value={pct(g.online)} sub={`World Bank, ${yearOf(c, "internet")}`} />
+          <Stat trust="data" label="Offline" value={people(g.offline)} />
+          <Stat trust="modeled" label="No signal at all" value={people(g.noSignal)} sub={`${pct(s.build.gap ?? defaultGap(c))} of people (GSMA, by region)`} />
         </div>
         <div className="mt-6">
-          <Crowd
+          <Panorama
             key={c.iso3}
-            ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
+            ariaLabel={`${name}'s population as a landscape: ${people(g.pop - g.offline)} online, ${people(g.covered)} with a signal but not online, ${people(g.noSignal)} with no signal`}
             format={people}
-            parts={[
-              { label: "Online", value: g.pop - g.offline, color: GREEN },
-              { label: "Has a signal, not online (usage gap)", value: g.covered, color: CORAL },
-              { label: "No signal (coverage gap)", value: g.noSignal, color: BLUE },
-            ]}
+            online={g.pop - g.offline}
+            covered={g.covered}
+            noSignal={g.noSignal}
           />
         </div>
         <p className="mt-4 max-w-3xl text-[15px] leading-7 text-ink-2">
           {people(g.offline)} people in {name} are offline. About {people(g.noSignal)} of them have no mobile-broadband signal where they live; the other {people(g.covered)} could
-          connect today but don't. Closing the usage gap is about price and skills (step 2); closing the coverage gap is about building (step 3).
+          connect today but don't. Closing the usage gap is about price and skills (Affordability); closing the coverage gap is about building (Coverage and funding).
         </p>
       </Card>
 
@@ -110,19 +109,20 @@ export function GapStep() {
         </Card>
       </div>
 
-      <Card className="mt-6">
-        <Kicker>The wider picture</Kicker>
+      <div className="mt-6">
+      <Fold id="wider" title="Electricity, accounts and mobile money" sub="The wider picture: what a phone connects to">
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat label="Has electricity" value={pct(share(c, "electricity"))} sub={`${yearOf(c, "electricity") ?? ""}`} />
-          <Stat label="Mobile money account" value={pct(share(c, "mobileMoney"))} sub="adults, Findex 2025" />
-          <Stat label="Any account" value={pct(share(c, "account"))} sub="bank or mobile money" />
-          <Stat label="Mobile subscriptions" value={v(c, "mobileSubs") === null ? "–" : `${Math.round(v(c, "mobileSubs")!)} per 100`} sub="SIMs, not people" />
+          <Stat trust="data" label="Has electricity" value={pct(share(c, "electricity"))} sub={`${yearOf(c, "electricity") ?? ""}`} />
+          <Stat trust="data" label="Mobile money account" value={pct(share(c, "mobileMoney"))} sub="adults, Findex 2025" />
+          <Stat trust="data" label="Any account" value={pct(share(c, "account"))} sub="bank or mobile money" />
+          <Stat trust="data" label="Mobile subscriptions" value={v(c, "mobileSubs") === null ? "–" : `${Math.round(v(c, "mobileSubs")!)} per 100`} sub="SIMs, not people" />
         </div>
         <p className="mt-4 max-w-3xl text-sm leading-6 text-ink-2">
-          Mobile money shows what a phone can do for people with low incomes (M-Pesa in Kenya is the classic case). The same pay-as-you-go rails can finance the phone itself, which step 2 tests.
+          Mobile money shows what a phone can do for people with low incomes (M-Pesa in Kenya is the classic case). The same pay-as-you-go rails can finance the phone itself, which Affordability tests.
           Electricity matters too: a phone needs charging, so a coverage plan without power reaches fewer people.
         </p>
-      </Card>
+      </Fold>
+      </div>
     </Frame>
   );
 }

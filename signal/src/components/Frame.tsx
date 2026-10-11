@@ -1,5 +1,5 @@
-import { ArrowLeft, ArrowRight, Check, Link2 } from "lucide-react";
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Link2, Menu, RotateCcw, X } from "lucide-react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { CASES, COUNTRIES, RETRIEVED, byIso, shortName } from "@/lib/data";
 import { readScenario, scenarioQuery, type Scenario } from "@/lib/scenario";
 
@@ -19,15 +19,24 @@ export function linkClick(to: string) {
   };
 }
 
+/** Signal's mark: a tower sending out signal. */
+export function Mark({ className = "size-[18px]" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden>
+      <path d="M12 13v8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+      <circle cx="12" cy="11" r="2" fill="var(--accent)" />
+      <path d="M8.2 7.2a5.4 5.4 0 000 7.6M15.8 7.2a5.4 5.4 0 010 7.6M5 4a10 10 0 000 14M19 4a10 10 0 010 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function Logo() {
   return (
     <a href="/" onClick={linkClick("/")} className="flex shrink-0 items-center gap-2.5" aria-label="Signal home">
-      <span className="grid size-9 place-items-center rounded-xl bg-brand" aria-hidden>
-        <svg viewBox="0 0 32 32" className="size-6" fill="white">
-          <path d="M7 25h4v-5H7zM14 25h4V14h-4zM21 25h4V8h-4z" />
-        </svg>
+      <span className="grid size-8 place-items-center rounded-[6px] bg-brand text-on-brand">
+        <Mark />
       </span>
-      <span className="text-lg font-extrabold tracking-tight">Signal</span>
+      <span className="text-[17px] font-semibold tracking-[-0.03em] lowercase">signal</span>
     </a>
   );
 }
@@ -35,15 +44,14 @@ export function Logo() {
 /* ---------- The steps ---------- */
 
 export type StepRoute = "gap" | "afford" | "build" | "call";
-export type PageRoute = StepRoute | "sources";
+export type PageRoute = StepRoute | "sources" | "faq";
 
-export const STEPS: { route: StepRoute; label: string; question: string }[] = [
-  { route: "gap", label: "Gap", question: "Who is offline, and why?" },
-  { route: "afford", label: "Afford", question: "What would make it affordable?" },
-  { route: "build", label: "Build", question: "What does it cost to connect them, and who pays?" },
-  { route: "call", label: "The call", question: "What should the country do first?" },
+export const STEPS: { route: StepRoute; label: string; title: string }[] = [
+  { route: "gap", label: "Access gap", title: "Access gap" },
+  { route: "afford", label: "Affordability", title: "Affordability" },
+  { route: "build", label: "Coverage and funding", title: "Coverage cost and funding" },
+  { route: "call", label: "Recommendation", title: "Recommendation" },
 ];
-const NUMBERED = 3;
 
 export const href = (route: PageRoute, s: Scenario) => `/${route}${scenarioQuery(s)}`;
 
@@ -56,41 +64,96 @@ export function useScenario(route: PageRoute) {
   return [scenario, setScenario] as const;
 }
 
-function Tracker({ route, s, compact = false }: { route: PageRoute; s: Scenario; compact?: boolean }) {
+function navItems(route: PageRoute, s: Scenario) {
+  return [
+    ...STEPS.map((st) => ({ href: href(st.route, s), label: st.label, current: st.route === route })),
+    { href: href("sources", s), label: "Sources", current: route === "sources" },
+    { href: href("faq", s), label: "FAQ", current: route === "faq" },
+  ];
+}
+
+/** The section links, left-aligned beside the logo, with an underline on the current page. */
+function NavLinks({ route, s }: { route: PageRoute; s: Scenario }) {
   return (
-    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-1 lg:flex"}>
-      {STEPS.map((step, i) => {
-        const to = href(step.route, s);
-        const current = step.route === route;
-        return (
-          <a
-            key={step.route}
-            href={to}
-            onClick={linkClick(to)}
-            aria-current={current ? "step" : undefined}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium transition ${
-              current ? "bg-brand text-on-brand" : "text-ink-2 hover:bg-sunken hover:text-ink"
-            }`}
-          >
-            {i < NUMBERED && (
-              <span className={`grid size-5 place-items-center rounded-full font-mono text-[11px] font-semibold ${current ? "bg-white/20 text-white" : "bg-sunken text-ink-2"}`}>
-                {i + 1}
-              </span>
-            )}
-            {step.label}
-          </a>
-        );
-      })}
-      <span className="mx-1 h-5 w-px shrink-0 bg-line" aria-hidden />
-      <a
-        href={href("sources", s)}
-        onClick={linkClick(href("sources", s))}
-        aria-current={route === "sources" ? "page" : undefined}
-        className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium transition ${route === "sources" ? "bg-brand text-on-brand" : "text-ink-2 hover:bg-sunken hover:text-ink"}`}
-      >
-        Sources
-      </a>
+    <nav aria-label="Sections" className="hidden items-stretch gap-6 self-stretch lg:flex">
+      {navItems(route, s).map((it) => (
+        <a
+          key={it.label}
+          href={it.href}
+          onClick={linkClick(it.href)}
+          aria-current={it.current ? "page" : undefined}
+          className={`relative flex items-center whitespace-nowrap text-sm transition ${it.current ? "font-semibold text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent" : "text-muted hover:text-ink"}`}
+        >
+          {it.label}
+        </a>
+      ))}
     </nav>
+  );
+}
+
+/** Below the large breakpoint the same links live in a menu. */
+function NavMenu({ route, s }: { route: PageRoute; s: Scenario }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: globalThis.MouseEvent) => box.current && !box.current.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  return (
+    <div ref={box} className="relative lg:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        aria-label={open ? "Close menu" : "Open menu"}
+        className="grid size-9 place-items-center rounded-[6px] border border-line bg-surface text-ink transition hover:border-brand"
+      >
+        {open ? <X className="size-4" aria-hidden /> : <Menu className="size-4" aria-hidden />}
+      </button>
+      {open && (
+        <nav aria-label="Sections" className="absolute right-0 top-full z-40 mt-2 w-60 rounded-[7px] border border-line bg-surface p-1.5 shadow-[0_12px_32px_rgb(15_42_48/0.12)]">
+          {navItems(route, s).map((it) => (
+            <a
+              key={it.label}
+              href={it.href}
+              onClick={(e) => {
+                setOpen(false);
+                linkClick(it.href)(e);
+              }}
+              aria-current={it.current ? "page" : undefined}
+              className={`block rounded-[5px] px-3 py-2.5 text-sm transition ${it.current ? "bg-brand-soft font-semibold text-brand-ink" : "text-ink hover:bg-sunken"}`}
+            >
+              {it.label}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
+/** Back to the example case: shown only once something differs from it. */
+export function ResetScenario({ s }: { s: Scenario }) {
+  if (!scenarioQuery(s)) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => window.location.assign(window.location.pathname)}
+      className="inline-flex items-center gap-1.5 rounded-[6px] border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink transition hover:border-brand"
+      aria-label="Reset to the example case"
+      title="Reset to the example case"
+    >
+      <RotateCcw className="size-3.5" aria-hidden />
+      <span className="hidden xl:inline">Reset</span>
+    </button>
   );
 }
 
@@ -110,11 +173,11 @@ export function CopyLink() {
       <button
         type="button"
         onClick={copy}
-        className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink transition hover:border-brand"
+        className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3 py-2 text-xs font-semibold text-on-brand transition hover:opacity-90"
         aria-label="Save scenario: copy a link to it"
       >
         {copied ? <Check className="size-3.5" aria-hidden /> : <Link2 className="size-3.5" aria-hidden />}
-        <span className="hidden sm:inline">{copied ? "Link copied" : "Save scenario"}</span>
+        <span className="hidden xl:inline">{copied ? "Link copied" : "Save scenario"}</span>
       </button>
       <span className="sr-only" aria-live="polite">
         {copied ? "Link copied" : ""}
@@ -123,49 +186,70 @@ export function CopyLink() {
   );
 }
 
-/** The country switcher: the four worked cases as buttons, any other country from the list. */
-function CountryBar({ s, setS }: { s: Scenario; setS?: (s: Scenario) => void }) {
+/** The country, as one dropdown: the four worked cases first, then every other country. */
+export function CountrySelect({ value, onChange, className = "" }: { value: string; onChange: (iso: string) => void; className?: string }) {
+  return (
+    <label className={`relative inline-flex items-center ${className}`}>
+      <span className="sr-only">Country</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-[6px] border border-line bg-surface py-2 pl-3 pr-9 text-sm font-semibold text-ink transition hover:border-brand"
+      >
+        <optgroup label="Worked cases">
+          {CASES.map((iso) => (
+            <option key={iso} value={iso}>
+              {shortName(byIso(iso)!)}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="All countries">
+          {COUNTRIES.filter((x) => !(CASES as readonly string[]).includes(x.iso3)).map((x) => (
+            <option key={x.iso3} value={x.iso3}>
+              {shortName(x)}
+            </option>
+          ))}
+        </optgroup>
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 size-4 text-muted" aria-hidden />
+    </label>
+  );
+}
+
+/** Switching country resets the country-specific overrides (data price, coverage gap, ARPU) to that country's defaults. */
+export const switchCountry = (s: Scenario, iso: string): Scenario => ({ ...s, country: iso, afford: { ...s.afford, dataPrice: null }, build: { ...s.build, gap: null, arpu: null } });
+
+function CaseBar({ s, setS }: { s: Scenario; setS?: (s: Scenario) => void }) {
   const c = byIso(s.country)!;
   return (
-    <div className="mx-auto mt-2 flex max-w-[1200px] flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-semibold">{shortName(c)}</span>
-        <span className="text-muted">
-          · {c.region} · {c.income}
+    <div className="border-b border-line bg-bg print:hidden">
+      <div className="mx-auto flex max-w-[1320px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5 sm:px-8">
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Country</span>
+        {setS ? (
+          <CountrySelect value={s.country} onChange={(iso) => setS(switchCountry(s, iso))} className="w-64 max-w-full" />
+        ) : (
+          <span className="text-sm font-semibold">{shortName(c)}</span>
+        )}
+        <span className="font-mono text-xs text-muted">
+          {c.region} · {c.income} · World Bank data, retrieved {RETRIEVED}
         </span>
       </div>
-      {setS && (
-        <div className="flex flex-wrap items-center gap-1.5">
-          {CASES.map((iso) => (
-            <button
-              key={iso}
-              type="button"
-              aria-pressed={s.country === iso}
-              onClick={() => setS({ ...s, country: iso, afford: { ...s.afford, dataPrice: null }, build: { ...s.build, gap: null, arpu: null } })}
-              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${s.country === iso ? "border-brand bg-brand text-on-brand" : "border-line hover:border-brand"}`}
-            >
-              {shortName(byIso(iso)!)}
-            </button>
-          ))}
-          <label className="sr-only" htmlFor="country">
-            Any country
-          </label>
-          <select
-            id="country"
-            value={(CASES as readonly string[]).includes(s.country) ? "" : s.country}
-            onChange={(e) => e.target.value && setS({ ...s, country: e.target.value, afford: { ...s.afford, dataPrice: null }, build: { ...s.build, gap: null, arpu: null } })}
-            className="max-w-44 rounded-full border border-line bg-surface px-3 py-1 text-xs"
-          >
-            <option value="">Other country…</option>
-            {COUNTRIES.map((x) => (
-              <option key={x.iso3} value={x.iso3}>
-                {shortName(x)}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
     </div>
+  );
+}
+
+export function Header({ route, s, actions }: { route?: PageRoute; s?: Scenario; actions?: ReactNode }) {
+  return (
+    <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm print:hidden">
+      <div className="mx-auto flex h-16 max-w-[1320px] items-center gap-3 px-4 sm:gap-10 sm:px-8">
+        <Logo />
+        {route && s && <NavLinks route={route} s={s} />}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          {actions}
+          {route && s && <NavMenu route={route} s={s} />}
+        </div>
+      </div>
+    </header>
   );
 }
 
@@ -175,40 +259,37 @@ export function Frame({ route, s, setS, children }: { route: PageRoute; s: Scena
   const next = i >= 0 && i < STEPS.length - 1 ? STEPS[i + 1] : null;
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 px-3 pt-3 print:hidden">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-3 pr-2 sm:pl-4">
-          <Logo />
-          <Tracker route={route} s={s} />
-          <CopyLink />
-        </div>
-        <div className="mx-auto mt-2 max-w-[1200px] rounded-2xl border border-line bg-surface p-1 lg:hidden">
-          <Tracker route={route} s={s} compact />
-        </div>
-      </header>
-      <div className="px-3 print:hidden">
-        <CountryBar s={s} setS={setS} />
-      </div>
-      <main className="mx-auto max-w-[1200px] px-4 pb-16 pt-8 sm:px-6 print:p-0">
+      <Header
+        route={route}
+        s={s}
+        actions={
+          <>
+            <ResetScenario s={s} />
+            <CopyLink />
+          </>
+        }
+      />
+      {route !== "faq" && <CaseBar s={s} setS={setS} />}
+      <main className="mx-auto max-w-[1320px] px-4 pb-16 pt-8 sm:px-8 print:p-0">
         {children}
         {i >= 0 && (
           <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 print:hidden">
             {prev ? (
-              <a href={href(prev.route, s)} onClick={linkClick(href(prev.route, s))} className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-5 py-3 font-semibold transition hover:border-brand">
+              <a href={href(prev.route, s)} onClick={linkClick(href(prev.route, s))} className="inline-flex items-center gap-2 rounded-[6px] border border-line bg-surface px-4 py-2.5 text-sm font-semibold transition hover:border-brand">
                 <ArrowLeft className="size-4" aria-hidden /> {prev.label}
               </a>
             ) : (
               <span />
             )}
             {next && (
-              <a href={href(next.route, s)} onClick={linkClick(href(next.route, s))} className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-                Next: {i + 1 < NUMBERED ? `${i + 2}. ` : ""}
-                {next.label} <ArrowRight className="size-4" aria-hidden />
+              <a href={href(next.route, s)} onClick={linkClick(href(next.route, s))} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:opacity-90">
+                Next: {next.label} <ArrowRight className="size-4" aria-hidden />
               </a>
             )}
           </div>
         )}
       </main>
-      <Footer />
+      <Footer s={s} />
     </div>
   );
 }
@@ -218,41 +299,60 @@ export function StepHeading({ route, children }: { route: StepRoute; children?: 
   return (
     <div className="mb-7 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-8 print:hidden">
       <div>
-        <p className="kicker">
-          {i < NUMBERED ? `Step ${i + 1} of ${NUMBERED} · ` : ""}
-          Connecting the offline
-        </p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">{STEPS[i]!.question}</h1>
+        <p className="kicker">Connecting the offline</p>
+        <h1 className="mt-2 text-3xl font-semibold leading-[1.05] tracking-[-0.035em] sm:text-4xl">{STEPS[i]!.title}</h1>
       </div>
-      {children && <div className="max-w-md text-base text-ink-2 lg:text-right">{children}</div>}
+      {children && <div className="max-w-md text-[15px] leading-6 text-ink-2 lg:text-right">{children}</div>}
     </div>
   );
 }
 
-export function Footer() {
-  const apps: [string, string][] = [
-    ["Breakeven", "https://breakeven-silk.vercel.app"],
-    ["Loadline", "https://loadline-weld.vercel.app"],
-    ["Throughline", "https://throughline-gilt.vercel.app"],
-    ["Keel", "https://keel-one-rho.vercel.app"],
+export function Footer({ s }: { s?: Scenario }) {
+  const links = [
+    ...STEPS.map((st) => ({ label: st.label, to: s ? href(st.route, s) : `/${st.route}` })),
+    { label: "Sources", to: s ? href("sources", s) : "/sources" },
+    { label: "FAQ", to: s ? href("faq", s) : "/faq" },
   ];
   return (
     <footer className="border-t border-line bg-bg print:hidden">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-4 py-10 text-sm text-ink-2 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <div className="flex items-center gap-3">
+      <div className="mx-auto grid max-w-[1320px] gap-10 px-4 py-12 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr]">
+        <div>
           <Logo />
-          <span className="hidden text-muted sm:inline">Connecting the offline, on open data.</span>
+          <p className="mt-4 max-w-sm text-sm leading-6 text-ink-2">Digital access planning on World Bank data: who is offline, what makes it affordable, and what coverage costs.</p>
         </div>
-        <p className="text-muted">
-          Built by Angel Ade-Oduntan · World Bank data (CC BY 4.0), retrieved {RETRIEVED}. Sister apps:{" "}
-          {apps.map(([name, url], k) => (
-            <span key={name}>
-              {k > 0 && " · "}
-              <a href={url} className="font-semibold text-ink underline underline-offset-2">
-                {name}
+        <div>
+          <p className="text-sm font-semibold">Product</p>
+          <ul className="mt-3 space-y-2 text-sm text-ink-2">
+            {links.map((l) => (
+              <li key={l.label}>
+                <a href={l.to} onClick={linkClick(l.to)} className="hover:text-ink">
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p className="text-sm font-semibold">About</p>
+          <ul className="mt-3 space-y-2 text-sm text-ink-2">
+            <li>Built by Angel Ade-Oduntan</li>
+            <li>World Bank WDI and Global Findex data; costs are labeled assumptions</li>
+            <li>
+              Related:{" "}
+              <a href="https://breakeven-silk.vercel.app" className="underline underline-offset-2 hover:text-ink">
+                Breakeven
+              </a>{" "}
+              ·{" "}
+              <a href="https://where-ai-lives.vercel.app" className="underline underline-offset-2 hover:text-ink">
+                Where AI Lives
               </a>
-            </span>
-          ))}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-line">
+        <p className="mx-auto max-w-[1320px] px-4 py-5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted sm:px-8">
+          © 2026 Signal · Illustrative model with labeled assumptions
         </p>
       </div>
     </footer>

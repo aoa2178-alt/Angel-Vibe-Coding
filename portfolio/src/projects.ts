@@ -1,4 +1,4 @@
-/** The nine builds: what the detail panel shows when a card is clicked. */
+/** The ten builds: what the detail panel shows when a card is clicked. */
 export type Project = {
   id: string;
   name: string;
@@ -197,6 +197,28 @@ export const projects: Project[] = [
     ],
     builtWith:
       "React · TypeScript · Vite · Tailwind · Vitest · Vercel · World Bank WDI and Global Findex (CC BY 4.0), ITU and GSMA published figures",
+  },
+  {
+    id: "ops-room",
+    name: "The Ops Room",
+    url: "https://ops-room.vercel.app",
+    start: "/",
+    tags: ["Simulation", "Leadership decisions", "Live"],
+    pitch: "Can you make the call when the information is incomplete, the team disagrees, and no option is free?",
+    why: "Frameworks are easy to recite and hard to use under pressure. The Ops Room puts you in the seat on the same problems the other apps model, so you feel the tradeoff before you run the numbers.",
+    what: [
+      "Five cases: a late supplier before launch, a late transformer for an AI hall, a 30% GPU supply cut, a mid-year business review, and whether a support team should use AI.",
+      "Two decisions per case, each option with a benefit, a cost and an unknown; outcomes stay hidden until you commit.",
+      "Four scores move with every call, and you write a short memo before the debrief.",
+      "The debrief maps every path you could have taken and the ideas behind your choices, then links to the app that runs the real numbers.",
+      "Thirty endings to find, remembered on a shelf in your browser.",
+    ],
+    tryThis: [
+      "Open The Transformer Is Late and choose how to pull the delivery date in.",
+      "Read the debrief's path map to see the endings you missed.",
+      "Follow Run the numbers into Tender's bid evaluation.",
+    ],
+    builtWith: "React · TypeScript · Vite · Tailwind · Vitest · Vercel · a small decision engine with every path tested",
   },
   {
     id: "walkin-here",

@@ -4075,3 +4075,65 @@ blockquote {
   line-height: 0.92;
   letter-spacing: -0.06em;
 }
+
+/* The Ops Room card art: a case file with a stamp, a redaction and the countdown */
+.project-art--ops {
+  color: var(--ink);
+  background: #faf9f6;
+}
+
+.ops-stamp {
+  position: absolute;
+  z-index: 2;
+  top: 1rem;
+  right: 1rem;
+  border: 1.5px solid #c0262d;
+  color: #c0262d;
+  padding: 1px 6px;
+  font: 600 0.55rem "DM Mono", monospace;
+  letter-spacing: 0.12em;
+  transform: rotate(4deg);
+}
+
+.ops-file {
+  position: absolute;
+  top: 26%;
+  left: 1rem;
+  right: 38%;
+  display: grid;
+  gap: 10px;
+  border-top: 4px solid #2453ff;
+  padding-top: 14px;
+}
+
+.ops-file i {
+  display: block;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--line);
+}
+
+.ops-file i:nth-child(2) {
+  width: 70%;
+}
+
+.ops-file .ops-redact {
+  width: 55%;
+  height: 10px;
+  background: var(--ink);
+}
+
+.project-art--ops > strong {
+  position: absolute;
+  z-index: 2;
+  left: 1rem;
+  bottom: 2.2rem;
+  font-family: Georgia, serif;
+  font-size: clamp(2.6rem, 4.4vw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.project-art--ops > strong span {
+  color: #2453ff;
+}

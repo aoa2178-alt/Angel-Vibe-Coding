@@ -253,6 +253,25 @@ function SignalProject() {
   );
 }
 
+function OpsRoomProject() {
+  return (
+    <div className="project-art project-art--ops" aria-hidden="true">
+      <span className="card-art-label">CASE FILE</span>
+      <span className="ops-stamp">URGENT</span>
+      <div className="ops-file">
+        <i />
+        <i />
+        <i className="ops-redact" />
+        <i />
+      </div>
+      <strong>
+        T&ndash;28<span>:</span>00
+      </strong>
+      <span className="card-art-caption">The Ops Room · five cases · thirty endings</span>
+    </div>
+  );
+}
+
 function WalkinProject() {
   return (
     <div className="project-art project-art--walkin" aria-hidden="true">
@@ -434,12 +453,12 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             <h2 id="ai-builds-heading">AI Builds</h2>
             <div className="portfolio-intro">
               <p>
-                Nine working products: eight that turn dense questions across AI
+                Ten working products: eight that turn dense questions across AI
                 infrastructure, strategy, operations, and supply chains into
-                clear, practical decisions, and one consumer app for learning a
-                city.
+                clear, practical decisions, a leadership simulator, and a
+                consumer app for learning a city.
               </p>
-              <a href="#ai-builds-grid">Explore all nine below ↓</a>
+              <a href="#ai-builds-grid">Explore all ten below ↓</a>
             </div>
           </div>
         </div>
@@ -639,12 +658,36 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
 
           <article className="ai-build-card">
             <div className="ai-build-card__media">
+              <OpsRoomProject />
+              <img className="ai-build-card__shot" src="/shots/ops-room.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
+            </div>
+            <div className="ai-build-card__body">
+              <div className="ai-build-card__meta">
+                <span>09 / Leadership simulation</span>
+                <span className="live-status">Live</span>
+              </div>
+              <h3>
+                <a className="ai-build-card__link" href="https://ops-room.vercel.app" target="_blank" rel="noreferrer">
+                  <span className="sr-only">The Ops Room — </span>
+                  Explore <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>
+                Puts you in the seat on five operating decisions: two hard calls,
+                a memo, and every ending you could have had.
+              </p>
+              <TagPills id="ops-room" />
+            </div>
+          </article>
+
+          <article className="ai-build-card">
+            <div className="ai-build-card__media">
               <WalkinProject />
               <img className="ai-build-card__shot" src="/shots/walkin-here.jpg" alt="" aria-hidden="true" loading="lazy" width={1280} height={800} />
             </div>
             <div className="ai-build-card__body">
               <div className="ai-build-card__meta">
-                <span>09 / City learning</span>
+                <span>10 / City learning</span>
                 <span className="live-status">Live</span>
               </div>
               <h3>

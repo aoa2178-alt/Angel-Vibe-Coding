@@ -5,7 +5,7 @@ const SITE = "https://angel-ade-oduntan.vercel.app";
 const PROMPT = [
   "Tell me about Angel Toki Ade-Oduntan, a strategy and operations professional focused on AI and infrastructure-intensive companies.",
   `Start by reading the portfolio summary at ${SITE}/llms.txt and the portfolio itself at ${SITE}/.`,
-  "Then give a balanced overview: Angel's experience, the nine builds and what they show about how Angel thinks, and the strategy and operations roles Angel would fit.",
+  "Then give a balanced overview: Angel's experience, the ten builds and what they show about how Angel thinks, and the strategy and operations roles Angel would fit.",
 ].join(" ");
 
 const providers = [

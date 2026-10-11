@@ -25,10 +25,10 @@ export function PowerStep() {
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-panel-muted">{campus.tagline}</p>
         <div className="mt-4 grid grid-cols-2 gap-5 lg:grid-cols-4">
-          <Stat dark label="GPUs at full build" value={totals.gpus.toLocaleString("en-US")} sub={profile.label} />
-          <Stat dark label="IT power" value={formatMw(totals.it)} sub="what the computers draw" />
-          <Stat dark label="Facility power" value={formatMw(totals.facility)} sub={`IT × PUE ${s.settings.pue}`} />
-          <Stat dark label="Electricity per year" value={formatMoney(totals.energy)} sub={`at $${s.settings.pricePerMwh}/MWh`} />
+          <Stat trust="assumption" dark label="GPUs at full build" value={totals.gpus.toLocaleString("en-US")} sub={profile.label} />
+          <Stat trust="modeled" dark label="IT power" value={formatMw(totals.it)} sub="what the computers draw" />
+          <Stat trust="modeled" dark label="Facility power" value={formatMw(totals.facility)} sub={`IT × PUE ${s.settings.pue}`} />
+          <Stat trust="modeled" dark label="Electricity per year" value={formatMoney(totals.energy)} sub={`at $${s.settings.pricePerMwh}/MWh`} />
         </div>
       </div>
 

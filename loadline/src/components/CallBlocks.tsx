@@ -1,5 +1,6 @@
 import { Check, X } from "lucide-react";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { CallShare, HowSolid } from "./CallTools";
 import { Cascade, anim, useInView } from "./Motion";
 
 export interface CallCheck {
@@ -26,7 +27,7 @@ export interface CallContent {
 
 function Block({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
-    <section className="mt-8">
+    <section data-call-text className="mt-8">
       <p className="kicker">
         {n} · {title}
       </p>
@@ -42,10 +43,11 @@ function Block({ n, title, children }: { n: number; title: string; children: Rea
 export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNode }) {
   const landing = useInView<HTMLDivElement>();
   const checks = useInView<HTMLUListElement>();
+  const root = useRef<HTMLDivElement>(null);
   return (
-    <>
+    <div ref={root}>
       {c.demo && <p className="mt-6 rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm leading-6 text-ink-2">{c.demo}</p>}
-      <section className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
+      <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
         <p className="kicker">1 · My recommendation</p>
         <p className="mt-1 text-sm text-muted">{c.decision}</p>
         <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{typeof c.headline === "string" ? <Cascade text={c.headline} delay={150} /> : c.headline}</p>
@@ -57,6 +59,8 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
           ))}
         </ul>
       </section>
+      <HowSolid checks={c.checks} />
+      <CallShare root={root} />
 
       {children && (
         <>
@@ -128,6 +132,6 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
           ))}
         </ul>
       </Block>
-    </>
+    </div>
   );
 }

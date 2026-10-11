@@ -33,7 +33,7 @@ export function DelaysStep() {
             <p className="mt-2 font-mono text-4xl font-semibold tracking-tight sm:text-5xl">{formatMoney(totalCost)}</p>
             <div className="mt-5 grid grid-cols-2 gap-4 border-t border-white/15 pt-4">
               {plans.map((p) => (
-                <Stat key={p.phase.id} dark label={`${p.phase.name} · per month late`} value={formatMoney(p.monthly.total)} sub={p.delay > 0 ? `${p.delay.toFixed(1)} months late → ${formatMonth(p.now.live)}` : `live ${formatMonth(p.now.live)}`} />
+                <Stat trust="modeled" key={p.phase.id} dark label={`${p.phase.name} · per month late`} value={formatMoney(p.monthly.total)} sub={p.delay > 0 ? `${p.delay.toFixed(1)} months late → ${formatMonth(p.now.live)}` : `live ${formatMonth(p.now.live)}`} />
               ))}
             </div>
           </div>

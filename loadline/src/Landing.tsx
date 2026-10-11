@@ -35,6 +35,7 @@ export function Landing() {
             Loadline turns a campus's GPU plan into megawatts, finds the milestone holding up each phase, and shows what every month of delay
             costs, using real projects from Crusoe, CoreWeave and QTS.
           </p>
+          <p className="mt-3 text-sm text-muted">Pick a case below: each opens as a worked example you can change. No sign-up, and Reset in the header brings the example back.</p>
         </section>
 
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6" aria-label="Case studies">

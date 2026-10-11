@@ -5,6 +5,18 @@ import { EssayArticle } from "./Essay";
 import { ProjectDetail } from "./ProjectDetail";
 import { projects, type Project } from "./projects";
 
+/** A project's tags as outlined pills (its "Live" status is shown separately). */
+function TagPills({ id }: { id: string }) {
+  const tags = projects.find((p) => p.id === id)?.tags.filter((t) => t !== "Live") ?? [];
+  return (
+    <ul className="tag-pills" aria-label="Tags">
+      {tags.map((t) => (
+        <li key={t}>{t}</li>
+      ))}
+    </ul>
+  );
+}
+
 const experience = [
   {
     organization: "Majestic Labs AI",
@@ -427,6 +439,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Decides whether to pay per token, rent GPUs, or own them—and
                 whether an AI use case pays off.
               </p>
+              <TagPills id="breakeven" />
             </div>
           </article>
 
@@ -450,6 +463,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Plans power, the critical path to go-live, the cost of delay,
                 and what to fix first.
               </p>
+              <TagPills id="loadline" />
             </div>
           </article>
 
@@ -473,6 +487,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Models demand, scarce-supply allocation, bullwhip effects, and
                 delivery risk across 180,519 orders.
               </p>
+              <TagPills id="throughline" />
             </div>
           </article>
 
@@ -496,6 +511,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Runs annual plans, OKRs, monthly reviews, gap analysis, and
                 funding decisions for an AI company.
               </p>
+              <TagPills id="keel" />
             </div>
           </article>
 
@@ -519,6 +535,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Compares total-cost bids, builds should-cost models, and sets
                 negotiation targets for critical equipment.
               </p>
+              <TagPills id="tender" />
             </div>
           </article>
 
@@ -542,6 +559,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Tracks Big Tech AI spending, its returns, and the suppliers
                 receiving the investment.
               </p>
+              <TagPills id="buildout" />
             </div>
           </article>
 
@@ -565,6 +583,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Maps 77 US AI data centers, power prices, and grid queues to
                 score the next location.
               </p>
+              <TagPills id="where-ai-lives" />
             </div>
           </article>
 
@@ -588,6 +607,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Shows who is offline, why access is unaffordable, what coverage
                 costs, and who should pay.
               </p>
+              <TagPills id="signal" />
             </div>
           </article>
         </div>

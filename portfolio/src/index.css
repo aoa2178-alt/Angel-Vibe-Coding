@@ -4003,3 +4003,24 @@ blockquote {
     animation: none !important;
   }
 }
+
+/* Tag pills on the app cards */
+.tag-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag-pills li {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-family: "DM Mono", monospace;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  color: var(--ink);
+  opacity: 0.85;
+}

@@ -44,7 +44,7 @@ export function PillBar({
   const [open, setOpen] = useState(false);
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm print:hidden">
-      <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-6 px-4 sm:px-8">
+      <div className="mx-auto flex h-[72px] max-w-[1320px] items-center justify-between gap-2 px-3 sm:gap-6 sm:px-8">
         <Logo tagline={logoTagline} />
         {center}
         {!center && nav.length > 0 && (

@@ -18,7 +18,7 @@ export function linkClick(to: string) {
 
 export function Logo({ tagline = true }: { tagline?: boolean }) {
   return (
-    <a href="/" onClick={linkClick("/")} className="flex min-w-0 items-center gap-3 rounded-xl" aria-label="Breakeven home">
+    <a href="/" onClick={linkClick("/")} className="flex shrink-0 items-center gap-2.5 rounded-xl" aria-label="Breakeven home">
       <svg viewBox="0 0 32 28" width="30" height="26" fill="none" className="shrink-0 text-ink" aria-hidden>
         <path d="M2 25V3m0 19 8-8 6 5L29 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>

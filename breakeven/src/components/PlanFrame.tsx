@@ -1,5 +1,5 @@
-import { ArrowLeft, ArrowRight, Check, Link2, RotateCcw } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Link2, RotateCcw } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
 import { OPTIONS } from "./options";
 import { PillBar, SiteFooter } from "./Site";
@@ -20,6 +20,64 @@ export function usePlan(route: PageRoute, init: (p: Plan) => Plan = (p) => p) {
 export const formatKw = (kw: number) => (kw >= 1000 ? `${(kw / 1000).toFixed(kw >= 10_000 ? 0 : 1)} MW` : `${kw.toFixed(kw >= 100 ? 0 : 1)} kW`);
 
 /** 1 Evaluate AI ROI · 2 Compare compute costs · 3 Power planning · Recommendation, then Sources. Every link carries the plan. */
+/** The steps as one dropdown in the navbar, for screens too narrow for the full links. */
+function StepMenu({ route, plan }: { route: PageRoute; plan: Plan }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => box.current && !box.current.contains(e.target as Node) && setOpen(false);
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("mousedown", close);
+    window.addEventListener("keydown", esc);
+    return () => {
+      window.removeEventListener("mousedown", close);
+      window.removeEventListener("keydown", esc);
+    };
+  }, [open]);
+  const items = [
+    ...STEPS.map((st, i) => ({ href: stepHref(st.route, plan), label: i < 3 ? `${i + 1} · ${st.label}` : st.label, short: i < 3 ? `Step ${i + 1}` : "Decision", current: st.route === route })),
+    { href: `/sources${planQuery(plan)}`, label: "Sources", short: "Sources", current: route === "sources" },
+    { href: `/faq${planQuery(plan)}`, label: "FAQ", short: "FAQ", current: route === "faq" },
+  ];
+  const current = items.find((it) => it.current);
+  const here = current?.label ?? "Menu";
+  const short = current?.short ?? "Menu";
+  return (
+    <div ref={box} className="relative flex min-w-0 flex-1 justify-center xl:hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        className="flex min-w-0 max-w-full items-center gap-1 rounded-[5px] border border-line bg-surface px-2.5 py-2 text-sm font-semibold text-ink transition hover:border-brand"
+      >
+        <span className="truncate sm:hidden">{short}</span>
+        <span className="hidden truncate sm:inline">{here}</span>
+        <ChevronDown className={`size-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+      {open && (
+        <nav aria-label="Steps" className="absolute left-1/2 top-full z-40 mt-2 w-64 -translate-x-1/2 rounded-[7px] border border-line bg-surface p-1.5 shadow-[0_10px_35px_rgb(26_39_48/0.12)]">
+          {items.map((it) => (
+            <a
+              key={it.href}
+              href={it.href}
+              onClick={(e) => {
+                setOpen(false);
+                linkClick(it.href)(e);
+              }}
+              aria-current={it.current ? "page" : undefined}
+              className={`block rounded-[5px] px-3 py-2.5 text-sm transition ${it.current ? "bg-brand-soft font-semibold text-brand-ink" : "text-ink hover:bg-sunken"}`}
+            >
+              {it.label}
+            </a>
+          ))}
+        </nav>
+      )}
+    </div>
+  );
+}
+
 function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan: Plan; compact?: boolean }) {
   const sources = `/sources${planQuery(plan)}`;
   const faq = `/faq${planQuery(plan)}`;
@@ -184,16 +242,16 @@ export function PlanFrame({
     <div className="min-h-dvh">
       <PillBar
         logoTagline
-        center={<StepTracker route={route} plan={plan} />}
+        center={
+          <>
+            <StepTracker route={route} plan={plan} />
+            <StepMenu route={route} plan={plan} />
+          </>
+        }
         actions={
           <div className="flex shrink-0 items-center gap-1.5">
             <ResetPlan plan={plan} />
             {actions ?? <CopyLinkButton />}
-          </div>
-        }
-        below={
-          <div className="mx-auto max-w-[1320px] border-t border-line bg-surface p-1 xl:hidden print:hidden">
-            <StepTracker route={route} plan={plan} compact />
           </div>
         }
       />

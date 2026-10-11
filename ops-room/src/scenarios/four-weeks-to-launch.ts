@@ -118,6 +118,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Kestrel promises priority allocation but can't confirm how much resin its own supplier will release.",
           effects: { timing: 10, cost: 22, trust: 0, risk: 8 },
           tags: ["expedite", "spent_cash", "single_source"],
+          concepts: ["cost_of_delay", "queueing"],
           outcome: {
             headline: "Kestrel delivered, partly.",
             body: "The expedite fee bought weekend shifts and a charter slot, but it couldn't buy resin. Kestrel's supplier released 60% of the requested allocation. By Friday you have plates for 5 of 8 units and a $176K invoice.",
@@ -137,6 +138,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Voss has never built to your exact spec. You won't know thermal performance until the 72-hour soak.",
           effects: { timing: 6, cost: 8, trust: 0, risk: 5 },
           tags: ["second_source"],
+          concepts: ["single_source"],
           outcome: {
             headline: "Voss parts arrived. One test unit ran hot.",
             body: "Voss shipped in four days. Priya pulled two engineers off firmware to run qualification. Three of four test units passed the 72-hour soak. The fourth showed a 9°C hot spot on the GPU plate under sustained load, traced to plate flatness at the edge of tolerance.",
@@ -156,6 +158,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Their CTO may appreciate the candor. Their procurement team may not.",
           effects: { timing: -8, cost: 2, trust: -12, risk: -12 },
           tags: ["early_reset", "transparent", "single_source"],
+          concepts: ["reforecast"],
           outcome: {
             headline: "Brightline took the call. Procurement took notes.",
             body: "Brightline's CTO was disappointed but thanked Marcus for calling early; she'd rather plan around a real date than a hopeful one. Two hours later, their procurement team came back. They'll accept the phased plan only with a firm date for the last 5 units and a late-delivery penalty.",
@@ -191,6 +194,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "You're betting a year of supply on a vendor whose own supply chain just failed.",
           effects: { timing: 12, cost: 6, trust: 6, risk: 14 },
           tags: ["lock_in", "full_ship"],
+          concepts: ["single_source", "sunk_cost"],
           outcome: {
             headline: "All eight shipped on time.",
             body: "Kestrel found the resin. Eight Meridian-1 units left the dock on the last day of week 4, and Brightline's CTO posted a photo of the rack. Meanwhile, legal flagged that the exclusive has no exit clause if Kestrel misses again, and the premium adds about $110K over the year.",
@@ -210,6 +214,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Whether Brightline's workloads can actually start on 5 of 8 nodes.",
           effects: { timing: -4, cost: 0, trust: -8, risk: -4 },
           tags: ["partial_ship", "transparent"],
+          concepts: ["allocation"],
           outcome: {
             headline: "Five on time, three late, one awkward call.",
             body: "Brightline brought 5 nodes online in week 4 and started a reduced pipeline. The last 3 shipped in week 6. Their CTO was measured: she'd rather have known on day one. The expedite spend stays on the books with a partial result to show for it.",
@@ -229,6 +234,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Whether Voss parts pass, and how far firmware slips as a result.",
           effects: { timing: -6, cost: 8, trust: -2, risk: -10 },
           tags: ["second_source", "overloaded_engineering", "partial_ship"],
+          concepts: ["single_source", "binding_constraint"],
           outcome: {
             headline: "Second source qualified. Firmware paid for it.",
             body: "Voss plates passed after one flatness rework. Five units shipped in week 4 and the last three in week 5 on Voss plates. Firmware release slipped four days, and two of Priya's engineers worked back-to-back weekends. You now have a qualified second source.",
@@ -264,6 +270,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Whether the rework fully closes the gap. You'll know after the second soak.",
           effects: { timing: -10, cost: 10, trust: -4, risk: -14 },
           tags: ["quality_first", "schedule_slip"],
+          concepts: ["cost_of_delay"],
           outcome: {
             headline: "Fixed properly. One week late.",
             body: "All four re-tested units passed with margin. Eight units shipped at the end of week 5. Brightline's CTO wasn't thrilled about the slip, but her infrastructure lead was impressed by the thermal data package you sent with the shipment.",
@@ -283,6 +290,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "How Brightline reacts when benchmarks come in 8% low, and whether the field fix works.",
           effects: { timing: 14, cost: 4, trust: -8, risk: 8 },
           tags: ["quality_shortcut", "disclosed_derate", "transparent", "full_ship"],
+          concepts: ["expected_value"],
           outcome: {
             headline: "On time, 8% short.",
             body: "All eight shipped in week 4 with the derate. Because you told them first, Brightline wasn't blindsided. But their benchmark report to their board lists the servers as below spec, and they want a dated plan to restore full performance at Halcyon's cost.",
@@ -302,6 +310,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "The yield. If only half the plates pass, most of the order slips anyway.",
           effects: { timing: 4, cost: 7, trust: -2, risk: -6 },
           tags: ["screened", "partial_ship"],
+          concepts: ["value_of_information"],
           outcome: {
             headline: "72% yield. Six on time, two late.",
             body: "72% of plates passed screening, enough for 6 units in week 4. The last two shipped in week 5 with reworked plates. The screening fixture is now part of the line, but nobody has fixed why Voss's flatness drifts.",
@@ -337,6 +346,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Week 7 depends entirely on Kestrel's revised date, and you still have no backup.",
           effects: { timing: 6, cost: 4, trust: 8, risk: 10 },
           tags: ["penalty_exposure"],
+          concepts: ["expected_value"],
           outcome: {
             headline: "Signed. Then Kestrel slipped three days.",
             body: "Brightline procurement signed within an hour and the relationship steadied. Kestrel delivered three days past its revised date, so the final units shipped early in week 8. You paid one week's penalty, $15K, and Marcus's team has already asked legal to reuse the clause for the next customer.",
@@ -356,6 +366,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Procurement may escalate to the CTO, and the CTO may side with them.",
           effects: { timing: -2, cost: 4, trust: 6, risk: -2 },
           tags: ["protected_precedent", "engineering_loaned"],
+          concepts: ["binding_constraint"],
           outcome: {
             headline: "Procurement blinked. Engineering paid.",
             body: "Procurement escalated, but the CTO liked the on-site offer and signed without a penalty, and the weekly updates kept Brightline informed. Back home, losing an engineer for a month pushed firmware bring-up back a week. The last 5 units shipped at the end of week 7 with firmware finished just in time.",
@@ -375,6 +386,7 @@ export const fourWeeksToLaunch: Scenario = {
           uncertainty: "Whether Brightline's workloads port cleanly to cloud instances in time.",
           effects: { timing: 0, cost: 12, trust: 14, risk: 0 },
           tags: ["credits_bridge", "spent_cash"],
+          concepts: ["cost_of_delay"],
           outcome: {
             headline: "The demo ran. The bill arrived.",
             body: "Brightline's pipeline ran on rented capacity after a day of porting pain, and the grant demo went ahead on schedule. Procurement dropped the penalty request. Kestrel's revised date held, and the last units shipped in week 7. The credits cost $96K.",

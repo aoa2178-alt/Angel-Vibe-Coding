@@ -7,9 +7,15 @@ const stageLabel: Record<RunState["stage"], string> = {
   brief: "reading the brief",
   decision: "a decision is waiting",
   consequence: "reviewing an outcome",
-  recommendation: "writing your note to the COO",
+  recommendation: "writing your note",
   debrief: "run complete",
 };
+
+const HOW = [
+  { icon: Users, title: "Read the room", body: "Get the brief and hear from the people around the table." },
+  { icon: Scale, title: "Make two calls", body: "Each option has a benefit, a cost and an unknown. Outcomes stay hidden until you commit." },
+  { icon: FileText, title: "Own the outcome", body: "Write a short note, see every path you could have taken, then run the numbers." },
+];
 
 export function Welcome({
   scenarios,
@@ -33,82 +39,64 @@ export function Welcome({
       <main className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-12">
         <div className="max-w-2xl animate-rise">
           <Eyebrow>Operations decision simulator</Eyebrow>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-balance sm:text-5xl">
-            Take the seat. Make the call.
-          </h1>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-balance sm:text-5xl">Take the seat. Make the call.</h1>
           <p className="mt-4 text-lg text-ink-2 text-pretty">
-            The Ops Room drops you into a leadership meeting where the information is incomplete, the teams disagree and
-            every option costs something. There's no answer key, only tradeoffs you can defend.
+            Incomplete information, teams that disagree, and no option that's free. Make the call, then see what it cost.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5">
-          {scenarios.map((s) => {
+        <ol className="mt-8 grid gap-4 sm:grid-cols-3">
+          {HOW.map(({ icon: Icon, title, body }) => (
+            <li key={title} className="flex gap-3">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
+                <Icon className="size-4" aria-hidden />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-ink">{title}</span>
+                <span className="block text-sm text-ink-2">{body}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        <h2 className="mt-12 text-xs font-semibold uppercase tracking-[0.12em] text-muted">Scenarios</h2>
+        <div className="mt-3 grid gap-3">
+          {scenarios.map((s, i) => {
             const saved = savedRun?.scenarioId === s.id ? savedRun : null;
             return (
-              <Card key={s.id} className="animate-rise overflow-hidden [animation-delay:120ms]">
-                <div className="grid md:grid-cols-[1.4fr_1fr]">
-                  <div className="p-6 sm:p-8">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
-                      <span className="rounded-full bg-alert/15 px-2.5 py-1 font-semibold text-alert">Scenario 1</span>
+              <Card key={s.id} className="animate-rise p-5 sm:p-6 [animation-delay:120ms]">
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted">
+                      <span className="rounded-full bg-alert/15 px-2.5 py-1 font-semibold text-alert">Scenario {i + 1}</span>
                       <span className="inline-flex items-center gap-1.5">
                         <Clock className="size-3.5" aria-hidden /> {s.estMinutes}
                       </span>
                       <span>You play: {s.role}</span>
+                      {s.app && <span>Numbers: {s.app.name}</span>}
                     </div>
-                    <h2 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">{s.title}</h2>
-                    <p className="mt-1 font-medium text-alert">{s.tagline}</p>
-                    <div className="mt-4 grid gap-3 text-[15px] text-ink-2">
-                      {s.intro.map((p, i) => (
-                        <p key={i}>{p}</p>
-                      ))}
-                    </div>
-
-                    <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                      {saved ? (
-                        <>
-                          <Button onClick={onResume}>
-                            <Play className="size-4" aria-hidden />
-                            {saved.stage === "debrief" ? "View your debrief" : "Resume run"}
-                          </Button>
-                          <Button variant="secondary" onClick={() => onStartOver(s.id)}>
-                            <RotateCcw className="size-4" aria-hidden />
-                            Start over
-                          </Button>
-                        </>
-                      ) : (
-                        <Button onClick={() => onStart(s.id)}>
-                          Start scenario
-                          <ArrowRight className="size-4" aria-hidden />
-                        </Button>
-                      )}
-                    </div>
-                    {saved && (
-                      <p className="mt-3 text-sm text-muted">
-                        Saved in this browser: {stageLabel[saved.stage]}.
-                      </p>
-                    )}
+                    <h3 className="mt-3 text-xl font-bold tracking-tight sm:text-2xl">{s.title}</h3>
+                    <p className="mt-1 text-[15px] text-ink-2">{s.tagline}</p>
+                    {saved && <p className="mt-2 text-sm text-muted">Saved in this browser: {stageLabel[saved.stage]}.</p>}
                   </div>
-
-                  <div className="border-t border-line bg-panel-2/40 p-6 sm:p-8 md:border-l md:border-t-0">
-                    <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">How it plays</h3>
-                    <ol className="mt-4 grid gap-4">
-                      {[
-                        { icon: Users, title: "Read the room", body: "Get the brief and hear from the COO, engineering and commercial." },
-                        { icon: Scale, title: "Make two calls", body: "Each option has a benefit, a cost and an unknown. Outcomes stay hidden until you commit." },
-                        { icon: FileText, title: "Own the outcome", body: "Write a short note to the COO, then see what you protected and what you missed." },
-                      ].map(({ icon: Icon, title, body }) => (
-                        <li key={title} className="flex gap-3">
-                          <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                            <Icon className="size-4" aria-hidden />
-                          </span>
-                          <span>
-                            <span className="block text-sm font-semibold text-ink">{title}</span>
-                            <span className="block text-sm text-ink-2">{body}</span>
-                          </span>
-                        </li>
-                      ))}
-                    </ol>
+                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                    {saved ? (
+                      <>
+                        <Button onClick={onResume}>
+                          <Play className="size-4" aria-hidden />
+                          {saved.stage === "debrief" ? "View debrief" : "Resume"}
+                        </Button>
+                        <Button variant="secondary" onClick={() => onStartOver(s.id)}>
+                          <RotateCcw className="size-4" aria-hidden />
+                          Start over
+                        </Button>
+                      </>
+                    ) : (
+                      <Button onClick={() => onStart(s.id)}>
+                        Start
+                        <ArrowRight className="size-4" aria-hidden />
+                      </Button>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -116,10 +104,7 @@ export function Welcome({
           })}
         </div>
 
-        <p className="mt-6 text-sm text-muted">
-          No sign-in needed. Your progress saves in this browser, so a refresh won't lose your run. All companies and
-          people are fictional.
-        </p>
+        <p className="mt-6 text-sm text-muted">No sign-in needed. Your progress saves in this browser. All companies and people are fictional.</p>
       </main>
     </div>
   );

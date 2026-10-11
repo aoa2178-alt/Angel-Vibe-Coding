@@ -9,6 +9,7 @@ import type {
   RunState,
   Scenario,
 } from "./types";
+import { CONCEPTS } from "./concepts";
 
 export const END = "recommendation";
 
@@ -160,5 +161,8 @@ export function validateScenario(scenario: Scenario): string[] {
   walk(scenario.startDecision, []);
 
   if (scenario.debrief.profiles.length === 0) problems.push("debrief needs at least one profile");
+  for (const d of Object.values(scenario.decisions))
+    for (const o of d.options) for (const c of o.concepts ?? []) if (!(c in CONCEPTS)) problems.push(`${d.id}/${o.id}: unknown concept "${c}"`);
+  if (scenario.app && !scenario.app.href.startsWith("https://")) problems.push(`app link must be https: ${scenario.app.href}`);
   return problems;
 }

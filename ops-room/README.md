@@ -2,7 +2,17 @@
 
 An interactive business decision simulator. You play the head of operations at Halcyon Compute, a fictional AI hardware startup. You make calls under pressure with incomplete information, balancing four metrics: launch timing, cost, customer trust and operational risk.
 
-The first scenario is **Four Weeks to Launch**. A cold-plate supplier slips three weeks just before your first customer shipment. You make two decisions (3 × 3 = 9 possible paths), write a short note to the COO, and get a rule-based debrief.
+Five scenarios, each 2 decisions × 3 options (9 paths), a short memo and a rule-based debrief:
+
+| Scenario | You play | Numbers from |
+| --- | --- | --- |
+| **Four Weeks to Launch**: a cold-plate supplier slips three weeks before the first customer shipment | Head of Operations | (standalone) |
+| **The Transformer Is Late**: a 96 MW AI hall loses six months on its transformers | Program Lead | [Tender](https://tender-six-iota.vercel.app) |
+| **Not Enough to Go Around**: GPU supply drops 30% across three customer regions | Supply Planning Lead | [Throughline](https://throughline-gilt.vercel.app) |
+| **The June Review**: $6.2M behind plan with the board meeting Thursday | Head of Strategy & Ops | [Keel](https://keel-one-rho.vercel.app) |
+| **Should This Be AI?**: AI, rules automation or process redesign for member support | Head of Support Ops | [Breakeven](https://breakeven-silk.vercel.app) |
+
+The debrief also shows **every path** (all 9 outcomes, yours highlighted), the **ideas behind your calls** (cost of delay, critical path, bullwhip and so on) and a **Run the numbers** link to the matching app.
 
 It runs entirely in the browser: no sign-in, database or API key. Progress saves to `localStorage`, so a refresh doesn't lose a run. All companies and people are fictional.
 
@@ -13,6 +23,7 @@ You need Node.js 20 or newer.
 ```bash
 npm install
 npm run dev
+npm test
 ```
 
 Then open the URL Vite prints (usually http://localhost:5173).
@@ -22,9 +33,7 @@ Then open the URL Vite prints (usually http://localhost:5173).
 
 ## Where to edit content
 
-All scenario text, numbers and rules live in one file:
-
-**`src/scenarios/four-weeks-to-launch.ts`**
+Each scenario is one file in `src/scenarios/`, registered in `src/scenarios/index.ts`. For example **`src/scenarios/four-weeks-to-launch.ts`**:
 
 | What | Where in the file |
 | --- | --- |
@@ -32,7 +41,8 @@ All scenario text, numbers and rules live in one file:
 | Characters | `people` (referenced by key in every message) |
 | Metrics and their plain-language readouts | `metrics`, `initial` |
 | Brief (goal, alert, facts, leadership messages) | `brief` |
-| Decisions and options | `decisions`. Each option has `benefit`, `cost`, `uncertainty`, `effects` (metric changes), `outcome`, `tags`, and `next` (the next decision id, or `"recommendation"` to end) |
+| Decisions and options | `decisions`. Each option has `benefit`, `cost`, `uncertainty`, `effects` (metric changes), `outcome`, `tags`, `concepts` (keys in `src/engine/concepts.ts`), and `next` (the next decision id, or `"recommendation"` to end) |
+| Link to the app with the numbers | `app` |
 | Memo fields | `memo` |
 | Debrief feedback | `debrief.profiles` (headline; first match wins), `strengths`, `blindSpots`, `selfCheck`. Each rule has a `when` condition on tags and/or final metric values |
 

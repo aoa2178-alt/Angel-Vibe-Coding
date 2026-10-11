@@ -1,8 +1,60 @@
-import { CircleCheck, Flag, House, Info, ListChecks, RotateCcw, TriangleAlert } from "lucide-react";
+import { ArrowUpRight, CircleCheck, Flag, House, Info, Lightbulb, ListChecks, Map as MapIcon, RotateCcw, TriangleAlert } from "lucide-react";
 import { DeltaChip, MetricTile } from "@/components/Metrics";
-import { Button, Card, Eyebrow, SectionTitle } from "@/components/ui";
-import { evaluateDebrief, type DerivedRun } from "@/engine/engine";
-import type { DebriefRule, Scenario } from "@/engine/types";
+import { Button, Card, Eyebrow, SectionTitle, cx } from "@/components/ui";
+import { CONCEPTS } from "@/engine/concepts";
+import { evaluateDebrief, health, metricStatus, type DerivedRun } from "@/engine/engine";
+import { pathRows, samePath } from "@/engine/paths";
+import type { Choice, DebriefRule, Scenario } from "@/engine/types";
+
+const STATUS_BAR = { good: "bg-good", watch: "bg-alert", critical: "bg-bad" } as const;
+
+/**
+ * Every path through the scenario: one row per first choice, one cell per route from it. Each cell shows the second
+ * choice, the debrief headline it earns, and the four final scores as small bars (longer = better for the company).
+ */
+function PathMap({ scenario, mine }: { scenario: Scenario; mine: Choice[] }) {
+  const rows = pathRows(scenario);
+  return (
+    <div className="grid gap-4">
+      {rows.map(({ option, paths }) => (
+        <div key={option.id}>
+          <p className="mb-2 text-sm font-semibold">{option.label}</p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {paths.map((p) => {
+              const yours = samePath(p.choices, mine);
+              const last = p.run.timeline.at(-1);
+              return (
+                <div
+                  key={p.choices.map((c) => c.optionId).join("/")}
+                  className={cx("rounded-xl border p-3", yours ? "border-accent bg-accent/10" : "border-line bg-panel-2/40")}
+                >
+                  <p className="text-xs text-muted">
+                    then {last?.option.label}
+                    {yours && <span className="ml-1.5 rounded bg-accent px-1.5 py-0.5 font-semibold text-accent-ink">your path</span>}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold leading-snug">{p.profile?.title}</p>
+                  <ul className="mt-2 grid gap-1">
+                    {scenario.metrics.map((m) => {
+                      const v = p.run.metrics[m.id]!;
+                      return (
+                        <li key={m.id} className="grid grid-cols-[3.5rem_1fr] items-center gap-2 text-[11px] text-muted">
+                          <span>{m.shortLabel}</span>
+                          <span className="h-1.5 rounded-full bg-line" aria-label={`${m.label}: ${m.describe(v)}`}>
+                            <span className={cx("block h-full rounded-full", STATUS_BAR[metricStatus(m, v)])} style={{ width: `${Math.max(4, health(m, v))}%` }} />
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function RuleList({ rules, icon: Icon, color, empty }: { rules: DebriefRule[]; icon: typeof CircleCheck; color: string; empty: string }) {
   if (rules.length === 0) return <p className="text-sm text-muted">{empty}</p>;
@@ -35,6 +87,8 @@ export function Debrief({
   onHome: () => void;
 }) {
   const result = evaluateDebrief(scenario, run);
+  const mine: Choice[] = run.timeline.map((t) => ({ decisionId: t.decision.id, optionId: t.option.id }));
+  const concepts = [...new Set(run.timeline.flatMap((t) => t.option.concepts ?? []))].filter((c) => c in CONCEPTS);
 
   return (
     <div className="grid gap-10">
@@ -103,6 +157,46 @@ export function Debrief({
           <RuleList rules={result.blindSpots} icon={TriangleAlert} color="text-alert" empty="Nothing major slipped through on this path." />
         </Card>
       </div>
+
+      {concepts.length > 0 && (
+        <Card className="p-5 sm:p-6">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+            <Lightbulb className="size-5 text-accent" aria-hidden /> Ideas behind your calls
+          </h2>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {concepts.map((c) => (
+              <li key={c} className="rounded-xl border border-line bg-panel-2/40 p-3">
+                <p className="text-sm font-semibold">{CONCEPTS[c]!.label}</p>
+                <p className="mt-1 text-sm text-ink-2">{CONCEPTS[c]!.body}</p>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      <section>
+        <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold">
+          <MapIcon className="size-5 text-accent" aria-hidden /> Every path
+        </h2>
+        <p className="mb-4 text-sm text-muted">All the routes through this scenario and where each one ends. Longer bars are better for the company.</p>
+        <PathMap scenario={scenario} mine={mine} />
+      </section>
+
+      {scenario.app && (
+        <a
+          href={scenario.app.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-4 rounded-2xl border border-accent/50 bg-accent/10 p-5 transition hover:border-accent"
+        >
+          <span>
+            <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-accent">Run the numbers</span>
+            <span className="mt-1 block font-semibold">{scenario.app.label}</span>
+            <span className="block text-sm text-ink-2">Opens {scenario.app.name} in a new tab.</span>
+          </span>
+          <ArrowUpRight className="size-5 shrink-0 text-accent" aria-hidden />
+        </a>
+      )}
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_1fr]">
         <Card className="overflow-hidden">

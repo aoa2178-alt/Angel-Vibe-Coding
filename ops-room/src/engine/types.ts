@@ -56,6 +56,8 @@ export interface Option {
   tags: string[];
   /** Next decision id, or "recommendation" to go to the memo. */
   next: string;
+  /** Ideas behind this choice (keys into CONCEPTS in src/engine/concepts.ts), shown in the debrief. */
+  concepts?: string[];
 }
 
 export interface Decision {
@@ -103,6 +105,8 @@ export interface Scenario {
   intro: string[];
   estMinutes: string;
   role: string;
+  /** The portfolio app that runs this scenario's numbers, linked from the debrief. */
+  app?: { name: string; href: string; label: string };
   company: string;
   people: Record<string, Person>;
   metrics: MetricDef[];

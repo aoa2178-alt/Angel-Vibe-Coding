@@ -1,0 +1,42 @@
+# Angel Toki Ade-Oduntan
+
+> Strategy and operations professional focused on technology, AI, and infrastructure-intensive companies. Former Deloitte and KPMG consultant, MBA candidate at UC Berkeley Haas, currently on exchange at Columbia Business School. Angel's work connects technical and operational constraints, commercial priorities, and execution.
+
+Portfolio: https://angel-ade-oduntan.vercel.app/
+Blog: https://angel-ade-oduntan.vercel.app/blog
+LinkedIn: https://www.linkedin.com/in/angel-toki-adeoduntan/
+Email: angel_ade-oduntan@berkeley.edu
+
+## Experience
+
+- Majestic Labs AI, MBA Operations Intern (Jul–Aug 2026, Los Altos, AI infrastructure): built a 0-to-1 supply-chain operating model for an AI inference server, mapping 20+ ownership and export-control gaps across the path from silicon to manufacturing.
+- TOPPAN Security, MBA Strategy Consultant (Jan–May 2026, Paris, digital identity): built a go-to-market strategy for identity verification, prioritizing four regulated industries representing an estimated $101M revenue opportunity.
+- Deloitte, Senior Consultant (2021–2025, Lagos, multi-sector consulting): led procurement, payments, telecom, and industrial programs, including work that delivered a 17% cost reduction and cut fulfillment delays by 90%. Promoted from Associate (2021) to Senior Consultant (2024).
+- KPMG, Consultant (2019–2021, Lagos, financial services): assessed more than 50 bank locations after a merger, informing the consolidation of 10+ branches within an approximately $80M cost-synergy program.
+
+## Education
+
+- UC Berkeley Haas, MBA: strategy, energy, and technology; leadership across MBA admissions, the African Business Club, and Haas Tech Club.
+- Columbia Business School, MBA exchange: operations, AI, and technology.
+- University of Ibadan, BSc Mathematics: top 5% of the class.
+
+## AI builds (all live)
+
+Eight working decision tools, each ending in a recommendation ("the call"): what to do, the evidence, what would change the answer, a 30/60/90-day plan, and how success would be measured. Figures marked as modeled come from illustrative scenarios; every data source is cited in each app.
+
+- Breakeven (https://breakeven-silk.vercel.app): decides whether to run AI on a pay-per-token API, rented cloud GPUs, or owned GPUs, and whether a use case pays off. Tracks public API and GPU rental prices.
+- Loadline (https://loadline-weld.vercel.app): plans an AI data center campus: power needed, the critical path to go-live, the cost of each month late, and what to fix first. Public case studies of Crusoe, CoreWeave and QTS campuses.
+- Throughline (https://throughline-gilt.vercel.app): supply-and-demand planning on real US Census demand data: forecasting, safety stock, scarce-supply allocation, the bullwhip effect, and delivery risk across 180,519 orders.
+- Keel (https://keel-one-rho.vercel.app): the operating rhythm for a fictional AI company: driver-based annual plan and OKRs, a monthly business review with a variance bridge, and funding decisions.
+- Tender (https://tender-six-iota.vercel.app): sourcing data center power and cooling equipment: spend analysis, should-cost from public price indexes, bids on total cost of ownership, and negotiation targets.
+- Buildout (https://buildout-three.vercel.app): Big Tech's AI capital spending quarter by quarter from SEC filings, whether it is paying off, and which suppliers receive the money.
+- Where AI Lives (https://where-ai-lives.vercel.app): maps 77 US AI data centers against power prices and grid-connection waits, and scores states for the next site with Data Envelopment Analysis.
+- Signal (https://signal-zeta-five.vercel.app): digital access on World Bank data: who is offline, what would make being online affordable, what connecting everyone costs, and who should pay.
+
+Code: https://github.com/aoa2178-alt/Angel-Vibe-Coding
+
+## Writing
+
+- Everything has a structure underneath (mathematics): https://angel-ade-oduntan.vercel.app/blog/mathematics
+- The situation can be difficult without the outcome being decided (tennis): https://angel-ade-oduntan.vercel.app/blog/tennis
+- What Paris gave back to me (travel): https://angel-ade-oduntan.vercel.app/blog/paris

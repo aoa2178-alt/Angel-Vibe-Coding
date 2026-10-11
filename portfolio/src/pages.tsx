@@ -1,5 +1,6 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { Link, useLocation, useParams } from "react-router";
+import { AskAI } from "./AskAI";
 import { EssayArticle } from "./Essay";
 import { ProjectDetail } from "./ProjectDetail";
 import { projects, type Project } from "./projects";
@@ -961,6 +962,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
       )}
 
       <ProjectDetail project={openProject} onClose={() => setOpenProject(null)} />
+      {!introVisible && <AskAI />}
 
       <footer className="contact-footer" id="contact">
         <div className="contact-footer__intro">

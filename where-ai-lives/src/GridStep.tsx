@@ -35,7 +35,7 @@ export function GridStep() {
   return (
     <Frame route="grid" s={s}>
       <StepHeading route="grid">
-        Two things a data center needs from the grid: cheap power, and a fast connection. Here's both, for every state and grid region.
+        Power price by state and grid-connection wait by region.
       </StepHeading>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -126,12 +126,9 @@ export function GridStep() {
           AI is mostly being built where power is cheap: its power-weighted price is {cents(aiPrice)}/kWh against a US average of {cents(us)}. Speed is another story.
           {ercot !== null && pjm !== null &&
             ` Texas's grid (ERCOT) connects new power in about ${years(ercot)}, while PJM, home to Virginia and Ohio, takes ${years(pjm)}.`}{" "}
-          Step 3 scores every state on both at once.
+          Site selection scores every state on both at once.
         </p>
-        <p className="mt-3 max-w-3xl text-xs leading-5 text-muted">
-          The wait is for new power plants joining the grid, a public proxy for how fast a region can add supply. Data centers' own connection waits aren't published consistently. Each state uses its main grid
-          region (where most of its connection requests go); a few states are split between regions.
-        </p>
+        <p className="mt-3 max-w-3xl text-xs leading-5 text-muted">Wait: new power plants joining the grid, a proxy for how fast a region adds supply. See the FAQ.</p>
         <button type="button" onClick={() => setTable((t) => !t)} aria-expanded={table} className="mt-3 text-xs font-medium text-brand-ink underline underline-offset-2">
           {table ? "Hide every state" : "Show every state as a table"}
         </button>

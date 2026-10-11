@@ -48,7 +48,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
     <div ref={root}>
       {c.demo && <p className="mt-6 rounded-xl border border-dashed border-line bg-sunken px-4 py-3 text-sm leading-6 text-ink-2">{c.demo}</p>}
       <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
-        <p className="kicker">1 · My recommendation</p>
+        <p className="kicker">Recommendation</p>
         <p className="mt-1 text-sm text-muted">{c.decision}</p>
         <p className="mt-2 text-xl font-bold leading-snug tracking-tight text-ink sm:text-2xl">{typeof c.headline === "string" ? <Cascade text={c.headline} delay={150} /> : c.headline}</p>
         <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
@@ -64,7 +64,7 @@ export function CallBlocks({ c, children }: { c: CallContent; children?: ReactNo
 
       {children && (
         <>
-          <p className="kicker mt-10">2 · Why: the evidence</p>
+          <p className="kicker mt-10">Evidence</p>
           {children}
         </>
       )}

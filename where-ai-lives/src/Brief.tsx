@@ -74,7 +74,7 @@ export function Brief() {
       </StepHeading>
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">The call · Where AI Lives</p>
+          <p className="kicker">Recommendation · Where AI Lives</p>
           <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where should the next AI data center go?</h2>
           <p className="mt-2 text-sm text-muted">
             As of {formatMonth(at)} · data retrieved {RETRIEVED} · {s.sector} power prices
@@ -132,7 +132,7 @@ export function Brief() {
         </p>
       </article>
       <p className="mt-4 text-center text-xs text-muted print:hidden">
-        Change the date or price type in steps 1–3; {s.state ? `${stateName(s.state)} is included because it's in focus.` : "focus a state in step 3 to add it here."}{" "}
+        Change the date or price type on the earlier pages; {s.state ? `${stateName(s.state)} is included because it's in focus.` : "focus a state under Site selection to add it here."}{" "}
         {s.state && (
           <button type="button" onClick={() => setS({ ...s, state: "" })} className="underline underline-offset-2">
             Remove it

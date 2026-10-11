@@ -4,6 +4,7 @@ import { StateSelect } from "./MapStep";
 import { SECTOR_OPTIONS } from "./GridStep";
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { Scatter, type ScatterPoint } from "@/components/Scatter";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, Pills } from "@/components/ui";
 import { REGION_LABEL, STATE_REGION, cents, formatMw, pct, stateName, years } from "@/lib/data";
 import { frontier } from "@/lib/dea";
@@ -37,7 +38,7 @@ export function SitesStep() {
   return (
     <Frame route="sites" s={s}>
       <StepHeading route="sites">
-        A site scorer from operations research (DEA) rates every state on power price and grid wait together, with no weights picked by hand.
+        Every state scored on power price and grid wait together, by data envelopment analysis (DEA).
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem]">
@@ -128,7 +129,9 @@ export function SitesStep() {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
+      <Fold id="method" title="Method and limitations" sub="How the DEA score works, and what it leaves out">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <Kicker method="Data Envelopment Analysis">How the score works</Kicker>
           <ul className="mt-3 space-y-2 text-[15px] leading-7 text-ink-2">
@@ -147,6 +150,8 @@ export function SitesStep() {
             <li>Land, water, fiber, tax breaks and on-site generation also decide real sites. This scores the grid only.</li>
           </ul>
         </Card>
+      </div>
+      </Fold>
       </div>
     </Frame>
   );

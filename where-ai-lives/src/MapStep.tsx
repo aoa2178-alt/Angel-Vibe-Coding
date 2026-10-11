@@ -95,7 +95,7 @@ export function MapStep() {
   return (
     <Frame route="map" s={s}>
       <StepHeading route="map">
-        Every US frontier AI data center Epoch AI tracks, with the power each draws over time. Slide the date to watch the build-out arrive.
+        Every US frontier AI data center, sized by the power it draws. Move the date to see the build-out arrive.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">

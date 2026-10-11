@@ -108,11 +108,10 @@ input[type="range"] {
   }
 }
 
-/* Keel landing: the tilted wall of month blocks. The wall drifts; each block floats in a slow wave. */
+/* Keel landing: the tilted wall of thin month slabs, drifting slowly. */
 .keel-wall { transform-style: preserve-3d; transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg); transform-origin: 50% 40%; animation: keel-drift 14s ease-in-out infinite alternate; }
 @keyframes keel-drift { to { transform: perspective(1800px) rotateX(52deg) rotateZ(-32deg) translate(-26px, 14px); } }
-.kt { position: relative; height: 150px; transform-style: preserve-3d; animation: keel-bob 4.5s ease-in-out infinite; transition: filter 0.2s; }
-@keyframes keel-bob { 50% { transform: translateZ(16px); } }
+.kt { position: relative; height: 150px; transform-style: preserve-3d; transition: filter 0.2s; }
 .kt-done { cursor: pointer; }
 .kt-done:hover, .kt-now:hover { filter: brightness(1.04); }
 .kt > span { position: absolute; }

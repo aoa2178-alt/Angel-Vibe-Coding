@@ -2432,8 +2432,10 @@ blockquote {
   color: var(--muted);
 }
 
-.profile-card--statement > p {
+/* Doubled class so the statement beats the general .profile-card > p rule further down. */
+.profile-card.profile-card--statement > p {
   max-width: 35rem;
+  color: var(--ink);
   margin-top: 4rem;
   position: relative;
   z-index: 2;
@@ -3280,7 +3282,7 @@ blockquote {
     margin-bottom: 1rem;
   }
 
-  .profile-card--statement > p {
+  .profile-card.profile-card--statement > p {
     font-size: 2rem;
   }
 

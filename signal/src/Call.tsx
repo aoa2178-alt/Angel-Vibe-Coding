@@ -5,7 +5,7 @@ import { buildPlan } from "./BuildStep";
 import { Bars } from "@/components/Bars";
 import { CallShare, HowSolid } from "@/components/CallTools";
 import { Frame, StepHeading, href, linkClick, useScenario } from "@/components/Frame";
-import { Cascade, anim, useInView } from "@/components/Motion";
+import { anim, useInView } from "@/components/Motion";
 import { afford } from "@/lib/afford";
 import { DATA_TARGET, HANDSET_TARGET } from "@/lib/assumptions";
 import { leverOptions, measures, ranked, sensitivities, type LeverOption } from "@/lib/call";
@@ -62,14 +62,10 @@ export function Call() {
         </header>
 
         {/* 1. The recommendation, answer first */}
-        <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6" style={anim("rise", 600, 0, "back")}>
+        <section data-call-text className="mt-6 rounded-2xl border-2 border-brand bg-brand-soft p-5 sm:p-6">
           <p className="kicker">Recommendation</p>
           <p className="mt-2 text-xl font-bold leading-snug tracking-tight sm:text-2xl">
-            <Cascade
-              key={`${c.iso3}-${lead.id}`}
-              delay={150}
-              text={`${lead.id === "towers" ? "Build coverage first" : `Start with ${lead.label.toLowerCase()}`}: it gets ${people(lead.people)} people online for about ${per(lead)} of public money each${multiple && multiple > 1.2 ? `, ${multiple.toFixed(1)}× less per person than building towers` : ""}.`}
-            />
+            {`${lead.id === "towers" ? "Build coverage first" : `Start with ${lead.label.toLowerCase()}`}: it gets ${people(lead.people)} people online for about ${per(lead)} of public money each${multiple && multiple > 1.2 ? `, ${multiple.toFixed(1)}× less per person than building towers` : ""}.`}
           </p>
           <ul className="mt-4 space-y-2 text-[15px] leading-7 text-ink-2">
             {lead.id !== "package" && pkg.people > lead.people && Number.isFinite(pkg.perPerson) && (

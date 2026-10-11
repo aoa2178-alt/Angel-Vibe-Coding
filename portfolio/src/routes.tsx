@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router";
-import { BlogPage, HomePage } from "./pages";
+import { BlogPage, EssayPage, HomePage } from "./pages";
 
 export const router = createBrowserRouter([
   {
@@ -9,5 +9,9 @@ export const router = createBrowserRouter([
   {
     path: "/blog",
     Component: BlogPage,
+  },
+  {
+    path: "/blog/:slug",
+    Component: EssayPage,
   },
 ]);

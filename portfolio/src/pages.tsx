@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
+import { EssayArticle } from "./Essay";
 
 const experience = [
   {
@@ -45,6 +46,7 @@ const experience = [
 const writing = [
   {
     number: "01",
+    slug: "mathematics",
     category: "Mathematics",
     title: "Everything has a structure underneath",
     excerpt:
@@ -55,6 +57,7 @@ const writing = [
   },
   {
     number: "02",
+    slug: "tennis",
     category: "Tennis",
     title: "The situation can be difficult without the outcome being decided",
     excerpt:
@@ -64,6 +67,7 @@ const writing = [
   },
   {
     number: "03",
+    slug: "paris",
     category: "Travel",
     title: "What Paris gave back to me",
     excerpt:
@@ -234,7 +238,7 @@ function SignalProject() {
   );
 }
 
-function SitePage({ view }: { view: "home" | "blog" }) {
+function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: string }) {
   const [introVisible, setIntroVisible] = useState(view === "home");
   const [introLeaving, setIntroLeaving] = useState(false);
 
@@ -260,7 +264,17 @@ function SitePage({ view }: { view: "home" | "blog" }) {
     };
   }, [introVisible, introLeaving]);
 
+  // Moving between pages: jump to the #section the link names, or start at the top.
+  const { hash } = useLocation();
   useEffect(() => {
+    if (view === "essay") return; // the essay scrolls itself
+    const target = hash ? document.getElementById(hash.slice(1)) : null;
+    if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }, [view, hash]);
+
+  useEffect(() => {
+    if (view === "essay") return; // the essay sets its own title
     document.title =
       view === "home"
         ? "Toki's Portfolio | Strategy & Operations"
@@ -268,7 +282,7 @@ function SitePage({ view }: { view: "home" | "blog" }) {
   }, [view]);
 
   return (
-    <main className={`site-shell ${view === "blog" ? "site-shell--blog" : ""}`} id="top">
+    <main className={`site-shell ${view !== "home" ? "site-shell--blog" : ""}`} id="top">
       {view === "home" && introVisible && (
         <div
           className={`intro-screen ${introLeaving ? "is-leaving" : ""}`}
@@ -307,8 +321,14 @@ function SitePage({ view }: { view: "home" | "blog" }) {
           ) : (
             <>
               <Link to="/">Home</Link>
-              <a href="#thinking">Thinking</a>
-              <a href="#profile">Profile</a>
+              {view === "blog" ? (
+                <>
+                  <a href="#thinking">Thinking</a>
+                  <a href="#profile">Profile</a>
+                </>
+              ) : (
+                <Link to="/blog#thinking">All writing</Link>
+              )}
             </>
           )}
         </nav>
@@ -772,6 +792,8 @@ function SitePage({ view }: { view: "home" | "blog" }) {
         </Link>
       </section>
         </>
+      ) : view === "essay" ? (
+        <EssayArticle slug={slug ?? ""} />
       ) : (
         <>
       <section className="blog-hero">
@@ -875,7 +897,11 @@ function SitePage({ view }: { view: "home" | "blog" }) {
                   <span>{essay.number}</span>
                   <span>{essay.category}</span>
                 </div>
-                <h3>{essay.title}</h3>
+                <h3>
+                  <Link className="essay-card__link" to={`/blog/${essay.slug}`}>
+                    {essay.title}
+                  </Link>
+                </h3>
                 <p>{essay.excerpt}</p>
                 {essay.pullQuote && (
                   <blockquote className="essay-quote">
@@ -949,4 +975,9 @@ export function HomePage() {
 
 export function BlogPage() {
   return <SitePage view="blog" />;
+}
+
+export function EssayPage() {
+  const { slug } = useParams();
+  return <SitePage view="essay" slug={slug} />;
 }

@@ -3946,3 +3946,60 @@ blockquote {
     display: none;
   }
 }
+
+/* The footprint globe turns: its meridians widen and narrow out of step, the route flows, and the stops pulse in turn. */
+.footprint-meridian {
+  animation: footprint-turn 6s ease-in-out infinite alternate;
+}
+.footprint-meridian--late {
+  animation-delay: -3s;
+}
+@keyframes footprint-turn {
+  from {
+    rx: 4px;
+  }
+  to {
+    rx: 118px;
+  }
+}
+.footprint-graphic svg > path {
+  animation: footprint-flow 1.6s linear infinite;
+}
+@keyframes footprint-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.footprint-graphic .footprint-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: footprint-stop 3.2s ease-in-out infinite;
+}
+.footprint-graphic .footprint-node:nth-of-type(3) {
+  animation-delay: 0.8s;
+}
+.footprint-graphic .footprint-node:nth-of-type(4) {
+  animation-delay: 1.6s;
+}
+.footprint-graphic .footprint-node:nth-of-type(5) {
+  animation-delay: 2.4s;
+}
+@keyframes footprint-stop {
+  0%,
+  30%,
+  100% {
+    fill: var(--paper);
+    transform: scale(1);
+  }
+  12% {
+    fill: var(--accent);
+    transform: scale(1.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .footprint-meridian,
+  .footprint-graphic svg > path,
+  .footprint-graphic .footprint-node {
+    animation: none !important;
+  }
+}

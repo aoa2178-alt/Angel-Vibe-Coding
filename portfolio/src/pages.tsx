@@ -697,7 +697,8 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               <svg viewBox="0 0 320 320">
                 <circle cx="160" cy="160" r="118" />
                 <ellipse cx="160" cy="160" rx="118" ry="48" />
-                <ellipse cx="160" cy="160" rx="52" ry="118" />
+                <ellipse className="footprint-meridian" cx="160" cy="160" rx="52" ry="118" />
+                <ellipse className="footprint-meridian footprint-meridian--late" cx="160" cy="160" rx="100" ry="118" />
                 <path d="M48 126C92 75 145 215 194 145S260 104 278 134" />
                 <circle className="footprint-node" cx="62" cy="112" r="7" />
                 <circle className="footprint-node" cx="126" cy="149" r="7" />

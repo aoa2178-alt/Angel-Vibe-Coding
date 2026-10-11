@@ -108,6 +108,10 @@ input[type="range"] {
   }
 }
 
+/* Keel landing: the tilted wall of month tiles, drifting slowly. */
+.keel-wall { transform: rotateX(52deg) rotateZ(-32deg); transform-origin: 50% 40%; animation: keel-drift 14s ease-in-out infinite alternate; }
+@keyframes keel-drift { to { transform: rotateX(52deg) rotateZ(-32deg) translate(-26px, 14px); } }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { Crowd } from "@/components/Crowd";
+import { Reach } from "@/components/Reach";
 import { CountrySelect, Footer, Header, href, linkClick } from "@/components/Frame";
 import { TrustTag } from "@/components/ui";
 import { DEFAULT_AFFORD, afford } from "@/lib/afford";
@@ -74,7 +74,7 @@ export function Landing() {
             <CountrySelect value={iso} onChange={setIso} className="w-64 max-w-full" />
           </div>
           <div className="rounded-[8px] border border-line bg-surface p-4 pb-12 sm:p-6 sm:pb-14">
-            <Crowd
+            <Reach
               key={iso}
               ariaLabel={`${name}'s population: online, covered but offline, and without a signal`}
               format={people}

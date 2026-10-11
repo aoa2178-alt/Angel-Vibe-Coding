@@ -38,10 +38,10 @@ export function ShouldCostStep() {
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Should-cost" value={formatMoney(sc.total)} sub="per 80 MVA unit, with a 15% margin" />
-          <Stat dark label="Quotes" value={`${formatMoney(minQ)}–${formatMoney(maxQ)}`} sub="four suppliers, per unit" />
-          <Stat dark label="Costs since 2019" value={`+${pct(sc.costGrowth - 1)}`} sub="this build-up, at 2019 vs today's prices" />
-          <Stat dark label="Prices since 2019" value={`+${pct(sc.ppiGrowth - 1)}`} sub="transformer producer price index" />
+          <Stat trust="modeled" dark label="Should-cost" value={formatMoney(sc.total)} sub="per 80 MVA unit, with a 15% margin" />
+          <Stat trust="assumption" dark label="Quotes" value={`${formatMoney(minQ)}–${formatMoney(maxQ)}`} sub="four suppliers, per unit" />
+          <Stat trust="data" dark label="Costs since 2019" value={`+${pct(sc.costGrowth - 1)}`} sub="this build-up, at 2019 vs today's prices" />
+          <Stat trust="data" dark label="Prices since 2019" value={`+${pct(sc.ppiGrowth - 1)}`} sub="transformer producer price index" />
         </div>
       </div>
 

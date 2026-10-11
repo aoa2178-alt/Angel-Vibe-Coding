@@ -17,10 +17,10 @@ export function SpendStep() {
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Equipment spend" value={formatMoney(sp.grand)} sub={`${sp.pareto.length} categories`} />
-          <Stat dark label="80% of spend" value={`${top} categories`} sub={sp.pareto.slice(0, top).map((r) => r.name.split(" (")[0]).join(", ")} />
-          <Stat dark label="Single-sourced" value={`${sp.singleSource.length}`} sub={sp.singleSource.map((r) => r.name.split(" (")[0]).join(", ")} />
-          <Stat dark label="Savings in reach" value={`${formatMoney(sp.savingsLow)}–${formatMoney(sp.savingsHigh)}`} sub={`${pct(sp.savingsLow / sp.grand, 1)}–${pct(sp.savingsHigh / sp.grand, 1)} of spend`} />
+          <Stat trust="assumption" dark label="Equipment spend" value={formatMoney(sp.grand)} sub={`${sp.pareto.length} categories`} />
+          <Stat trust="modeled" dark label="80% of spend" value={`${top} categories`} sub={sp.pareto.slice(0, top).map((r) => r.name.split(" (")[0]).join(", ")} />
+          <Stat trust="assumption" dark label="Single-sourced" value={`${sp.singleSource.length}`} sub={sp.singleSource.map((r) => r.name.split(" (")[0]).join(", ")} />
+          <Stat trust="modeled" dark label="Savings in reach" value={`${formatMoney(sp.savingsLow)}–${formatMoney(sp.savingsHigh)}`} sub={`${pct(sp.savingsLow / sp.grand, 1)}–${pct(sp.savingsHigh / sp.grand, 1)} of spend`} />
         </div>
       </div>
 

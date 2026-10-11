@@ -27,10 +27,10 @@ export function NegotiateStep() {
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Stat dark label="Their quote" value={formatMoney(n.quoted)} sub="per unit" />
-          <Stat dark label="Our target" value={formatMoney(n.target)} sub="per unit" />
-          <Stat dark label="Our walk-away" value={formatMoney(n.walkAway)} sub="above this, buy from the runner-up" />
-          <Stat dark label="Saving at target" value={formatMoney(n.savingsAtTarget)} sub="on three units" />
+          <Stat trust="assumption" dark label="Their quote" value={formatMoney(n.quoted)} sub="per unit" />
+          <Stat trust="modeled" dark label="Our target" value={formatMoney(n.target)} sub="per unit" />
+          <Stat trust="modeled" dark label="Our walk-away" value={formatMoney(n.walkAway)} sub="above this, buy from the runner-up" />
+          <Stat trust="modeled" dark label="Saving at target" value={formatMoney(n.savingsAtTarget)} sub="on three units" />
         </div>
       </div>
 

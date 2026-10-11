@@ -1,77 +1,94 @@
-import { ArrowRight } from "lucide-react";
-import { Footer, Logo, href, linkClick } from "@/components/Frame";
-import { negotiation, ranked, shouldCost, spend } from "@/lib/analysis";
-import { BUYER, DEFAULT_SETTINGS, formatMoney, pct } from "@/lib/data";
+import { ArrowRight, Check } from "lucide-react";
+import { Footer, Header, href, linkClick } from "@/components/Frame";
+import { Collage } from "@/components/Collage";
+import { BUYER, DEFAULT_SETTINGS } from "@/lib/data";
 
 const STEPS = [
-  { n: 1, title: "Spend", body: "See where the money goes, which categories are single-sourced, and where savings are realistic." },
-  { n: 2, title: "Should-cost", body: "Build a transformer's price up from copper, steel and labor, priced from public data." },
-  { n: 3, title: "Bids", body: "Compare four bids on total cost of ownership, score them, and decide how to split the award." },
-  { n: 4, title: "Negotiate", body: "Set the walk-away and the target, and pick between spot, framework and capacity reservation." },
+  { title: "Spend", body: "Where the money goes and where savings are realistic." },
+  { title: "Should-cost", body: "A transformer priced up from copper, steel and labor." },
+  { title: "Bid evaluation", body: "Four bids compared on total cost, not price." },
+  { title: "Negotiation", body: "Walk-away, target, and the deal structure." },
 ];
 
 export function Landing() {
   const s = DEFAULT_SETTINGS;
   const start = href("spend", s);
-  const sc = shouldCost();
-  const t = ranked(s);
-  const n = negotiation(s);
-  const cheapest = [...t].sort((a, b) => a.price - b.price)[0]!;
+  const faq = "/faq";
+
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-30 px-3 pt-3">
-        <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-3 rounded-full border border-line bg-surface py-2 pl-4 pr-2">
-          <Logo />
-          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-on-brand transition hover:opacity-90">
-            Start <ArrowRight className="size-4" aria-hidden />
-          </a>
-        </div>
-      </header>
-      <main>
-        <section className="mx-auto max-w-[1200px] px-4 pb-14 pt-16 sm:px-6 sm:pt-24">
-          <p className="kicker">Procurement · strategic sourcing · AI infrastructure</p>
-          <h1 className="mt-5 max-w-4xl text-[3rem] font-extrabold leading-[0.98] tracking-[-0.05em] text-balance sm:text-7xl">
-            What should it cost, who should we buy from, and <span className="text-brand">on what terms?</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-2 sm:text-xl sm:leading-9">
-            Tender sources the power and cooling gear for {BUYER.name}'s {BUYER.itMw} MW AI data hall (a fictional buyer) using real public prices for copper, steel, wages and
-            equipment.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
-              Start with the spend <ArrowRight className="size-4" aria-hidden />
+      <Header
+        actions={
+          <>
+            <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-muted md:flex">
+              <a href="#how" className="transition hover:text-ink">
+                Approach
+              </a>
+              <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-ink">
+                Sources
+              </a>
+              <a href={faq} onClick={linkClick(faq)} className="transition hover:text-ink">
+                FAQ
+              </a>
+            </nav>
+            <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-1.5 rounded-[6px] bg-brand px-3.5 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
+              Start <ArrowRight className="size-4" aria-hidden />
             </a>
+          </>
+        }
+      />
+
+      <main className="mx-auto max-w-[1320px] px-4 sm:px-8">
+        {/* The question, beside a collage of what Tender produces. */}
+        <section className="grid items-center gap-10 pb-10 pt-12 sm:pt-16 lg:grid-cols-[1fr_1.15fr]">
+          <div>
+            <p className="kicker">Sourcing for an AI data hall</p>
+            <h1 className="mt-4 text-[3rem] leading-[1] tracking-[-0.03em] sm:text-[5.5rem]">
+              What <em className="underline decoration-accent decoration-[5px] underline-offset-[10px]">should</em> this cost?
+            </h1>
+            <p className="mt-6 max-w-md text-lg leading-8 text-ink-2">Should-cost from public commodity prices, bids compared on total cost, and a target price to negotiate to.</p>
+            <div className="mt-7 flex flex-wrap items-center gap-5">
+              <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
+                View analysis <ArrowRight className="size-4" aria-hidden />
+              </a>
+              <a href={faq} onClick={linkClick(faq)} className="inline-flex items-center gap-1.5 font-semibold text-ink transition hover:text-brand-ink">
+                See the method <ArrowRight className="size-4" aria-hidden />
+              </a>
+            </div>
+            <p className="mt-4 text-xs text-muted">
+              {BUYER.name}, {BUYER.project}: three 80 MVA transformers for a {BUYER.itMw} MW AI data hall. Fictional buyer and suppliers; real commodity prices.
+            </p>
           </div>
-          <dl className="mt-10 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-            {[
-              ["Equipment spend", formatMoney(spend().grand)],
-              ["Transformer should-cost", formatMoney(sc.total)],
-              ["Prices vs costs since 2019", `+${pct(sc.ppiGrowth - 1)} vs +${pct(sc.costGrowth - 1)}`],
-              ["Saving at target", formatMoney(n.savingsAtTarget)],
-            ].map(([k, v]) => (
-              <div key={k} className="bg-surface p-4">
-                <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted">{k}</dt>
-                <dd className="mt-1 font-mono text-lg font-semibold">{v}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-4 max-w-3xl text-sm text-ink-2">
-            The cheapest quote ({cheapest.bid.supplier}, {formatMoney(cheapest.bid.price)} a unit) is the most expensive deal: its {cheapest.bid.leadMonths}-month lead time leaves the hall
-            waiting.
-          </p>
+          <Collage s={s} />
         </section>
-        <section className="mx-auto max-w-[1200px] px-4 pb-24 pt-8 sm:px-6">
-          <p className="kicker">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-4xl font-extrabold leading-[1.02] tracking-[-0.04em] sm:text-5xl">Four steps, one recommendation.</h2>
-          <ol className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-4">
-            {STEPS.map((st) => (
-              <li key={st.n} className="bg-surface p-7">
-                <span className="grid size-8 place-items-center rounded-full bg-brand font-mono text-sm font-semibold text-on-brand">{st.n}</span>
-                <h3 className="mt-6 text-xl font-bold tracking-tight">{st.title}</h3>
-                <p className="mt-2 text-[15px] leading-7 text-ink-2">{st.body}</p>
+
+        <ul className="flex flex-wrap gap-x-8 gap-y-2 border-y border-line py-4 text-sm text-ink-2" aria-label="What every analysis holds to">
+          {["Public commodity prices", "Total cost, not price", "A target to negotiate to", "Every number sourced"].map((p) => (
+            <li key={p} className="flex items-center gap-2">
+              <Check className="size-4 text-accent" aria-hidden />
+              {p}
+            </li>
+          ))}
+        </ul>
+
+        <section id="how" className="scroll-mt-20 pb-16 pt-10">
+          <h2 className="text-3xl tracking-[-0.02em]">Approach</h2>
+          <ol className="mt-6">
+            {STEPS.map((st, i) => (
+              <li key={st.title} className="grid grid-cols-[3rem_10rem_1fr] gap-4 border-t border-line py-4 text-[15px] max-sm:grid-cols-[2.5rem_1fr]">
+                <span className="font-mono text-sm font-semibold text-accent">0{i + 1}</span>
+                <span className="font-semibold">{st.title}</span>
+                <span className="text-ink-2 max-sm:col-start-2">{st.body}</span>
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="flex flex-wrap items-center justify-between gap-6 border-t border-ink py-14">
+          <h2 className="text-4xl tracking-[-0.02em]">Source your own category.</h2>
+          <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">
+            Start <ArrowRight className="size-4" aria-hidden />
+          </a>
         </section>
       </main>
       <Footer />

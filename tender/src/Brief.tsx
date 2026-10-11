@@ -24,6 +24,12 @@ export function Brief() {
     demo: `Method demo: ${COMPANY} and every supplier are fictional; copper, steel, wages and price indexes are real public data. The method is the point: price the lead time, build the should-cost, then negotiate from it.`,
     decision: `Decision: who supplies the three 80 MVA transformers for ${BUYER.project}, at what price, on what terms?`,
     headline: `Lead with ${call.leader.bid.supplier} and negotiate to ${formatMoney(n.target)} a unit, saving ${formatMoney(n.savingsAtTarget)} across the three against the quotes; it is also ${formatMoney(call.avoided)} cheaper all-in than the cheapest bid in this scenario, almost all of it the modeled cost of the hall waiting.`,
+    numbers: [
+      { label: "Target price a unit", value: formatMoney(n.target), sub: `walk away above ${formatMoney(n.walkAway)}`, trust: "modeled" },
+      { label: "Saving against the quotes", value: formatMoney(n.savingsAtTarget), sub: "across the three units", trust: "modeled" },
+      { label: "Cheaper all-in than the cheapest bid", value: formatMoney(call.avoided), sub: "mostly the cost of the hall waiting", trust: "modeled" },
+    ],
+    evidenceSub: "Spend, should-cost, bids and deal terms",
     bullets: [
       { label: "The award", text: `${bestAward.label.charAt(0).toLowerCase()}${bestAward.label.slice(1)}, through a ${bestStructure.label.toLowerCase()}. Spreading it means two suppliers must fail before the hall slips.` },
       { label: "Why not the cheapest quote", text: `${cheapestQuote.bid.supplier} is ${formatMoney(cheapestQuote.bid.price)} a unit but needs ${cheapestQuote.bid.leadMonths} months against our ${s.needByMonths}; at ${formatMoney(monthlyDelayCost(s).total)} for every month the hall waits, it's the most expensive deal.` },
@@ -83,7 +89,7 @@ export function Brief() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">The call · {COMPANY}</p>
+            <p className="kicker">Recommendation · {COMPANY}</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Transformers for {BUYER.project}</h1>
             <p className="mt-1 text-sm text-muted">A fictional buyer and suppliers; prices anchored to public data</p>
           </div>

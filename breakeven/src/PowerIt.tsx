@@ -334,37 +334,88 @@ function describePayoff(all: ReturnType<typeof strategies>, stretches: { fromMon
     : `Owning gas beats renting from ${m} months; until it arrives (${all.engines.readyAfter} months), you rent.`;
 }
 
+const HATCH = "repeating-linear-gradient(135deg, #c9d2d8 0 5px, #e4e9ec 5px 10px)";
+
+/**
+ * The wait as a timeline: one lane per option across the months until the grid arrives. Hatched is the months you rent
+ * while the option is being built; colour is the months it's running. The total extra cost sits at the end of each lane.
+ */
 function StrategyBars({ all, delay, winner }: { all: ReturnType<typeof strategies>; delay: number; winner: StrategyId }) {
-  const totals = STRATEGY_IDS.map((id) => ({ id, total: totalOver(all[id], delay), available: all[id].available }));
-  const max = Math.max(1, ...totals.filter((t) => t.available).map((t) => Math.abs(t.total)));
+  const premium = all.wait.monthlyWaiting;
+  const ticks = delay > 0 ? [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(f * delay)) : [];
   return (
     <figure className="win-tint rounded-2xl border p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-semibold">Extra cost over {delay} months</span>
-        <span className="kicker">Each option</span>
+        <span className="text-sm font-semibold">{delay === 0 ? "The grid is on time" : `The ${delay}-month wait, option by option`}</span>
+        <span className="kicker">Extra cost</span>
       </figcaption>
-      <div className="mt-5 space-y-4">
-        {totals.map(({ id, total, available }) => (
-          <div key={id}>
-            <div className="mb-1.5 flex items-center justify-between gap-2 text-sm">
-              <span className="flex items-center gap-2 text-ink-2">
-                <span className="size-2.5 rounded-full" style={{ background: STRATEGY_META[id].color }} aria-hidden />
-                {STRATEGY_META[id].name}
-                {id === winner && delay > 0 && (
-                  <span className="win-pill rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">Cheapest</span>
-                )}
-              </span>
-              <span className={`font-mono ${id === winner ? "font-semibold text-ink" : "text-ink-2"}`}>{available ? formatMoney(total) : "Not on offer"}</span>
-            </div>
-            <div className="h-5 rounded-r-[4px] bg-surface/80">
-              {available && (
-                <div className="glide h-full rounded-r-[4px]" style={{ width: `${Math.max(0.8, (Math.max(0, total) / max) * 100)}%`, background: STRATEGY_META[id].color }} />
-              )}
-            </div>
-            <p className="mt-1 text-[11px] text-muted">{STRATEGY_META[id].note}</p>
+      {delay === 0 ? (
+        <p className="mt-3 text-sm text-ink-2">Nothing to bridge: every option costs nothing extra. Move the delay to compare them.</p>
+      ) : (
+        <>
+          <div className="mt-4">
+            {STRATEGY_IDS.map((id) => {
+              const s = all[id];
+              const total = totalOver(s, delay);
+              const ready = Math.min(delay, s.readyAfter);
+              const pct = (ready / delay) * 100;
+              const best = id === winner;
+              return (
+                <div key={id} className={`grid grid-cols-1 items-center gap-x-3 gap-y-1.5 border-t border-line/70 py-2.5 first:border-t-0 sm:grid-cols-[200px_minmax(0,1fr)_72px] ${best ? "-mx-2 rounded-lg bg-surface/80 px-2" : ""}`}>
+                  <span className="flex items-start gap-2 text-sm text-ink-2">
+                    <span className="mt-1.5 size-2.5 shrink-0 rounded-full" style={{ background: STRATEGY_META[id].color }} aria-hidden />
+                    <span>
+                      {STRATEGY_META[id].name}
+                      {best && <span className="win-pill ml-1.5 rounded-[999px] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white">Cheapest</span>}
+                    </span>
+                  </span>
+                  <div className="relative h-[26px] overflow-hidden rounded-[5px] bg-surface/80" role="img" aria-label={!s.available ? "Not on offer" : id === "wait" ? `Renting all ${delay} months` : s.readyAfter >= delay ? `Not ready before the grid arrives: renting all ${delay} months` : `Renting for ${ready} months, then running from month ${ready}`}>
+                    {s.available &&
+                      (id === "wait" ? (
+                        <div className="absolute inset-0 opacity-90" style={{ background: STRATEGY_META[id].color }}>
+                          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-white">renting all {delay} months</span>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="absolute inset-y-0 left-0" style={{ width: `${pct}%`, background: HATCH }} />
+                          {ready < delay ? (
+                            <div className="absolute inset-y-0 right-0" style={{ left: `${pct}%`, background: STRATEGY_META[id].color }}>
+                              <span className="absolute left-2 top-1/2 -translate-y-1/2 whitespace-nowrap text-[11px] font-semibold text-white">{pct < 75 ? `running from month ${ready}` : `month ${ready}`}</span>
+                            </div>
+                          ) : (
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-ink-2">not ready before the grid arrives</span>
+                          )}
+                        </>
+                      ))}
+                    {!s.available && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-muted">not on offer</span>}
+                  </div>
+                  <span className={`font-mono text-sm sm:text-right ${best ? "font-semibold text-ink" : "text-ink-2"}`}>{s.available ? formatMoney(total) : "–"}</span>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-[200px_minmax(0,1fr)_72px]">
+            <span className="hidden sm:block" />
+            <div className="relative mt-1 h-4 font-mono text-[10.5px] text-muted">
+              {ticks.map((t, k) => (
+                <span key={k} className={`absolute ${k === 0 ? "left-0" : k === ticks.length - 1 ? "right-0" : "-translate-x-1/2"}`} style={k > 0 && k < ticks.length - 1 ? { left: `${(t / delay) * 100}%` } : undefined}>
+                  {k === 0 ? "Month 0" : k === ticks.length - 1 ? `${t} · grid arrives` : t}
+                </span>
+              ))}
+            </div>
+          </div>
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[12px] text-ink-2">
+            <span className="inline-flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-5 rounded-sm" style={{ background: HATCH }} />
+              Renting cloud GPUs while it's built ({formatMoney(premium)} a month)
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <i className="inline-block h-2.5 w-5 rounded-sm bg-ink-2" />
+              Running on the option
+            </span>
+          </p>
+        </>
+      )}
     </figure>
   );
 }

@@ -2642,13 +2642,14 @@ blockquote {
   background: var(--ink);
 }
 
-.essay-card--dark .essay-topline,
-.essay-card--dark .essay-meta,
-.essay-card--dark > p,
-.essay-card--dark:hover .essay-topline,
-.essay-card--dark:hover .essay-meta,
-.essay-card--dark:hover > p {
-  color: rgb(244 244 240 / 62%);
+/* Doubled class so these beat the general .essay-card rules further down. */
+.essay-card.essay-card--dark .essay-topline,
+.essay-card.essay-card--dark .essay-meta {
+  color: rgb(244 244 240 / 72%);
+}
+
+.essay-card.essay-card--dark > p {
+  color: rgb(244 244 240 / 88%);
 }
 
 .essay-card--dark .essay-quote,

@@ -875,10 +875,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
         <div className="thinking-content">
           <div className="thinking-heading">
             <h2>Notes on the things that shape how I see.</h2>
-            <p>
-              Personal reflections on mathematics, resilience, and place.
-              Notes on operations, AI, and infrastructure will follow.
-            </p>
           </div>
           <div className="essay-list">
             {writing.map((essay) => (

@@ -36,21 +36,22 @@ export function Reach({ parts, format, ariaLabel }: { parts: ReachPart[]; format
   return (
     <figure ref={view.ref} className={`min-w-0 ${view.paused}`}>
       <svg key={run} viewBox={`0 0 ${W} ${H}`} className="mx-auto block h-auto w-full max-w-3xl" role="img" aria-label={ariaLabel}>
-        {/* Each band drawn as radio waves: thin arcs every few pixels, rippling out from the tower */}
+        {/* Each band drawn as a few radio waves rippling out from the tower */}
         {bands.flatMap((band, i) => {
-          const waves: number[] = [];
-          for (let r = band.inner + 5; r <= band.outer - 1; r += 9) waves.push(r);
+          // A few waves per band, about 40px apart, evenly spaced inside it.
+          const n = Math.max(1, Math.round((band.outer - band.inner) / 40));
+          const waves = Array.from({ length: n }, (_, k) => band.inner + ((k + 0.5) * (band.outer - band.inner)) / n);
           return waves.map((r) => (
             <path
               key={`${band.label}-${r}`}
               d={arc(r)}
               fill="none"
               stroke={band.color}
-              strokeWidth={i === last ? 2.5 : 4}
+              strokeWidth={i === last ? 3 : 6}
               strokeOpacity={i === last ? 0.75 : 1}
               strokeDasharray={i === last ? "7 6" : undefined}
               strokeLinecap="round"
-              style={anim("fade", 260, 150 + r * 4)}
+              style={anim("fade", 350, 150 + r * 3)}
             />
           ));
         })}

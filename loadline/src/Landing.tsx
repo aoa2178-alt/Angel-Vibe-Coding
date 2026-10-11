@@ -33,7 +33,7 @@ export function Landing() {
           <>
             <nav aria-label="Sections" className="mr-3 hidden items-center gap-6 text-sm text-muted md:flex">
               <a href="#how" className="transition hover:text-ink">
-                How it works
+                Approach
               </a>
               <a href="/sources" onClick={linkClick("/sources")} className="transition hover:text-ink">
                 Sources
@@ -61,29 +61,29 @@ export function Landing() {
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <CampusSelect value={id} onChange={setId} className="w-80 max-w-full" />
                 <a href={links.power} onClick={linkClick(links.power)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-4 py-2 text-sm font-semibold text-on-brand transition hover:opacity-90">
-                  Open this campus <ArrowRight className="size-4" aria-hidden />
+                  View analysis <ArrowRight className="size-4" aria-hidden />
                 </a>
               </div>
             </div>
             <dl className="grid gap-1 text-right font-mono text-xs text-muted">
               <div>
-                <dd className="inline text-base font-semibold text-ink">{formatMw(facility)}</dd> <dt className="inline">facility power</dt>
+                <dd className="inline text-base font-semibold text-ink">{formatMw(facility)}</dd> <dt className="inline">facility load</dt>
               </div>
               <div>
                 <dd className="inline text-base font-semibold text-ink">
                   {live}/{buildings}
                 </dd>{" "}
-                <dt className="inline">buildings live</dt>
+                <dt className="inline">buildings energized</dt>
               </div>
               <div>
                 <dd className="inline text-base font-semibold text-ink">{formatMoney(topPlan.monthly.total)}</dd>{" "}
                 <dt className="inline">
-                  a month late
+                  per month of delay
                   <TrustTag kind="modeled" />
                 </dt>
               </div>
               <div className="mt-1 max-w-xs text-[11px] leading-5">
-                Resolve first: {top.phaseName}, {lowerFirst(MILESTONES.find((m) => m.id === top.milestone)!.label)}
+                Critical-path priority: {top.phaseName}, {lowerFirst(MILESTONES.find((m) => m.id === top.milestone)!.label)}
               </div>
             </dl>
           </div>
@@ -110,7 +110,7 @@ export function Landing() {
 
         <section id="how" className="scroll-mt-20 bg-panel">
           <div className="mx-auto max-w-[1320px] px-4 py-14 sm:px-8">
-            <h2 className="text-2xl font-bold tracking-[-0.02em]">How it works</h2>
+            <h2 className="text-2xl font-bold tracking-[-0.02em]">Approach</h2>
             <ol className="mt-8 grid gap-8 md:grid-cols-3">
               {STEPS.map((s) => (
                 <li key={s.title} className="border-t border-white/15 pt-4">

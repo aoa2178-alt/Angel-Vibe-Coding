@@ -5,9 +5,10 @@ import { EssayArticle } from "./Essay";
 import { ProjectDetail } from "./ProjectDetail";
 import { projects, type Project } from "./projects";
 
-/** A project's tags as outlined pills (its "Live" status is shown separately). */
+/** A project's kind as an outlined pill (its "Live" status is shown separately). */
 function TagPills({ id }: { id: string }) {
-  const tags = projects.find((p) => p.id === id)?.tags.filter((t) => t !== "Live") ?? [];
+  // Only the kind of build; the subject already shows in the card's label ("07 / Site selection").
+  const tags = projects.find((p) => p.id === id)?.tags.filter((t) => t !== "Live").slice(0, 1) ?? [];
   return (
     <ul className="tag-pills" aria-label="Tags">
       {tags.map((t) => (

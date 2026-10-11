@@ -32,9 +32,9 @@ export const projects: Project[] = [
       "Ends in a call: the recommendation, what would change it, and a 90-day rollout with measures.",
     ],
     tryThis: [
-      "Start on Worth it with the Customer support template: about $55K a month saved, payback in under a month.",
-      "Go to Run it and drag the volume to 30B tokens a month: the cheapest option flips from the API to owning GPUs.",
-      "Open The call for the recommendation, the switching saving and the 90-day plan.",
+      "Start on Evaluate AI ROI with the Customer support template: about $55K a month saved, payback in under a month.",
+      "Go to Compare compute costs and drag the volume to 30B tokens a month: the cheapest option flips from the API to owning GPUs.",
+      "Open Recommendation for the answer, the switching saving and the 90-day plan.",
     ],
     builtWith:
       "React · TypeScript · Vite · Tailwind · Vitest · Vercel · n8n (decision report) · public API price pages, H100 rental index, EIA power prices",

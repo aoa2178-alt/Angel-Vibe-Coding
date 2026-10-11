@@ -95,16 +95,16 @@ export function MapStep() {
   return (
     <Frame route="map" s={s}>
       <StepHeading route="map">
-        Every US frontier AI data center Epoch AI tracks, with the power each draws over time. Slide the date to watch the build-out arrive.
+        Every US frontier AI data center, sized by the power it draws. Move the date to see the build-out arrive.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <Card>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Stat label={`AI power, ${s.at === RETRIEVED ? "today" : formatMonth(s.at)}`} value={formatMw(total)} sub="facility power, from the grid" />
-            <Stat label="Sites drawing power" value={live.length} sub={`of ${sites.length} tracked`} />
-            <Stat label="States" value={totals.size} />
-            <Stat label="Planned, all sites" value={formatMw(plannedTotal)} sub="when every timeline completes" />
+            <Stat trust="data" label={`AI power, ${s.at === RETRIEVED ? "today" : formatMonth(s.at)}`} value={formatMw(total)} sub="facility power, from the grid" />
+            <Stat trust="data" label="Sites drawing power" value={live.length} sub={`of ${sites.length} tracked`} />
+            <Stat trust="data" label="States" value={totals.size} />
+            <Stat trust="data" label="Planned, all sites" value={formatMw(plannedTotal)} sub="when every timeline completes" />
           </div>
           <div className="mt-6">
             <UsMap date={s.at} sites={sites} totals={totals} selected={s.state} onSelect={(code) => setS({ ...s, state: code })} />

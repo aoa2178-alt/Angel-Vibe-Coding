@@ -32,6 +32,19 @@ export function Brief() {
     demo: "Real public data, coarse method: this is a grid-only first screen for a site-selection team, not a site decision. Land, water, fiber, tax and on-site power come next.",
     decision: "Decision: which states should we shortlist for the next AI data center?",
     headline: lead ? `Shortlist ${second && second.n === lead.n ? `${stateName(lead.id)} and ${stateName(second.id)}` : `${stateName(lead.id)} first${second ? `, then ${stateName(second.id)}` : ""}`}: no other state, or mix of states, offers both cheaper power and a faster grid connection.` : "No state is clearly ahead.",
+    numbers: lead
+      ? [
+          { label: `Power price, ${stateName(lead.id)}`, value: `${cents(PRICES.states[lead.id]?.[s.sector] ?? null)}/kWh`, sub: `US average ${cents(us)}`, trust: "data" },
+          {
+            label: "Grid wait",
+            value: years(REGIONS[STATE_REGION[lead.id]?.region ?? ""]?.waitYears ?? null),
+            sub: `${STATE_REGION[lead.id]?.region ?? "–"}; ${years(aiWait)} where AI is built today`,
+            trust: "data",
+          },
+          { label: "Stays on the frontier", value: `${lead.n} of ${lead.of}`, sub: "readings of the data", trust: "modeled" },
+        ]
+      : undefined,
+    evidenceSub: "Where AI is built, the grid there, and the price-and-wait frontier",
     bullets: [
       ...(lead ? [{ label: "Why it leads", text: second && second.n === lead.n ? `${call.describe(lead.id)} and ${call.describe(second.id)} each stay on the frontier in ${lead.n} of ${lead.of} ways of reading the data${[lead.id, second.id].sort().join() === "NM,TX" ? ": New Mexico has the cheapest power, Texas the fastest grid and far more AI already built (a deeper supply chain)" : ""}.` :`${call.describe(lead.id)} stays on the frontier in ${lead.n} of ${lead.of} ways of reading the data${second ? `; ${stateName(second.id)} in ${second.n}` : ""}.` }] : []),
       ...(call.worstHub && call.worstHub.result.theta < 0.9 ? [{ label: "Avoid defaulting to today's hubs", text: `${stateName(call.worstHub.unit.id)}, one of the biggest AI states, scores ${call.worstHub.result.theta.toFixed(2)}: frontier states are about ${pct(1 - call.worstHub.result.theta)} better on both price and wait. Building where everyone already is means queuing behind them.` }] : []),
@@ -74,7 +87,7 @@ export function Brief() {
       </StepHeading>
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
-          <p className="kicker">The call · Where AI Lives</p>
+          <p className="kicker">Recommendation · Where AI Lives</p>
           <h2 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Where should the next AI data center go?</h2>
           <p className="mt-2 text-sm text-muted">
             As of {formatMonth(at)} · data retrieved {RETRIEVED} · {s.sector} power prices
@@ -132,7 +145,7 @@ export function Brief() {
         </p>
       </article>
       <p className="mt-4 text-center text-xs text-muted print:hidden">
-        Change the date or price type in steps 1–3; {s.state ? `${stateName(s.state)} is included because it's in focus.` : "focus a state in step 3 to add it here."}{" "}
+        Change the date or price type on the earlier pages; {s.state ? `${stateName(s.state)} is included because it's in focus.` : "focus a state under Site selection to add it here."}{" "}
         {s.state && (
           <button type="button" onClick={() => setS({ ...s, state: "" })} className="underline underline-offset-2">
             Remove it

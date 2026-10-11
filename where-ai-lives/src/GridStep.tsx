@@ -47,8 +47,8 @@ export function GridStep() {
         <Card>
           <Kicker method="EIA 5.6.B">Are they building where power is cheap?</Kicker>
           <div className="mt-4 grid grid-cols-2 gap-4">
-            <Stat label={`AI power's average price, ${when}`} value={`${cents(aiPrice)}/kWh`} sub="weighted by each state's AI MW" />
-            <Stat label="US average" value={`${cents(us)}/kWh`} sub={aiPrice !== null && us ? `AI pays ${Math.round((1 - aiPrice / us) * 100)}% less` : undefined} />
+            <Stat trust="data" label={`AI power's average price, ${when}`} value={`${cents(aiPrice)}/kWh`} sub="weighted by each state's AI MW" />
+            <Stat trust="data" label="US average" value={`${cents(us)}/kWh`} sub={aiPrice !== null && us ? `AI pays ${Math.round((1 - aiPrice / us) * 100)}% less` : undefined} />
           </div>
           <ul className="mt-5 space-y-2" aria-label="Power price in each state with AI power">
             {aiStates.map((r) => {
@@ -90,8 +90,8 @@ export function GridStep() {
         <Card>
           <Kicker method="LBNL queue data">How long does the grid make you wait?</Kicker>
           <div className="mt-4 grid grid-cols-2 gap-4">
-            <Stat label={`AI power's typical wait, ${when}`} value={years(aiWait)} sub="weighted by each region's AI MW" />
-            <Stat label="Fastest region" value={years(regions[0]?.waitYears ?? null)} sub={regions[0]?.id} />
+            <Stat trust="data" label={`AI power's typical wait, ${when}`} value={years(aiWait)} sub="weighted by each region's AI MW" />
+            <Stat trust="data" label="Fastest region" value={years(regions[0]?.waitYears ?? null)} sub={regions[0]?.id} />
           </div>
           <ul className="mt-5 space-y-3" aria-label="Grid connection wait by region">
             {regions.map((r) => (

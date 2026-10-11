@@ -39,3 +39,8 @@ export function pathRows(scenario: Scenario) {
 /** True when two choice lists are the same path. */
 export const samePath = (a: Choice[], b: Choice[]) =>
   a.length === b.length && a.every((c, i) => c.decisionId === b[i]!.decisionId && c.optionId === b[i]!.optionId);
+
+/** A scenario's distinct endings (debrief titles), in path order. */
+export function endingsOf(scenario: Scenario): string[] {
+  return [...new Set(allPaths(scenario).map((p) => p.profile?.title).filter((t): t is string => !!t))];
+}

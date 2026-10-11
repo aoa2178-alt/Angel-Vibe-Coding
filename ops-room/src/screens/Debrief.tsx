@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { ArrowUpRight, CircleCheck, Flag, House, Info, Lightbulb, ListChecks, Map as MapIcon, RotateCcw, TriangleAlert } from "lucide-react";
 import { DeltaChip, MetricTile } from "@/components/Metrics";
 import { Button, Card, Eyebrow, SectionTitle, cx } from "@/components/ui";
 import { CONCEPTS } from "@/engine/concepts";
 import { evaluateDebrief, health, metricStatus, type DerivedRun } from "@/engine/engine";
 import { pathRows, samePath } from "@/engine/paths";
+import { recordEnding } from "@/engine/storage";
 import type { Choice, DebriefRule, Scenario } from "@/engine/types";
 
 const STATUS_BAR = { good: "bg-good", watch: "bg-alert", critical: "bg-bad" } as const;
@@ -87,6 +89,11 @@ export function Debrief({
   onHome: () => void;
 }) {
   const result = evaluateDebrief(scenario, run);
+  const ending = result.profile?.title;
+  // Remember this ending for the shelf on the home page.
+  useEffect(() => {
+    if (ending) recordEnding(scenario.id, ending);
+  }, [scenario.id, ending]);
   const mine: Choice[] = run.timeline.map((t) => ({ decisionId: t.decision.id, optionId: t.option.id }));
   const concepts = [...new Set(run.timeline.flatMap((t) => t.option.concepts ?? []))].filter((c) => c in CONCEPTS);
 

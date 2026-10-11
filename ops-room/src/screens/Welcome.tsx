@@ -1,5 +1,6 @@
 import { ArrowRight, FileText, Play, RotateCcw, Scale, Users } from "lucide-react";
 import { Logo } from "@/components/AppHeader";
+import { EndingsShelf } from "@/components/EndingsShelf";
 import { Button, Countdown } from "@/components/ui";
 import type { RunState, Scenario } from "@/engine/types";
 
@@ -83,6 +84,9 @@ export function Welcome({
             </a>
             <a href="#how" className="flex items-center text-sm text-muted transition hover:text-ink">
               How it plays
+            </a>
+            <a href="#endings" className="flex items-center text-sm text-muted transition hover:text-ink">
+              Your endings
             </a>
           </nav>
           <a href="#cases" className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-2 text-sm font-semibold text-accent-ink transition hover:brightness-110">
@@ -171,6 +175,8 @@ export function Welcome({
             })}
           </div>
         </section>
+
+        <EndingsShelf scenarios={scenarios} />
 
         <p className="mt-6 text-sm text-muted">No sign-in needed. Your progress saves in this browser. All companies and people are fictional.</p>
       </main>

@@ -3,7 +3,7 @@ import { scenarios } from "@/scenarios";
 import { fourWeeksToLaunch } from "@/scenarios/four-weeks-to-launch";
 import { CONCEPTS } from "./concepts";
 import { END, applyEffects, deriveRun, evaluateDebrief, sanitizeRun, validateScenario } from "./engine";
-import { allPaths, pathRows, samePath } from "./paths";
+import { allPaths, endingsOf, pathRows, samePath } from "./paths";
 import type { RunState } from "./types";
 
 describe.each(scenarios.map((s) => [s.id, s] as const))("scenario %s", (_, scenario) => {
@@ -95,5 +95,15 @@ describe("saved runs", () => {
       startedAt: 0,
     };
     expect(sanitizeRun(fourWeeksToLaunch, old)).toEqual(old);
+  });
+});
+
+describe("endings shelf", () => {
+  it("lists each scenario's distinct endings, 30 across the five cases", () => {
+    for (const s of scenarios) {
+      const titles = allPaths(s).map((p) => p.profile!.title);
+      expect(endingsOf(s)).toEqual([...new Set(titles)]);
+    }
+    expect(scenarios.reduce((n, s) => n + endingsOf(s).length, 0)).toBe(30);
   });
 });

@@ -22,7 +22,7 @@ export function NegotiateStep() {
   return (
     <Frame route="negotiate" s={s} setS={setS}>
       <StepHeading route="negotiate">
-        Negotiating with {n.best.bid.supplier}, the lowest total cost. Know the numbers that bound the deal, then pick the structure that fits.
+        Price bounds and deal structure for {n.best.bid.supplier}, the lowest total cost bid.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -68,7 +68,7 @@ export function NegotiateStep() {
       </div>
       <p className="mt-4 text-sm leading-6 text-ink-2">
         A capacity reservation only pays when the supplier would otherwise be late. {n.best.bid.supplier} is on time, so it only adds the cost of the deposit here. Try it on a slower
-        supplier by moving the deadline in step 3.
+        supplier by moving the deadline under Bid evaluation.
       </p>
     </Frame>
   );

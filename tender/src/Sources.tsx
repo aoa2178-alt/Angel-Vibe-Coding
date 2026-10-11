@@ -20,7 +20,7 @@ export function Sources() {
     <Frame route="sources" s={s} setS={setS}>
       <div className="mb-8 max-w-3xl">
         <p className="kicker">Sources</p>
-        <h1 className="mt-2 text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] sm:text-5xl">Public prices, fictional suppliers</h1>
+        <h1 className="mt-2 text-4xl leading-[1.05] tracking-[-0.025em] sm:text-5xl">Public prices, fictional suppliers</h1>
         <p className="mt-4 text-lg leading-8 text-ink-2">
           The buyer, the suppliers and their bids are made up. The prices that move them (copper, steel, wages and equipment price indexes) are public US data, retrieved{" "}
           {PRICES.retrieved}.

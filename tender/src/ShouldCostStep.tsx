@@ -1,6 +1,7 @@
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
 import { anim, useInView } from "@/components/Motion";
 import { LineChart } from "@/components/LineChart";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, SourceLink, Stat } from "@/components/ui";
 import { ranked, shouldCost } from "@/lib/analysis";
 import { PRICES, formatMoney, formatMonth, pct } from "@/lib/data";
@@ -33,7 +34,7 @@ export function ShouldCostStep() {
   return (
     <Frame route="should-cost" s={s} setS={setS}>
       <StepHeading route="should-cost">
-        Build the price up from what goes into the box, priced from public data where it exists. Then check how fast the price rose against what went into it.
+        The price built up from materials, labor and margin, priced from public data, then checked against the price index.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -81,7 +82,7 @@ export function ShouldCostStep() {
           </div>
         </Card>
 
-        <Card>
+        <Fold id="index-check" title="Index check: prices vs costs since 2019" sub="How fast transformer prices rose against the costs inside them">
           <LineChart
             title="Index check: January 2019 = 100"
             xLabels={months.map(formatMonth)}
@@ -105,7 +106,7 @@ export function ShouldCostStep() {
             ))}
             . Quantities, the steel price per tonne and the labor hours are assumptions.
           </p>
-        </Card>
+        </Fold>
       </div>
     </Frame>
   );

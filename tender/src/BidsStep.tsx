@@ -1,4 +1,5 @@
 import { Frame, StepHeading, useScenario } from "@/components/Frame";
+import { Fold } from "@/components/Fold";
 import { Card, Kicker, Slider } from "@/components/ui";
 import { CRITERIA, awardOptions, ranked, scorecard } from "@/lib/analysis";
 import { formatMoney, monthlyDelayCost, pct, type Settings } from "@/lib/data";
@@ -26,7 +27,7 @@ export function BidsStep() {
   return (
     <Frame route="bids" s={s} setS={setS}>
       <StepHeading route="bids">
-        Four bids for three transformers (two to energize the hall, one spare). Compare what each really costs, not just the quote.
+        Four bids for three transformers, compared on total cost of ownership.
       </StepHeading>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
@@ -101,8 +102,8 @@ export function BidsStep() {
         </div>
       </div>
 
-      <Card className="mt-6">
-        <Kicker method="Award split">Single source or spread the risk?</Kicker>
+      <div className="mt-6">
+      <Fold id="award-split" title="Award split: single source or spread the risk?" sub="Equipment cost against the chance a supplier failure delays the hall">
         <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[38rem] text-left text-sm">
             <thead className="text-xs text-muted">
@@ -135,7 +136,8 @@ export function BidsStep() {
           together, which cuts the chance to {pct(awards[2]!.pShort, 1)}.{" "}
           {bestAward === awards[2] ? "At these settings that's worth giving up the volume discount." : "At these settings it isn't worth giving up the volume discount."}
         </p>
-      </Card>
+      </Fold>
+      </div>
     </Frame>
   );
 }

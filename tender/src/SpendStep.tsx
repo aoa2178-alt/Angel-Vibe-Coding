@@ -12,7 +12,7 @@ export function SpendStep() {
   return (
     <Frame route="spend" s={s} setS={setS}>
       <StepHeading route="spend">
-        Before negotiating anything, see the whole bill: which categories matter, where one supplier holds all the cards, and where savings are realistic.
+        The full bill: which categories matter, where supply is concentrated, and where savings are realistic.
       </StepHeading>
 
       <div className="rounded-2xl bg-panel p-5 text-panel-ink sm:p-7">
@@ -91,10 +91,7 @@ export function SpendStep() {
           </Card>
         </div>
       </div>
-      <p className="mt-6 text-xs leading-5 text-muted">
-        Quantities, prices, suppliers and savings ranges are illustrative assumptions for a fictional buyer. The transformer price sits inside the public range (GAO: up to
-        $10M per unit); see Sources.
-      </p>
+      <p className="mt-6 text-xs leading-5 text-muted">Illustrative assumptions for a fictional buyer; see Sources.</p>
     </Frame>
   );
 }

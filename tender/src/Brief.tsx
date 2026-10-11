@@ -83,7 +83,7 @@ export function Brief() {
       <article className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
           <div>
-            <p className="kicker">The call · {COMPANY}</p>
+            <p className="kicker">Recommendation · {COMPANY}</p>
             <h1 className="mt-2 text-3xl font-extrabold tracking-[-0.03em] sm:text-4xl">Transformers for {BUYER.project}</h1>
             <p className="mt-1 text-sm text-muted">A fictional buyer and suppliers; prices anchored to public data</p>
           </div>

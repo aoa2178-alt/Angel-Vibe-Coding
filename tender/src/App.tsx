@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { BidsStep } from "./BidsStep";
 import { Brief } from "./Brief";
+import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { NegotiateStep } from "./NegotiateStep";
 import { ShouldCostStep } from "./ShouldCostStep";
 import { Sources } from "./Sources";
 import { SpendStep } from "./SpendStep";
 
-type View = "landing" | "spend" | "should-cost" | "bids" | "negotiate" | "brief" | "sources";
-const VIEWS: View[] = ["spend", "should-cost", "bids", "negotiate", "brief", "sources"];
+type View = "landing" | "spend" | "should-cost" | "bids" | "negotiate" | "brief" | "sources" | "faq";
+const VIEWS: View[] = ["spend", "should-cost", "bids", "negotiate", "brief", "sources", "faq"];
 
 const resolve = (): View => {
   const first = window.location.pathname.split("/")[1] as View;
@@ -17,12 +18,13 @@ const resolve = (): View => {
 
 const TITLES: Record<View, string> = {
   landing: "Tender · What should it cost?",
-  spend: "Tender · 1. Spend",
-  "should-cost": "Tender · 2. Should-cost",
-  bids: "Tender · 3. Bids",
-  negotiate: "Tender · 4. Negotiate",
-  brief: "Tender · The call",
+  spend: "Tender · Spend analysis",
+  "should-cost": "Tender · Should-cost",
+  bids: "Tender · Bid evaluation",
+  negotiate: "Tender · Negotiation",
+  brief: "Tender · Recommendation",
   sources: "Tender · Sources",
+  faq: "Tender · FAQ",
 };
 
 export default function App() {
@@ -52,6 +54,8 @@ export default function App() {
       return <Brief key={view} />;
     case "sources":
       return <Sources key={view} />;
+    case "faq":
+      return <Faq key={view} />;
     default:
       return <Landing />;
   }

@@ -2,43 +2,56 @@
 
 **How should we run our AI, and is it worth it?**
 
-Breakeven answers that in three steps, with your numbers entered once and carried through:
+Live: https://breakeven-silk.vercel.app · Capstone for the CBS Vibe Coding class (Angel Ade-Oduntan).
 
-1. **Worth it** (`/worth-it`): does AI pay off for this work? People cost today vs people plus AI compute: savings, payback and ROI, from editable templates.
-2. **Run it** (`/run-it`): pay per token, rent cloud GPUs, or own them? Each option's cost at your volume, where the answer flips, and a scorecard for what fits beyond cost.
-3. **Power it** (`/power-it`): if you own, how much power you need, what a power budget allows, and the cheapest way to bridge a late grid connection.
+Breakeven answers that in three steps, with the numbers entered once and carried through in the URL:
 
-Then **Result** (`/result`): one printable page with the recommendation and the risks. **Sources** (`/sources`) gives the range, reasoning, source and confidence for every default.
+1. **Evaluate AI ROI** (`/worth-it`): does AI pay off for this work? People cost today against people plus AI compute, giving savings, payback and ROI from editable templates.
+   - **Is AI the right tool?** The necessity test compares AI with rules automation, a process redesign and no change, on 3-year value in a conservative, base and optimistic case. It ends in Invest, Pilot, Defer, Reject or Don't use AI.
+   - **Product mode:** freemium unit economics for an AI product you sell.
+2. **Compare compute costs** (`/run-it`): pay per token, rent cloud GPUs, or own them?
+   - The cost at your volume and where the answer flips.
+   - **Beyond cost:** a scorecard.
+   - **Running it well:** response time against utilization, own the base and rent the peaks, and when to retire GPUs.
+3. **Power planning** (`/power-it`): if you own, the power you need, what a power budget allows, and the cheapest way to bridge a late grid connection.
 
-Every page shows the same chain, tokens a month → GPUs → power, and the whole plan lives in the URL, so any link reopens it. Old links (`/calculator`, `/business-case`, `/speed-to-power`, `/methodology`) still work.
+Then:
+- **Recommendation** (`/result`): the call first, then value against today, what would change it, a 30/60/90 plan and risks. It's printable, and it can send the scenario to an n8n workflow that writes a decision report.
+- **Sources** (`/sources`): range, reasoning, source and confidence for every default, plus price history.
+- **FAQ** (`/faq`).
 
-Live: https://breakeven-silk.vercel.app
+Old links (`/calculator`, `/business-case`, `/speed-to-power`, `/methodology`) still work.
 
 ## Run it
 
 ```bash
 npm install
 npm run dev     # local dev server
-npm test        # cost-model tests
+npm test        # 95 tests across the models
 npm run build   # type-check and build to dist/
 ```
 
 ## How it works
 
-- `src/lib/tco.ts`: the cost model (pure functions), defaults and presets. Tests are in `src/lib/tco.test.ts`.
-  - **API:** tokens × the blended input/output price.
-  - **Rent:** GPUs needed × 730 hours × $/GPU-hour.
-  - **Own:** GPUs bought in whole 8-GPU servers × (depreciation + support % of hardware + electricity × PUE + colocation per kW).
-  - GPUs needed = average tokens/sec ÷ (throughput per GPU × utilization).
-- `src/lib/roi.ts`: the business case's ROI step. People cost today vs people (failed tasks + review) plus AI compute, priced at the cheapest option from the cost model. Four illustrative templates.
-- `src/lib/scorecard.ts`: scores API / rent / own on cost (from the model), data control, time to launch, model quality, ease of running and flexibility, weighted 0–5 into a score out of 100.
-- `src/lib/businessCaseShare.ts`: a business case lives in the URL, like an estimate.
-- `src/lib/speedToPower.ts`: Speed-to-Power. Each way to bridge a late grid is costed as extra spending versus owning on a working grid from day one; until an option is ready you rent. `speedToPowerShare.ts` keeps a scenario in the URL; `bridgeMethodology.ts` holds its sources.
-- `src/data/prices.json` + `src/lib/prices.ts`: the tracked price history (API prices per million tokens, H100 rental per hour), every point dated and sourced, shown on the Sources page and as "Market now" in step 2. `src/lib/prices.test.ts` validates it.
-- `agents/price-watcher.md`: instructions for the weekly price watcher, a scheduled agent that proposes new price points on a `prices/YYYY-MM-DD` branch for review. It may only append to `prices.json` and never pushes to `main`.
-- `src/lib/share.ts`: shareable links (the estimate lives in the URL) and CSV export. Tests are in `src/lib/share.test.ts`.
-- `src/components/`: `CostChart` (projection chart), `ClosingBars`, `Odometer`.
-- `src/lib/plan.ts`: the one plan every step shares. It reads and writes the URL, links step 1's tokens per task to the volume, sizes step 3's cluster from step 2, and redirects old links. `src/components/PlanFrame.tsx` holds the step tracker, workload strip and Back/Next.
-- `src/App.tsx`: a tiny router: `/` landing, `/worth-it`, `/run-it`, `/power-it`, `/result`, `/sources`.
+All the math is in pure, tested functions in `src/lib/`; every rule is written out in plain English in `BREAKEVEN-RULES.md` in the class folder.
 
-The defaults are illustrative (October 2026) and every one is editable in the app. "Rent" and "Own" mean running an open-weight model yourself; frontier models like Claude and GPT are API-only.
+| File | What it does |
+|---|---|
+| `tco.ts` | The cost model: API = tokens × blended price; Rent = GPUs × 730 h × $/GPU-hour; Own = whole 8-GPU servers × (depreciation + support + electricity × PUE + colocation). GPUs needed = average tokens/sec ÷ (throughput × utilization). |
+| `roi.ts`, `necessity.ts` | Is it worth it, and is AI the right tool: the business case, alternatives and scenarios, verdict and missing evidence. |
+| `freemium.ts` | Product mode: cost per free and paid user, margin, break-even conversion. |
+| `scorecard.ts` | Beyond cost: data control, time to launch, quality, ease, flexibility, weighted to a score out of 100. |
+| `operate.ts` | Running it well: Erlang C queueing with Kingman variability, Little's Law, hybrid own/rent (newsvendor critical ratio), GPU retirement (sunk cost). |
+| `speedToPower.ts` | Bridging a late grid: renting, bridge power, own gas, flexible grid with batteries. |
+| `call.ts`, `decisionReport.ts` | The recommendation, and the payload for the n8n decision report. |
+| `plan.ts` + `*Share.ts` | One plan shared by every step, kept in the URL; old links redirect. |
+| `prices.ts` + `src/data/prices.json` | Dated, sourced price history (API $/M tokens, H100 $/hour), validated by `prices.test.ts`. |
+
+The weekly price watcher (`agents/price-watcher.md`) proposes new price points on a `prices/YYYY-MM-DD` branch for review. It may only append to `prices.json` and never pushes to `main`.
+
+## Data and privacy
+
+- Static site on Vercel: no accounts, no database, no API keys in the browser.
+- The only data sent anywhere is the optional decision report: ten scenario fields (no personal data) posted to the n8n webhook when you click the button.
+
+The defaults are illustrative (October 2026), and every one can be edited. "Rent" and "Own" mean running an open-weight model yourself, because frontier models like Claude and GPT are API-only.

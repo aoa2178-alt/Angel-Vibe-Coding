@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
 import { OPTIONS } from "./options";
 import { PillBar, SiteFooter } from "./Site";
+import { needsPowerPlanning } from "@/lib/call";
 import { STEPS, ownedClusterGpus, planQuery, readPlan, stepHref, type Plan, type StepRoute } from "@/lib/plan";
 import { cheapest, compare, facilityKwPerGpu, formatTokensM } from "@/lib/tco";
 
@@ -83,6 +84,7 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
         const href = stepHref(s.route, plan);
         const current = s.route === route;
         const n = i < 3 ? i + 1 : null;
+        const skipped = s.route === "power-it" && !needsPowerPlanning(plan);
         return (
           <a
             key={s.route}
@@ -103,6 +105,7 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
               </span>
             )}
             {s.label}
+            {skipped && <span className="rounded-full bg-sunken px-1.5 py-0.5 text-[10px] font-medium text-muted" title="You're not owning GPUs, so there's no power to plan. You can still open it.">not needed</span>}
           </a>
         );
       })}
@@ -232,8 +235,12 @@ export function PlanFrame({
   children: ReactNode;
 }) {
   const i = STEPS.findIndex((s) => s.route === route);
-  const prev = i > 0 ? STEPS[i - 1] : null;
-  const next = i >= 0 && i < STEPS.length - 1 ? STEPS[i + 1] : null;
+  // With the API or rented GPUs there's nothing to power, so Back/Next step over Power planning.
+  const skipPower = !needsPowerPlanning(plan);
+  const path = skipPower && route !== "power-it" ? STEPS.filter((s) => s.route !== "power-it") : STEPS;
+  const at = path.findIndex((s) => s.route === route);
+  const prev = at > 0 ? path[at - 1] : null;
+  const next = at >= 0 && at < path.length - 1 ? path[at + 1] : null;
   return (
     <div className="min-h-dvh">
       <PillBar

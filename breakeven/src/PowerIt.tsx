@@ -6,6 +6,7 @@ import { BridgeChart, type StrategyMeta } from "@/components/BridgeChart";
 import { Odometer } from "@/components/Odometer";
 import { PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
 import { PowerBudget } from "@/components/PowerBudget";
+import { needsPowerPlanning } from "@/lib/call";
 import { clusterGpusOf, ownedClusterGpus, stepHref } from "@/lib/plan";
 import {
   CLUSTER_PRESETS,
@@ -92,6 +93,16 @@ export function PowerIt() {
         <StepHeading route="power-it">
           Ownership only pays if the capacity can be powered. Set the power available, then compare options for bridging a delayed grid connection.
         </StepHeading>
+
+        {!needsPowerPlanning(plan) && (
+          <p className="mt-4 rounded-xl border border-line bg-sunken px-4 py-3 text-sm text-ink-2">
+            <strong className="text-ink">Not needed for your plan.</strong> You're paying per token or renting GPUs, so the provider supplies the power. This step only matters if you own GPUs; explore it to see what owning would take, or{" "}
+            <a href={stepHref("result", plan)} onClick={linkClick(stepHref("result", plan))} className="font-semibold text-brand-ink underline underline-offset-2">
+              go to the recommendation
+            </a>
+            .
+          </p>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           <section aria-label="Your power" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">

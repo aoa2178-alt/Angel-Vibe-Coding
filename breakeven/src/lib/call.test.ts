@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { callOf, landingPlan } from "./call";
+import { callOf, landingPlan, needsPowerPlanning } from "./call";
 import { applyTemplate, planQuery, readPlan } from "./plan";
 import { compare } from "./tco";
 
@@ -38,5 +38,13 @@ describe("The call", () => {
     const plan = { ...readPlan("?v=2000"), current: "rent" as const };
     expect(readPlan(planQuery(plan)).current).toBe("rent");
     expect(readPlan("?now=bogus").current).toBeUndefined();
+  });
+});
+
+describe("Power planning on the path", () => {
+  it("is skipped for the API and rented GPUs, and kept when owning wins", () => {
+    expect(needsPowerPlanning(readPlan("?v=200"))).toBe(false); // API
+    expect(needsPowerPlanning(readPlan("?v=2000"))).toBe(false); // Rent
+    expect(needsPowerPlanning(readPlan("?v=30000"))).toBe(true); // Own
   });
 });

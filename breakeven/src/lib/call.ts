@@ -55,6 +55,16 @@ export function callOf(plan: Plan) {
 
 export type Call = ReturnType<typeof callOf>;
 
+/**
+ * Power planning only matters when the plan owns GPUs: owning is the recommendation, or owning the always-busy base
+ * beats renting it. With the API or rented GPUs, the provider handles power, so the path skips that step.
+ */
+export function needsPowerPlanning(plan: Plan) {
+  const costs = compare(plan.workload, plan.assumptions);
+  const recommended = scorecard(costs, plan.weights, plan.scores).winner ?? cheapest(costs);
+  return recommended === "own" || hybrid(plan.workload, plan.assumptions, plan.ops).best === "split";
+}
+
 /** The 30/60/90-day plan for landing each recommendation. */
 export function landingPlan(id: OptionId): { when: string; what: string[] }[] {
   if (id === "api")

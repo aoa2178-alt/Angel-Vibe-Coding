@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { REPORT_WEBHOOK, buildPayload, sendReport, validateForm, type ReportForm } from "./decisionReport";
+import { describe, expect, it } from "vitest";
+import { REPORT_WEBHOOK, buildPayload, buildResults, openReport, validateForm, type ReportForm } from "./decisionReport";
 import { readPlan } from "./plan";
 
 const FORM: ReportForm = { scenarioName: "  Support pilot ", currentDeployment: "Pay-per-token API", growthPct: "30", horizonYears: 3 };
@@ -39,21 +39,49 @@ describe("Decision report payload", () => {
   });
 });
 
-describe("Sending", () => {
-  const payload = buildPayload(readPlan(""), FORM);
+describe("Report results", () => {
+  const plan = readPlan("?v=2000&t=support");
+  const results = buildResults(plan, FORM);
 
-  it("POSTs the JSON to the n8n webhook", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
-    await sendReport(payload, fetchMock);
-    const [url, init] = fetchMock.mock.calls[0]!;
-    expect(url).toBe(REPORT_WEBHOOK);
-    expect(init.method).toBe("POST");
-    expect(init.headers).toEqual({ "Content-Type": "application/json" });
-    expect(JSON.parse(init.body)).toEqual(payload);
+  it("carries the model's own numbers and the recommendation", () => {
+    expect(results.options.map((o) => o.name)).toEqual(["Pay per token (API)", "Rent cloud GPUs", "Own GPUs"]);
+    expect(results.cheapest).toBe("Rent cloud GPUs");
+    expect(results.options.every((o) => Math.abs(o.yearly - o.monthly * 12) <= 6)).toBe(true); // rounding only
+    expect(results.business_case?.savings_monthly).toBeGreaterThan(0);
+    expect(results.is_ai_the_right_tool?.verdict).toBeTruthy();
+    expect(results.plan_30_60_90).toHaveLength(3);
+    expect(results.app_link).toMatch(/^https:\/\/breakeven-silk\.vercel\.app\/result\?/);
   });
 
-  it("turns a failed answer or a network error into a friendly message", async () => {
-    await expect(sendReport(payload, vi.fn().mockResolvedValue(new Response("", { status: 500 })))).rejects.toThrow(/couldn't be generated/);
-    await expect(sendReport(payload, vi.fn().mockRejectedValue(new TypeError("Failed to fetch")))).rejects.toThrow(/try again/);
+  it("projects the expected growth for each year of the horizon", () => {
+    expect(results.growth_years).toHaveLength(FORM.horizonYears + 1);
+    expect(results.growth_years[0]!.monthly_tokens).toBe(2_000_000_000);
+    expect(results.growth_years[1]!.monthly_tokens).toBe(2_600_000_000); // +30%
+  });
+});
+
+describe("Opening the report", () => {
+  it("posts the scenario and results to the n8n webhook as a form into a new tab", () => {
+    // A stand-in for the page: records what openReport builds and submits.
+    type Fake = Record<string, unknown> & { children: Fake[]; appendChild: (c: Fake) => void; submit: () => void; remove: () => void; style: Record<string, string> };
+    let submitted: Fake | null = null;
+    let attached = 0;
+    const make = (): Fake => {
+      const el: Fake = { children: [], style: {}, appendChild: (c) => el.children.push(c), submit: () => (submitted = el), remove: () => attached-- };
+      return el;
+    };
+    const doc = { createElement: make, body: { appendChild: () => attached++ } } as unknown as Document;
+    const plan = readPlan("");
+    openReport(buildPayload(plan, FORM), buildResults(plan, FORM), doc);
+    const form = submitted as unknown as Fake;
+    expect(form.action).toBe(REPORT_WEBHOOK);
+    expect(form.method).toBe("POST");
+    expect(form.target).toBe("_blank");
+    const input = form.children[0]!;
+    expect(input.name).toBe("data");
+    const data = JSON.parse(input.value as string);
+    expect(data.scenario_name).toBe("Support pilot");
+    expect(data.results.options).toHaveLength(3);
+    expect(attached).toBe(0);
   });
 });

@@ -1,7 +1,11 @@
 // "Generate Decision Report": sends the plan's key choices to Angel's n8n workflow, which writes the report.
 // Six fields come from the plan as it stands; four (name, current setup, growth, horizon) are asked for next to the button.
 import { BURST_PRESETS } from "./operate";
-import type { Plan } from "./plan";
+import { landingPlan, callOf } from "./call";
+import { VERDICT_LABELS } from "./necessity";
+import { planNecessity, stepHref, type Plan } from "./plan";
+import { CRITERIA } from "./scorecard";
+import { cheapest, compare, facilityKwPerGpu, type OptionId } from "./tco";
 import { templateById } from "./roi";
 
 export const REPORT_WEBHOOK = "https://angelvibecoding.app.n8n.cloud/webhook/breakeven-scenario";
@@ -76,21 +80,116 @@ export function buildPayload(plan: Plan, form: ReportForm): ReportPayload {
   };
 }
 
-/** POSTs the payload as JSON. Resolves on a 2xx answer; throws a friendly message otherwise. */
-export async function sendReport(payload: ReportPayload, fetchImpl: typeof fetch = fetch, timeoutMs = 30_000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetchImpl(REPORT_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    if (!res.ok) throw new Error(`status ${res.status}`);
-  } catch {
-    throw new Error("The decision report couldn't be generated right now. Check your connection and try again in a moment.");
-  } finally {
-    clearTimeout(timer);
-  }
+const OPTION_NAMES: Record<OptionId, string> = { api: "Pay per token (API)", rent: "Rent cloud GPUs", own: "Own GPUs" };
+const round = (n: number, digits = 0) => Math.round(n * 10 ** digits) / 10 ** digits;
+
+/**
+ * Everything Breakeven worked out, for the n8n report template: costs, crossovers, the recommendation and what would
+ * change it, the business case, power, running it, a year-by-year look at the growth the person expects, and the plan.
+ */
+export function buildResults(plan: Plan, form: ReportForm) {
+  const call = callOf(plan);
+  const { costs, card, recommended, cheapestId, cross, r, product, split, q, hottest } = call;
+  const growth = Number(form.growthPct) / 100;
+  const years = Array.from({ length: form.horizonYears + 1 }, (_, year) => {
+    const tokensM = Math.max(0.001, plan.workload.tokensM * Math.pow(1 + growth, year));
+    const c = compare({ ...plan.workload, tokensM }, plan.assumptions);
+    return {
+      year,
+      monthly_tokens: Math.round(tokensM * 1_000_000),
+      api: round(c.api.monthly),
+      rent: round(c.rent.monthly),
+      own: round(c.own.monthly),
+      cheapest: OPTION_NAMES[cheapest(c)],
+    };
+  });
+  const nec = plan.mode === "work" && plan.templateId ? planNecessity(plan) : null;
+  const ownGpus = costs.own.gpus ?? 0;
+  return {
+    app_link: `https://breakeven-silk.vercel.app${stepHref("result", plan)}`,
+    recommended: OPTION_NAMES[recommended],
+    cheapest: OPTION_NAMES[cheapestId],
+    best_fit_differs: recommended !== cheapestId,
+    options: (["api", "rent", "own"] as OptionId[]).map((id) => ({
+      name: OPTION_NAMES[id],
+      monthly: round(costs[id].monthly),
+      yearly: round(costs[id].monthly * 12),
+      per_million_tokens: round(costs[id].perM, 2),
+      gpus: costs[id].gpus,
+      fit_score: round(card.totals[id]),
+    })),
+    priorities: CRITERIA.map((c) => ({ name: c.label, weight: plan.weights[c.id] })),
+    api_cheapest_until_tokens: cross.apiUntilM === null ? null : Math.round(cross.apiUntilM * 1_000_000),
+    own_cheapest_from_tokens: cross.ownFromM === null ? null : Math.round(cross.ownFromM * 1_000_000),
+    yearly_change_vs_today: call.versusToday === null ? null : round(call.versusToday),
+    what_would_change_it: [...call.checks, ...call.volumeChecks].map((c) => ({
+      check: c.label,
+      holds: c.holds,
+      instead: c.instead ? OPTION_NAMES[c.instead] : null,
+    })),
+    growth_years: years,
+    business_case: r && {
+      people_cost_monthly: round(r.humanCost),
+      cost_with_ai_monthly: round(r.aiCost),
+      compute_monthly: round(r.computeCost),
+      savings_monthly: round(r.savings),
+      payback_months: r.paybackMonths === null ? null : round(r.paybackMonths, 1),
+      roi_12_months_pct: r.roi12 === null ? null : round(r.roi12 * 100),
+      ai_success_rate_pct: round(call.inputs.aiSuccess * 100),
+    },
+    is_ai_the_right_tool: nec && {
+      verdict: VERDICT_LABELS[nec.verdict],
+      reason: nec.reason,
+      options: nec.options
+        .filter((o) => o.available)
+        .map((o) => ({
+          name: o.label,
+          npv_conservative: round(o.cases.conservative.npv),
+          npv_base: round(o.cases.base.npv),
+          npv_optimistic: round(o.cases.optimistic.npv),
+          payback_months: o.cases.base.payback === null ? null : round(o.cases.base.payback, 1),
+        })),
+      evidence_to_gather: nec.missing.map((m) => `${m.label}: ${m.how}`),
+    },
+    product: product && {
+      monthly_revenue: round(product.revenue),
+      monthly_compute: round(product.compute),
+      margin_pct: product.marginPct === null ? null : round(product.marginPct * 100),
+      free_users_per_paying_user: product.freePerPaid === null ? null : round(product.freePerPaid, 1),
+      break_even_paid_share_pct: product.breakEvenShare === null ? null : round(product.breakEvenShare * 100, 1),
+    },
+    power: {
+      owned_gpus: ownGpus,
+      facility_kw: round(ownGpus * facilityKwPerGpu(plan.assumptions), 1),
+      power_cap_kw: plan.assumptions.powerLimitKw || null,
+    },
+    running_it: {
+      response_seconds: round(q.responseSec, 2),
+      wait_target_seconds: plan.ops.waitTargetSec,
+      hottest_utilization_pct: hottest === null ? null : round(hottest * 100),
+      hybrid_best: split.best,
+      flexibility_value_monthly: round(split.flexibilityValue),
+    },
+    plan_30_60_90: landingPlan(recommended).map((step) => ({ when: step.when, actions: step.what })),
+  };
+}
+
+/**
+ * Opens the report: posts the scenario and results to the n8n workflow as a normal form, into a new tab, so the
+ * finished page n8n sends back opens there, ready to print or save as PDF.
+ */
+export function openReport(payload: ReportPayload, results: ReturnType<typeof buildResults>, doc: Document = document) {
+  const form = doc.createElement("form");
+  form.method = "POST";
+  form.action = REPORT_WEBHOOK;
+  form.target = "_blank";
+  form.style.display = "none";
+  const input = doc.createElement("input");
+  input.type = "hidden";
+  input.name = "data";
+  input.value = JSON.stringify({ ...payload, results });
+  form.appendChild(input);
+  doc.body.appendChild(form);
+  form.submit();
+  form.remove();
 }

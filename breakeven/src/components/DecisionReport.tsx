@@ -1,9 +1,9 @@
-import { CheckCircle2, FileText, Loader2 } from "lucide-react";
+import { CheckCircle2, FileText } from "lucide-react";
 import { useState } from "react";
-import { DEPLOYMENTS, HORIZONS, buildPayload, defaultScenarioName, sendReport, validateForm, type ReportForm } from "@/lib/decisionReport";
+import { DEPLOYMENTS, HORIZONS, buildPayload, buildResults, defaultScenarioName, openReport, validateForm, type ReportForm } from "@/lib/decisionReport";
 import { CURRENTS, type Plan } from "@/lib/plan";
 
-type Status = { kind: "idle" } | { kind: "sending" } | { kind: "done" } | { kind: "error"; message: string };
+type Status = { kind: "idle" } | { kind: "done" } | { kind: "error"; message: string };
 
 const FIELD = "mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm";
 
@@ -17,24 +17,22 @@ export function DecisionReport({ plan }: { plan: Plan }) {
   }));
   const [errors, setErrors] = useState<ReturnType<typeof validateForm>>({});
   const [status, setStatus] = useState<Status>({ kind: "idle" });
-  const sending = status.kind === "sending";
 
   const update = <K extends keyof ReportForm>(key: K, value: ReportForm[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
     setErrors((e) => ({ ...e, [key]: undefined }));
-    if (status.kind !== "sending") setStatus({ kind: "idle" });
+    setStatus({ kind: "idle" });
   };
 
-  async function generate() {
+  function generate() {
     const found = validateForm(form);
     setErrors(found);
     if (Object.keys(found).length) return;
-    setStatus({ kind: "sending" });
     try {
-      await sendReport(buildPayload(plan, form));
+      openReport(buildPayload(plan, form), buildResults(plan, form));
       setStatus({ kind: "done" });
-    } catch (e) {
-      setStatus({ kind: "error", message: e instanceof Error ? e.message : "Something went wrong. Try again in a moment." });
+    } catch {
+      setStatus({ kind: "error", message: "The report couldn't be opened. Allow pop-ups for this site and try again." });
     }
   }
 
@@ -43,7 +41,7 @@ export function DecisionReport({ plan }: { plan: Plan }) {
       <h2 id="decision-report" className="kicker">
         Decision report
       </h2>
-      <p className="mt-2 text-sm text-ink-2">A few details for the report. Everything else comes from your plan above.</p>
+      <p className="mt-2 text-sm text-ink-2">A few details for the report. Everything else comes from your plan above. The report opens in a new tab, ready to print or save as PDF.</p>
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="block text-sm font-medium">Scenario name</span>
@@ -85,17 +83,15 @@ export function DecisionReport({ plan }: { plan: Plan }) {
         <button
           type="button"
           onClick={generate}
-          disabled={sending}
-          aria-busy={sending}
-          className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-ink disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-ink"
         >
-          {sending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <FileText className="size-4" aria-hidden />}
-          {sending ? "Generating…" : "Generate Decision Report"}
+          <FileText className="size-4" aria-hidden />
+          Generate Decision Report
         </button>
         <p role="status" aria-live="polite" className="text-sm">
           {status.kind === "done" && (
             <span className="inline-flex items-center gap-1.5 font-medium text-ink">
-              <CheckCircle2 className="size-4 text-brand" aria-hidden /> Decision report generated successfully
+              <CheckCircle2 className="size-4 text-brand" aria-hidden /> Your report is opening in a new tab
             </span>
           )}
           {status.kind === "error" && <span className="text-red-700 dark:text-red-300">{status.message}</span>}

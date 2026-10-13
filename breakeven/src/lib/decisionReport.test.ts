@@ -77,9 +77,10 @@ describe("Opening the report", () => {
     expect(form.action).toBe(REPORT_WEBHOOK);
     expect(form.method).toBe("POST");
     expect(form.target).toBe("_blank");
-    const input = form.children[0]!;
-    expect(input.name).toBe("data");
-    const data = JSON.parse(input.value as string);
+    const field = (name: string) => form.children.find((c) => c.name === name)!;
+    expect(field("scenario_name").value).toBe("Support pilot");
+    expect(field("monthly_tokens").value).toBe("2000000000");
+    const data = JSON.parse(field("data").value as string);
     expect(data.scenario_name).toBe("Support pilot");
     expect(data.results.options).toHaveLength(3);
     expect(attached).toBe(0);

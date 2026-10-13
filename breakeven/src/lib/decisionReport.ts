@@ -184,11 +184,16 @@ export function openReport(payload: ReportPayload, results: ReturnType<typeof bu
   form.action = REPORT_WEBHOOK;
   form.target = "_blank";
   form.style.display = "none";
-  const input = doc.createElement("input");
-  input.type = "hidden";
-  input.name = "data";
-  input.value = JSON.stringify({ ...payload, results });
-  form.appendChild(input);
+  const add = (name: string, value: string) => {
+    const input = doc.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  };
+  // The ten answers as their own fields (what the workflow's sheet logging reads), plus everything in "data".
+  for (const [name, value] of Object.entries(payload)) add(name, String(value));
+  add("data", JSON.stringify({ ...payload, results }));
   doc.body.appendChild(form);
   form.submit();
   form.remove();

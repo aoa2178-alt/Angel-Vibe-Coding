@@ -23,7 +23,8 @@
         { "date": "2024-08-06", "model": "GPT-4o", "input": 2.5, "output": 10, "source": "https://developers.openai.com/api/docs/models/gpt-4o", "checked": "2026-10-07", "note": "A further 75% cut. Dated by snapshot gpt-4o-2024-08-06; the May 2024 launch price isn't confirmed on current official pages, so it's left out." },
         { "date": "2025-04-14", "model": "GPT-4.1", "input": 2, "output": 8, "source": "https://developers.openai.com/api/docs/models/gpt-4.1", "checked": "2026-10-07" },
         { "date": "2025-08-07", "model": "GPT-5", "input": 1.25, "output": 10, "source": "https://developers.openai.com/api/docs/models/gpt-5", "checked": "2026-10-07" },
-        { "date": "2026-09-22", "model": "GPT-6 Sol", "input": 2, "output": 10, "source": "https://developers.openai.com/api/docs/pricing", "checked": "2026-10-07", "note": "Launch date from press coverage of the GPT-6 release." }
+        { "date": "2026-09-22", "model": "GPT-6 Sol", "input": 2, "output": 10, "source": "https://developers.openai.com/api/docs/pricing", "checked": "2026-10-07", "note": "Launch date from press coverage of the GPT-6 release." },
+        { "date": "2026-10-13", "model": "GPT-6.1 Sol", "input": 2, "output": 10, "source": "https://developers.openai.com/api/docs/pricing", "checked": "2026-10-13", "note": "First seen on the pricing page; OpenAI's model page gives no launch date. Same price as GPT-6 Sol." }
       ]
     },
     {
@@ -44,7 +45,8 @@
       "points": [
         { "date": "2023-07-01", "value": 8, "source": "https://coloprice.com/guides/h100-rental-prices/", "checked": "2026-10-07", "note": "Approximate mid-2023 peak during the shortage, as reported from Silicon Data and SemiAnalysis." },
         { "date": "2025-10-01", "value": 1.7, "source": "https://coloprice.com/guides/h100-rental-prices/", "checked": "2026-10-07", "note": "The low point, reported from Silicon Data's index as supply overshot demand." },
-        { "date": "2026-10-06", "value": 2.82, "source": "https://www.silicondata.com/products/silicon-index/h100", "checked": "2026-10-07", "note": "Silicon Data H100 Rental Price Index (SDH100RT), neo-cloud segment. A rebound as inference demand grew; Ornn's OCPI read $2.86 the same day." }
+        { "date": "2026-10-06", "value": 2.82, "source": "https://www.silicondata.com/products/silicon-index/h100", "checked": "2026-10-07", "note": "Silicon Data H100 Rental Price Index (SDH100RT), neo-cloud segment. A rebound as inference demand grew; Ornn's OCPI read $2.86 the same day." },
+        { "date": "2026-10-13", "value": 2.85, "source": "https://www.silicondata.com/products/silicon-index/h100", "checked": "2026-10-13", "note": "Silicon Data SDH100RT headline reading as of Oct 13, 2026 (up 7.1% over 7 days). The page's undated FAQ still says $2.53." }
       ]
     }
   ],

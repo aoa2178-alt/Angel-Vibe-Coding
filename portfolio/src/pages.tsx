@@ -897,6 +897,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>UC Berkeley Haas</h3>
                   <h4>Master of Business Administration</h4>
+                  <p>Strategy, energy, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--columbia">
@@ -906,6 +907,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>Columbia Business School</h3>
                   <h4>MBA Exchange Program</h4>
+                  <p>Operations, AI, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--ibadan">
@@ -915,6 +917,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>University of Ibadan</h3>
                   <h4>BSc Mathematics</h4>
+                  <p>Top 5% of the class.</p>
                 </article>
               </div>
             </section>

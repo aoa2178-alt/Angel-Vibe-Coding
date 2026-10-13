@@ -25,8 +25,6 @@ const experience = [
     detailPeriod: "Jul—Aug",
     role: "MBA Operations Intern",
     context: "Los Altos · AI infrastructure",
-    summary:
-      "Built the supply-chain operating model for an AI inference server.",
   },
   {
     organization: "TOPPAN Security",
@@ -34,8 +32,6 @@ const experience = [
     detailPeriod: "Jan—May",
     role: "MBA Strategy Consultant",
     context: "Paris · Digital identity",
-    summary:
-      "Go-to-market strategy across four regulated industries, a ~$101M opportunity.",
   },
   {
     organization: "Deloitte",
@@ -43,8 +39,6 @@ const experience = [
     detailPeriod: "2025",
     role: "Senior Consultant",
     context: "Lagos · Multi-sector consulting",
-    summary:
-      "Procurement and operations programs: 17% lower cost, 90% fewer fulfillment delays.",
   },
   {
     organization: "KPMG",
@@ -52,8 +46,6 @@ const experience = [
     detailPeriod: "2021",
     role: "Consultant",
     context: "Lagos · Financial services",
-    summary:
-      "Post-merger review of 50+ bank branches for a ~$80M synergy program.",
   },
 ];
 
@@ -884,7 +876,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                     </div>
                     <h3>{item.organization}</h3>
                     <h4>{item.role}</h4>
-                    <p>{item.summary}</p>
                   </article>
                 ))}
               </div>
@@ -906,7 +897,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>UC Berkeley Haas</h3>
                   <h4>Master of Business Administration</h4>
-                  <p>Strategy, energy, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--columbia">
@@ -916,7 +906,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>Columbia Business School</h3>
                   <h4>MBA Exchange Program</h4>
-                  <p>Operations, AI, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--ibadan">
@@ -926,7 +915,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>University of Ibadan</h3>
                   <h4>BSc Mathematics</h4>
-                  <p>Top 5% of the class.</p>
                 </article>
               </div>
             </section>

@@ -1,8 +1,10 @@
 import { ArrowLeft, Printer } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
+import { OPTIONS } from "@/components/options";
 import { buildPayload, buildResults, readReportForm } from "@/lib/decisionReport";
 import { readPlan, stepHref } from "@/lib/plan";
+import type { OptionId } from "@/lib/tco";
 
 const money = (v: number | null | undefined) => {
   if (v === null || v === undefined || !Number.isFinite(v)) return "—";
@@ -17,6 +19,17 @@ const tokens = (v: number | null | undefined) => {
   return Math.round(v).toLocaleString("en-US");
 };
 const pct = (v: number | null | undefined) => (v === null || v === undefined ? "—" : `${v}%`);
+const idOf = (name: string): OptionId => (Object.keys(OPTIONS) as OptionId[]).find((id) => OPTIONS[id].name === name) ?? "api";
+
+function Tile({ label, value, sub, tone }: { label: string; value: ReactNode; sub: string; tone?: "good" | undefined }) {
+  return (
+    <div className="rounded-2xl border border-line bg-surface p-4">
+      <p className="kicker truncate">{label}</p>
+      <p className={`mt-1 text-2xl font-extrabold ${tone === "good" ? "text-[#0e7f72] dark:text-[#4fd1c0]" : ""}`}>{value}</p>
+      <p className="mt-0.5 text-xs text-ink-2">{sub}</p>
+    </div>
+  );
+}
 
 function Section({ n, title, children }: { n: number; title: string; children: ReactNode }) {
   return (
@@ -87,6 +100,21 @@ export function Report() {
   const nec = r.is_ai_the_right_tool;
   const bc = r.business_case;
   let n = 0;
+  const recId = idOf(r.recommended);
+  const maxCost = Math.max(...r.options.map((o) => o.monthly), 1);
+  const maxGrowth = Math.max(...r.growth_years.map((g) => g[recId]), 1);
+  const why: ReactNode[] = [
+    r.best_fit_differs ? `Best fit on your priorities, though ${r.cheapest} is cheaper` : `Cheapest at ${tokens(d.monthly_tokens)} tokens a month`,
+    `Fit score ${rec.fit_score}/100 on your priorities`,
+  ];
+  if (nec) why.push(`Is AI the right tool? ${nec.verdict}`);
+  else if (bc) why.push(bc.savings_monthly > 0 ? `AI saves ${money(bc.savings_monthly)} a month` : "AI doesn't pay off at these inputs");
+  const switches = r.what_would_change_it.filter((c) => !c.holds);
+  const holding = r.what_would_change_it.filter((c) => c.holds).length;
+  const changes: ReactNode[] = [
+    ...switches.slice(0, 3).map((c) => `${c.check} → ${c.instead ?? "another option"}`),
+    ...(holding ? [`${holding} price and hardware swings of ±25%: still holds`] : []),
+  ];
 
   const summary: ReactNode[] = [
     `At ${tokens(d.monthly_tokens)} tokens a month, ${r.cheapest} is the cheapest way to run this workload.`,
@@ -137,24 +165,109 @@ export function Report() {
         {d.workload_type} · {tokens(d.monthly_tokens)} tokens a month · {d.demand_pattern} traffic · prepared {today}
       </p>
 
-      <div className="mt-6 rounded-2xl border-2 border-brand bg-surface p-5 sm:p-6">
-        <p className="kicker">Recommendation</p>
-        <p className="mt-2 text-2xl font-extrabold">{r.recommended}</p>
-        <p className="mt-2 text-sm">
-          {r.recommended} costs about <strong>{money(rec.monthly)} a month</strong> ({money(rec.yearly)} a year) at today's volume
-          {r.best_fit_differs ? `. It isn't the cheapest option (${r.cheapest} is), but it scores best on your priorities.` : ", and it's also the cheapest option."}
-        </p>
-        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-          <Stat label="Runs on today" value={d.current_deployment || "—"} />
-          <Stat
-            label="Yearly change vs today"
-            value={r.yearly_change_vs_today === null ? "—" : `${r.yearly_change_vs_today >= 0 ? "saves" : "costs"} ${money(Math.abs(r.yearly_change_vs_today))}`}
-          />
-          <Stat label="Expected growth" value={`${pct(d.expected_annual_growth)} a year`} />
-          <Stat label="Decision horizon" value={`${d.decision_horizon} year${d.decision_horizon === 1 ? "" : "s"}`} />
+      {/* The dashboard: the answer at a glance. Everything else sits under "Full details". */}
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-[1.35fr_1fr_1fr_1fr] [&>*:last-child]:col-span-2 sm:[&>*:last-child]:col-span-1">
+        <div className={`col-span-2 rounded-2xl p-4 text-white sm:col-span-3 lg:col-span-1 ${OPTIONS[recId].swatch}`}>
+          <p className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] opacity-85">Recommendation</p>
+          <p className="mt-1 text-2xl font-extrabold leading-tight">{r.recommended}</p>
+          <p className="mt-1 text-xs opacity-90">{r.best_fit_differs ? `Best fit on your priorities (${r.cheapest} is cheapest)` : "Cheapest and best fit at your volume"}</p>
+        </div>
+        <Tile label="Monthly cost" value={money(rec.monthly)} sub={`${money(rec.yearly)} a year`} />
+        <Tile
+          label={d.current_deployment ? `vs today (${d.current_deployment})` : "vs today"}
+          value={r.yearly_change_vs_today === null ? "—" : `${r.yearly_change_vs_today >= 0 ? "−" : "+"}${money(Math.abs(r.yearly_change_vs_today))}`}
+          sub={r.yearly_change_vs_today === null ? "Set how you run AI today" : r.yearly_change_vs_today >= 0 ? "saved per year" : "extra per year"}
+          tone={r.yearly_change_vs_today !== null && r.yearly_change_vs_today >= 0 ? "good" : undefined}
+        />
+        {bc ? (
+          <Tile label="Payback" value={bc.payback_months === null ? "None" : `${bc.payback_months} mo`} sub={bc.savings_monthly > 0 ? `AI saves ${money(bc.savings_monthly)} a month` : "AI doesn't pay off here"} />
+        ) : r.product ? (
+          <Tile label="Margin after compute" value={pct(r.product.margin_pct)} sub={`${money(r.product.monthly_revenue)} revenue a month`} />
+        ) : (
+          <Tile label="Fit score" value={`${rec.fit_score}/100`} sub="on your priorities" />
+        )}
+      </div>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-[1.2fr_1fr]">
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <p className="kicker">Monthly cost by option</p>
+          <div className="mt-3 space-y-2.5">
+            {r.options.map((o) => {
+              const id = idOf(o.name);
+              return (
+                <div key={o.name} className="grid grid-cols-[72px_1fr_64px] items-center gap-3 text-sm">
+                  <span className={o.name === r.recommended ? "font-semibold" : ""}>
+                    {OPTIONS[id].short}
+                    {o.name === r.recommended ? " ✓" : ""}
+                  </span>
+                  <span className="h-3 rounded-full bg-sunken">
+                    <span className={`block h-3 rounded-full ${OPTIONS[id].swatch}`} style={{ width: `${Math.max(4, (o.monthly / maxCost) * 100)}%` }} />
+                  </span>
+                  <span className="text-right font-mono text-xs font-semibold">{money(o.monthly)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <p className="kicker">
+            {OPTIONS[recId].short} cost as you grow ({pct(d.expected_annual_growth)} a year)
+          </p>
+          <div className="mt-3 flex h-28 items-end gap-2" role="img" aria-label={`Monthly cost of ${r.recommended} by year`}>
+            {r.growth_years.map((g) => {
+              const v = g[recId];
+              return (
+                <div key={g.year} className="flex flex-1 flex-col items-center justify-end gap-1 text-[11px] text-ink-2">
+                  <span className="font-mono">{money(v)}</span>
+                  <span className={`w-full rounded-t-md ${OPTIONS[recId].swatch}`} style={{ height: `${Math.max(6, (v / maxGrowth) * 64)}px` }} />
+                  <span>{g.year === 0 ? "Now" : `Yr ${g.year}`}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-ink-2">
+            {last && last.cheapest === r.recommended
+              ? `${OPTIONS[recId].short} stays cheapest through year ${last.year} (${tokens(last.monthly_tokens)} tokens a month).`
+              : last
+                ? `By year ${last.year}, ${last.cheapest} becomes cheapest: plan to revisit.`
+                : ""}
+          </p>
         </div>
       </div>
 
+      <div className="mt-3 grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <p className="kicker">Why</p>
+          <div className="mt-2 text-sm">
+            <List items={why} />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <p className="kicker">Would change it</p>
+          <div className="mt-2 text-sm">
+            <List items={changes} />
+          </div>
+        </div>
+        <div className="rounded-2xl border border-line bg-surface p-4">
+          <p className="kicker">Next 90 days</p>
+          <div className="mt-2 text-sm">
+            <List
+              items={r.plan_30_60_90.map((step) => (
+                <>
+                  <strong>{step.when.replace("First ", "")}:</strong> {step.actions[0]}
+                </>
+              ))}
+            />
+          </div>
+        </div>
+      </div>
+
+      <details className="group mt-6">
+        <summary className="cursor-pointer list-none text-sm font-semibold text-brand-ink print:hidden">
+          <span className="group-open:hidden">Full details ▾</span>
+          <span className="hidden group-open:inline">Hide details ▴</span>
+          <span className="ml-2 font-normal text-ink-2">costs, growth table, business case, every check, priorities, running it, full plan</span>
+        </summary>
       <Section n={++n} title="Executive summary">
         <List items={summary} />
       </Section>
@@ -258,6 +371,8 @@ export function Report() {
           ))}
         </div>
       </Section>
+
+      </details>
 
       <p className="mt-6 text-xs text-ink-2">
         Figures come from Breakeven's model with illustrative October 2026 defaults; every assumption can be changed in the app. This report's link reopens it with the same numbers.

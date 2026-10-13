@@ -3,14 +3,15 @@ import { Faq } from "./Faq";
 import { Landing } from "./Landing";
 import { Methodology } from "./Methodology";
 import { PowerIt } from "./PowerIt";
+import { Report } from "./Report";
 import { Result } from "./Result";
 import { RunIt } from "./RunIt";
 import { WorthIt } from "./WorthIt";
 import { legacyRedirect } from "@/lib/plan";
 
-type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources" | "faq";
+type View = "landing" | "worth-it" | "run-it" | "power-it" | "result" | "sources" | "faq" | "report";
 
-const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources", "faq"];
+const VIEWS: View[] = ["worth-it", "run-it", "power-it", "result", "sources", "faq", "report"];
 
 /** Old links (/calculator, /business-case, /speed-to-power, /methodology, /?v=) move to the new routes, keeping their plan. */
 function resolve(): View {
@@ -29,6 +30,7 @@ const TITLES: Record<View, string> = {
   result: "Breakeven · Recommendation",
   sources: "Breakeven · Sources",
   faq: "Breakeven · FAQ",
+  report: "Breakeven · Decision report",
 };
 
 export default function App() {
@@ -59,6 +61,8 @@ export default function App() {
       return <Methodology key={view} />;
     case "faq":
       return <Faq key={view} />;
+    case "report":
+      return <Report key={view} />;
     default:
       return <Landing />;
   }

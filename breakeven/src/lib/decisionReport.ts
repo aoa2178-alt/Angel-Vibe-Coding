@@ -1,14 +1,13 @@
-// "Generate Decision Report": sends the plan's key choices to Angel's n8n workflow, which writes the report.
-// Six fields come from the plan as it stands; four (name, current setup, growth, horizon) are asked for next to the button.
+// "Generate Decision Report": a detailed, printable report built from the plan, on its own page (/report).
+// Six fields come from the plan as it stands; four (name, current setup, growth, horizon) are asked for next to the button
+// and travel in the report's link, so a report can be reopened or shared.
 import { BURST_PRESETS } from "./operate";
 import { landingPlan, callOf } from "./call";
 import { VERDICT_LABELS } from "./necessity";
-import { planNecessity, stepHref, type Plan } from "./plan";
+import { planNecessity, planQuery, stepHref, type Plan } from "./plan";
 import { CRITERIA } from "./scorecard";
 import { cheapest, compare, facilityKwPerGpu, type OptionId } from "./tco";
 import { templateById } from "./roi";
-
-export const REPORT_WEBHOOK = "https://angelvibecoding.app.n8n.cloud/webhook/breakeven-scenario";
 
 export const DEPLOYMENTS = ["Not using AI yet", "Pay-per-token API", "Rented cloud GPUs", "Own GPUs", "A mix"] as const;
 export const HORIZONS = [1, 2, 3, 4, 5] as const;
@@ -84,7 +83,7 @@ const OPTION_NAMES: Record<OptionId, string> = { api: "Pay per token (API)", ren
 const round = (n: number, digits = 0) => Math.round(n * 10 ** digits) / 10 ** digits;
 
 /**
- * Everything Breakeven worked out, for the n8n report template: costs, crossovers, the recommendation and what would
+ * Everything Breakeven worked out, for the decision report: costs, crossovers, the recommendation and what would
  * change it, the business case, power, running it, a year-by-year look at the growth the person expects, and the plan.
  */
 export function buildResults(plan: Plan, form: ReportForm) {
@@ -174,27 +173,27 @@ export function buildResults(plan: Plan, form: ReportForm) {
   };
 }
 
-/**
- * Opens the report: posts the scenario and results to the n8n workflow as a normal form, into a new tab, so the
- * finished page n8n sends back opens there, ready to print or save as PDF.
- */
-export function openReport(payload: ReportPayload, results: ReturnType<typeof buildResults>, doc: Document = document) {
-  const form = doc.createElement("form");
-  form.method = "POST";
-  form.action = REPORT_WEBHOOK;
-  form.target = "_blank";
-  form.style.display = "none";
-  const add = (name: string, value: string) => {
-    const input = doc.createElement("input");
-    input.type = "hidden";
-    input.name = name;
-    input.value = value;
-    form.appendChild(input);
+/** The report page's link: the plan plus the four answers. */
+export function reportHref(plan: Plan, form: ReportForm) {
+  const params = new URLSearchParams(planQuery(plan));
+  params.set("report_name", form.scenarioName.trim().slice(0, 120));
+  params.set("report_now", form.currentDeployment);
+  params.set("report_growth", String(Number(form.growthPct)));
+  params.set("report_years", String(form.horizonYears));
+  return `/report?${params}`;
+}
+
+/** Reads the four answers back from a report link; anything missing or out of range falls back to a sensible default. */
+export function readReportForm(search: string, plan: Plan): ReportForm {
+  const params = new URLSearchParams(search);
+  const name = (params.get("report_name") ?? "").trim().slice(0, 120);
+  const now = params.get("report_now") ?? "";
+  const growth = Number(params.get("report_growth"));
+  const years = Number(params.get("report_years"));
+  return {
+    scenarioName: name || defaultScenarioName(plan),
+    currentDeployment: (DEPLOYMENTS as readonly string[]).includes(now) ? now : "",
+    growthPct: params.get("report_growth") !== null && Number.isFinite(growth) && growth >= -100 && growth <= 1000 ? String(growth) : "0",
+    horizonYears: (HORIZONS as readonly number[]).includes(years) ? years : 3,
   };
-  // The ten answers as their own fields (what the workflow's sheet logging reads), plus everything in "data".
-  for (const [name, value] of Object.entries(payload)) add(name, String(value));
-  add("data", JSON.stringify({ ...payload, results }));
-  doc.body.appendChild(form);
-  form.submit();
-  form.remove();
 }

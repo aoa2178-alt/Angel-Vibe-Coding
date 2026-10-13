@@ -16,7 +16,7 @@ Breakeven answers that in three steps, with the numbers entered once and carried
 3. **Power planning** (`/power-it`): if you own, the power you need, what a power budget allows, and the cheapest way to bridge a late grid connection.
 
 Then:
-- **Recommendation** (`/result`): the call first, then value against today, what would change it, a 30/60/90 plan and risks. It's printable, and it can send the scenario to an n8n workflow that writes a decision report.
+- **Recommendation** (`/result`): the call first, then value against today, what would change it, a 30/60/90 plan and risks. It's printable, and **Generate Decision Report** opens a detailed report (`/report`): costs, crossovers, a growth outlook, the business case, the necessity test, what would change the call, and a 30/60/90 plan, ready to print or save as PDF. The report's link reopens it.
 - **Sources** (`/sources`): range, reasoning, source and confidence for every default, plus price history.
 - **FAQ** (`/faq`).
 
@@ -43,7 +43,7 @@ All the math is in pure, tested functions in `src/lib/`; every rule is written o
 | `scorecard.ts` | Beyond cost: data control, time to launch, quality, ease, flexibility, weighted to a score out of 100. |
 | `operate.ts` | Running it well: Erlang C queueing with Kingman variability, Little's Law, hybrid own/rent (newsvendor critical ratio), GPU retirement (sunk cost). |
 | `speedToPower.ts` | Bridging a late grid: renting, bridge power, own gas, flexible grid with batteries. |
-| `call.ts`, `decisionReport.ts` | The recommendation, and the payload for the n8n decision report. |
+| `call.ts`, `decisionReport.ts`, `Report.tsx` | The recommendation, and the decision report built from it. |
 | `plan.ts` + `*Share.ts` | One plan shared by every step, kept in the URL; old links redirect. |
 | `prices.ts` + `src/data/prices.json` | Dated, sourced price history (API $/M tokens, H100 $/hour), validated by `prices.test.ts`. |
 
@@ -52,7 +52,7 @@ The weekly price watcher (`agents/price-watcher.md`) proposes new price points o
 ## Data and privacy
 
 - Static site on Vercel: no accounts, no database, no API keys in the browser.
-- The only data sent anywhere is the optional decision report: the scenario and its results (no personal data), posted to the n8n workflow when you click the button. n8n sends back the finished report, which opens in a new tab.
+- Nothing is sent anywhere: every page, including the decision report, is built in your browser.
 - Security review: see [SECURITY.md](SECURITY.md).
 
 The defaults are illustrative (October 2026), and every one can be edited. "Rent" and "Own" mean running an open-weight model yourself, because frontier models like Claude and GPT are API-only.

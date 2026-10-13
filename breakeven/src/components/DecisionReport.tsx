@@ -1,13 +1,13 @@
 import { CheckCircle2, FileText } from "lucide-react";
 import { useState } from "react";
-import { DEPLOYMENTS, HORIZONS, buildPayload, buildResults, defaultScenarioName, openReport, validateForm, type ReportForm } from "@/lib/decisionReport";
+import { DEPLOYMENTS, HORIZONS, defaultScenarioName, reportHref, validateForm, type ReportForm } from "@/lib/decisionReport";
 import { CURRENTS, type Plan } from "@/lib/plan";
 
-type Status = { kind: "idle" } | { kind: "done" } | { kind: "error"; message: string };
+type Status = { kind: "idle" } | { kind: "done" };
 
 const FIELD = "mt-1 w-full rounded-lg border border-line bg-bg px-3 py-2 text-sm";
 
-/** Four quick answers and a button that sends the plan to the n8n decision-report workflow. */
+/** Four quick answers and a button that opens the detailed decision report in a new tab. */
 export function DecisionReport({ plan }: { plan: Plan }) {
   const [form, setForm] = useState<ReportForm>(() => ({
     scenarioName: defaultScenarioName(plan),
@@ -28,12 +28,8 @@ export function DecisionReport({ plan }: { plan: Plan }) {
     const found = validateForm(form);
     setErrors(found);
     if (Object.keys(found).length) return;
-    try {
-      openReport(buildPayload(plan, form), buildResults(plan, form));
-      setStatus({ kind: "done" });
-    } catch {
-      setStatus({ kind: "error", message: "The report couldn't be opened. Allow pop-ups for this site and try again." });
-    }
+    window.open(reportHref(plan, form), "_blank", "noopener");
+    setStatus({ kind: "done" });
   }
 
   return (
@@ -94,7 +90,6 @@ export function DecisionReport({ plan }: { plan: Plan }) {
               <CheckCircle2 className="size-4 text-brand" aria-hidden /> Your report is opening in a new tab
             </span>
           )}
-          {status.kind === "error" && <span className="text-red-700 dark:text-red-300">{status.message}</span>}
         </p>
       </div>
     </section>

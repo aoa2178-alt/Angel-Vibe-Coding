@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { REPORT_WEBHOOK, buildPayload, buildResults, openReport, validateForm, type ReportForm } from "./decisionReport";
+import { buildPayload, buildResults, readReportForm, reportHref, validateForm, type ReportForm } from "./decisionReport";
 import { readPlan } from "./plan";
 
 const FORM: ReportForm = { scenarioName: "  Support pilot ", currentDeployment: "Pay-per-token API", growthPct: "30", horizonYears: 3 };
@@ -60,29 +60,22 @@ describe("Report results", () => {
   });
 });
 
-describe("Opening the report", () => {
-  it("posts the scenario and results to the n8n webhook as a form into a new tab", () => {
-    // A stand-in for the page: records what openReport builds and submits.
-    type Fake = Record<string, unknown> & { children: Fake[]; appendChild: (c: Fake) => void; submit: () => void; remove: () => void; style: Record<string, string> };
-    let submitted: Fake | null = null;
-    let attached = 0;
-    const make = (): Fake => {
-      const el: Fake = { children: [], style: {}, appendChild: (c) => el.children.push(c), submit: () => (submitted = el), remove: () => attached-- };
-      return el;
-    };
-    const doc = { createElement: make, body: { appendChild: () => attached++ } } as unknown as Document;
+describe("The report link", () => {
+  it("keeps the plan and the four answers, so a report reopens the same", () => {
+    const plan = readPlan("?v=2000&t=support");
+    const href = reportHref(plan, FORM);
+    expect(href.startsWith("/report?")).toBe(true);
+    const search = href.slice("/report".length);
+    expect(readReportForm(search, readPlan(search))).toEqual({ ...FORM, scenarioName: "Support pilot" });
+    expect(readPlan(search).workload.tokensM).toBe(2000);
+  });
+
+  it("falls back to defaults for missing or made-up values", () => {
     const plan = readPlan("");
-    openReport(buildPayload(plan, FORM), buildResults(plan, FORM), doc);
-    const form = submitted as unknown as Fake;
-    expect(form.action).toBe(REPORT_WEBHOOK);
-    expect(form.method).toBe("POST");
-    expect(form.target).toBe("_blank");
-    const field = (name: string) => form.children.find((c) => c.name === name)!;
-    expect(field("scenario_name").value).toBe("Support pilot");
-    expect(field("monthly_tokens").value).toBe("2000000000");
-    const data = JSON.parse(field("data").value as string);
-    expect(data.scenario_name).toBe("Support pilot");
-    expect(data.results.options).toHaveLength(3);
-    expect(attached).toBe(0);
+    const form = readReportForm("?report_now=Hacked&report_growth=99999&report_years=12", plan);
+    expect(form.currentDeployment).toBe("");
+    expect(form.growthPct).toBe("0");
+    expect(form.horizonYears).toBe(3);
+    expect(form.scenarioName).toBe("How to run your AI");
   });
 });

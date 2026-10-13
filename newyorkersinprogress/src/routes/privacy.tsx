@@ -23,6 +23,8 @@ const SECTIONS: { heading: string; body: React.ReactNode }[] = [
         <li><strong>Account details:</strong> your email address and a display name. If you sign up with email, your password is stored only in hashed (scrambled) form, never as plain text. If you choose an avatar image link, we store that link.</li>
         <li><strong>Google sign-in:</strong> if you use “Continue with Google”, Google shares your name, email address and profile picture with us. We don’t get access to your Gmail, contacts, calendar or anything else in your Google account.</li>
         <li><strong>Your progress:</strong> lessons you’ve completed, XP, streak, the places you mark as “want to go” or “been”, and your city and theme preferences.</li>
+        <li><strong>Your picks (optional):</strong> if you use “Make it yours”, the answers you choose (why you’re in New York, your borough, your kind of work and what you like). They’re only used to order lessons and places for you, and you can reset them anytime.</li>
+        <li><strong>League nickname:</strong> the nickname you pick and the XP you earn each week. On the weekly league, other players see only your nickname and weekly XP, never your name or email. You can hide yourself from the league in the League tab.</li>
         <li><strong>Visit counts:</strong> a single running total of visits per day, with nothing that identifies you.</li>
       </ul>
     ),
@@ -55,7 +57,7 @@ function Privacy() {
       <article className="mx-auto max-w-2xl border-t-4 border-primary bg-surface p-8 shadow-xl sm:p-12">
         <p className="atlas-kicker">Walkin' Here!</p>
         <h1 className="mt-2 text-4xl">Privacy Policy</h1>
-        <p className="mt-3 text-sm text-muted-foreground">Last updated September 23, 2026</p>
+        <p className="mt-3 text-sm text-muted-foreground">Last updated October 13, 2026</p>
         <p className="mt-6 leading-7">Walkin’ Here! is a small app for learning New York City in three minutes a day. This page explains what information it keeps about you and what you can do about it.</p>
         {SECTIONS.map((section) => (
           <section key={section.heading} className="mt-8">

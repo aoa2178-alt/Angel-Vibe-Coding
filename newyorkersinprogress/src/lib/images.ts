@@ -18,6 +18,15 @@ import spotReliquary from "@/assets/spot-reliquary.jpg";
 import spotVeselka from "@/assets/spot-veselka.jpg";
 import spotJazz from "@/assets/spot-jazz.jpg";
 import spotLibrary from "@/assets/spot-library.jpg";
+import spotArthurave from "@/assets/spot-arthurave.jpg";
+import spotNybg from "@/assets/spot-nybg.jpg";
+import spotYankees from "@/assets/spot-yankees.jpg";
+import spotFlushing from "@/assets/spot-flushing.jpg";
+import spotPs1 from "@/assets/spot-ps1.jpg";
+import spotRockaway from "@/assets/spot-rockaway.jpg";
+import spotSnug from "@/assets/spot-snug.jpg";
+import spotSmorgasburg from "@/assets/spot-smorgasburg.jpg";
+import spotProspect from "@/assets/spot-prospect.jpg";
 
 /** Hero banner — used once, nowhere else. */
 export const HERO_IMAGE =
@@ -58,6 +67,15 @@ export const SPOT_IMAGES: Record<string, string> = {
   veselka: spotVeselka,
   jazz: spotJazz,
   publib: spotLibrary,
+  arthurave: spotArthurave,
+  nybg: spotNybg,
+  yankees: spotYankees,
+  flushing: spotFlushing,
+  ps1: spotPs1,
+  rockaway: spotRockaway,
+  snug: spotSnug,
+  smorgasburg: spotSmorgasburg,
+  prospect: spotProspect,
 };
 
 /** Celebration / completion screens — not used anywhere else. */

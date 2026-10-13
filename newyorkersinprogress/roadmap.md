@@ -19,3 +19,8 @@
 - [x] Clear label collisions and stray decorations on the five-borough map
 - [x] Make sure lesson, XP, streak, and saved-place writes actually reach the database
 - [x] Verify the saved data survives a reload and that sign-up creates a real account
+- [x] "Make it yours" setup (why you're here, borough, work, interests, league nickname) that reorders lessons, places, slang and the daily challenge, with a For you / Standard switch
+- [x] Real daily streak, one-question daily challenge, and XP credited by the server (looked up from the content, daily cap)
+- [x] Read-aloud buttons for slang and pronunciation questions, using the browser's built-in voice
+- [x] Shareable NYC card (Certified New Yorker stamp after all 10 lessons) and a weekly league by nickname
+- [x] Nine places outside Manhattan (Bronx, Queens, Brooklyn, Staten Island) with credited Creative Commons photos

@@ -10,8 +10,17 @@ import { cn } from "@/lib/utils";
 import { AuthPanel } from "@/components/AuthPanel";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { loadProgress, saveLessons, saveSpots, saveStats } from "@/lib/progress.functions";
+import { loadLeague, loadProgress, recordActivity, saveLessons, savePrefs, saveSpots, setNickname } from "@/lib/progress.functions";
 import { recordVisit } from "@/lib/visits.functions";
+import { greeting, hasPicks, rankLessons, rankSpots, slangForDay, type Prefs } from "@/lib/personalize";
+import { challengeFor } from "@/lib/challenge";
+import { nycDate } from "@/lib/streak";
+import { SLANG_DAY_XP, type ActivityKind } from "@/lib/rewards";
+import { Onboarding } from "@/components/Onboarding";
+import { DailyChallenge } from "@/components/DailyChallenge";
+import { League, type LeagueData } from "@/components/League";
+import { NycCard } from "@/components/NycCard";
+import { SpeakButton } from "@/components/SpeakButton";
 
 type SpotMark = "been" | "want";
 
@@ -198,7 +207,7 @@ function AmbientCity() {
   );
 }
 
-function AtlasMap({ completed, onStart }: { completed: string[]; onStart: (lesson: Lesson) => void }) {
+function AtlasMap({ completed, onStart, nextId }: { completed: string[]; onStart: (lesson: Lesson) => void; nextId?: string }) {
   // Manhattan from the bottom up to the Bronx, then a second leg through Queens and back down to Brooklyn.
   const points = [
     [198, 326], [218, 280], [230, 230], [238, 177], [245, 124], [256, 70],
@@ -209,7 +218,7 @@ function AtlasMap({ completed, onStart }: { completed: string[]; onStart: (lesso
     [16, -14], [16, -14], [18, 4], [18, 16],
   ];
   const minutes = LESSONS.reduce((n, l) => n + l.minutes, 0);
-  const next = LESSONS.findIndex((lesson) => !completed.includes(lesson.id));
+  const next = nextId ? LESSONS.findIndex((lesson) => lesson.id === nextId) : LESSONS.findIndex((lesson) => !completed.includes(lesson.id));
   return (
     <div className="atlas-paper relative min-h-[440px] overflow-hidden border border-border bg-surface p-5 sm:p-8">
       <div className="absolute right-5 top-5 z-10 text-right"><p className="atlas-kicker">Weekly line</p><p className="mt-1 text-xs text-muted-foreground">{LESSONS.length} stops · {minutes} minutes</p></div>
@@ -271,7 +280,10 @@ function SlangOfDay({
           {term.phonetic}
         </span>
       </div>
-      <p className="mt-2 font-display text-xl font-semibold">{term.term}</p>
+      <div className="mt-2 flex items-center gap-2">
+        <p className="font-display text-xl font-semibold">{term.term}</p>
+        <SpeakButton text={`${term.say ?? term.term}. ${term.example}`} label={`Hear "${term.term}" said aloud`} />
+      </div>
       <p className="mt-1 text-xs text-muted-foreground">{term.short}</p>
 
       <p className="mt-4 text-xs font-medium">{term.quiz.prompt}</p>
@@ -285,7 +297,7 @@ function SlangOfDay({
               disabled={reveal}
               onClick={() => {
                 setPicked(i);
-                if (i === term.quiz.answer) onReward(10);
+                if (i === term.quiz.answer) onReward(SLANG_DAY_XP);
               }}
               className={cn(
                 "nc-press w-full rounded-xl border px-3 py-2 text-left text-xs transition",
@@ -303,7 +315,7 @@ function SlangOfDay({
       </div>
       {picked !== null && (
         <p className="mt-3 text-xs text-muted-foreground">
-          {correct ? "+10 XP · " : ""}
+          {correct ? `+${SLANG_DAY_XP} XP · ` : ""}
           {term.warning}
         </p>
       )}
@@ -323,9 +335,12 @@ function save(promise: Promise<unknown>) {
 function Index() {
   const recordVisitFn = useServerFn(recordVisit);
   const loadProgressFn = useServerFn(loadProgress);
-  const saveStatsFn = useServerFn(saveStats);
+  const recordActivityFn = useServerFn(recordActivity);
   const saveLessonsFn = useServerFn(saveLessons);
   const saveSpotsFn = useServerFn(saveSpots);
+  const savePrefsFn = useServerFn(savePrefs);
+  const setNicknameFn = useServerFn(setNickname);
+  const loadLeagueFn = useServerFn(loadLeague);
   const { data: session, isPending: sessionPending } = authClient.useSession();
   const user = session?.user ?? null;
   // The session is re-checked in the background (e.g. when the tab regains focus); only the
@@ -333,33 +348,56 @@ function Index() {
   const sessionLoadedOnce = useRef(false);
   if (!sessionPending) sessionLoadedOnce.current = true;
   const [progressReady, setProgressReady] = useState(false);
-  const [xp, setXp] = useState(45);
-  const [streak, setStreak] = useState(4);
-  const [completed, setCompleted] = useState<string[]>(["cadence"]);
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [completed, setCompleted] = useState<string[]>([]);
   const [active, setActive] = useState<Lesson | null>(null);
+  // "Make it yours" picks; `personalized` is the For you / Standard switch.
+  const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [personalized, setPersonalized] = useState(true);
+  const [setupOpen, setSetupOpen] = useState<null | "first" | "edit" | "nickname">(null);
+  const [nickname, setNicknameState] = useState<string | null>(null);
+  const [challengeDone, setChallengeDone] = useState(false);
+  const [league, setLeague] = useState<LeagueData | null>(null);
+  const [leagueLoading, setLeagueLoading] = useState(false);
+  const [cardOpen, setCardOpen] = useState(false);
   // XP from the free lesson played before signing up, shown as a nudge on the sign-up page.
   const [trialXp, setTrialXp] = useState<number | undefined>(undefined);
   const [celebrate, setCelebrate] = useState(0);
-  const [tab, setTab] = useState<"learn" | "do" | "slang" | "account">("learn");
+  const [tab, setTab] = useState<"learn" | "do" | "slang" | "league" | "account">("learn");
   const [profileOpen, setProfileOpen] = useState(false);
-  const [returnTab, setReturnTab] = useState<"learn" | "do" | "slang">("learn");
+  const [returnTab, setReturnTab] = useState<"learn" | "do" | "slang" | "league">("learn");
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const [marks, setMarks] = useState<Record<string, SpotMark>>({
-    ferry: "been",
-    met: "want",
-  });
+  const [marks, setMarks] = useState<Record<string, SpotMark>>({});
+
+  /**
+   * Credit XP for an activity. The number shows right away; the server then decides what counts
+   * (it looks XP up from the content and applies the daily cap) and its totals replace ours.
+   */
+  function credit(kind: ActivityKind, id: string, amount: number, choice?: number) {
+    if (amount > 0) setXp((v) => v + amount);
+    if (!user) return;
+    recordActivityFn({ data: { kind, id, xp: amount, ...(choice === undefined ? {} : { choice }) } })
+      .then((result) => {
+        setXp(result.xp);
+        setStreak(result.streak);
+        setBestStreak(result.bestStreak);
+        setChallengeDone(result.challengeDone);
+      })
+      .catch((error: unknown) => console.error("Walkin' Here couldn't save:", error instanceof Error ? error.message : error));
+  }
 
   function markSpot(spot: Spot, mark: SpotMark) {
+    const nextMark = marks[spot.id] === mark ? undefined : mark;
+    if (nextMark === "been" && marks[spot.id] !== "been") credit("spot", spot.id, spot.xp);
     setMarks((m) => {
-      const nextMark = m[spot.id] === mark ? undefined : mark;
-      const wasBeen = m[spot.id] === "been";
-      if (nextMark === "been" && !wasBeen) setXp((v) => v + spot.xp);
       const next = { ...m };
       if (nextMark) next[spot.id] = nextMark;
       else delete next[spot.id];
-      if (user) save(saveSpotsFn({ data: { spots: [{ spotId: spot.id, mark: nextMark ?? null }] } }));
       return next;
     });
+    if (user) save(saveSpotsFn({ data: { spots: [{ spotId: spot.id, mark: nextMark ?? null }] } }));
   }
 
 
@@ -380,13 +418,22 @@ function Index() {
     loadProgressFn()
       .then((progress) => {
         if (cancelled) return;
-        // A brand-new account keeps what was earned before signing up (the free lesson); otherwise the saved numbers win.
-        if (progress.xp > 0 || progress.lessons.length) {
-          setXp(progress.xp);
-          setStreak(progress.streak);
-        }
+        setXp(progress.xp);
+        setStreak(progress.streak);
+        setBestStreak(progress.bestStreak);
+        setChallengeDone(progress.challengeDone);
+        setPrefs(progress.prefs);
+        setPersonalized(progress.personalized);
+        setNicknameState(progress.nickname);
+        if (!progress.setupDone) setSetupOpen("first");
         if (progress.lessons.length) setCompleted(progress.lessons);
-        else if (completed.length) save(saveLessonsFn({ data: { lessons: completed.map((lessonId) => ({ lessonId, earnedXp: 0 })) } }));
+        else if (completed.length) {
+          // A brand-new account keeps the free lesson played before signing up: the server credits its XP.
+          const [trialLesson, ...rest] = completed;
+          if (progress.isNew && trialLesson && trialXp) credit("lesson", trialLesson, trialXp);
+          else save(saveLessonsFn({ data: { lessons: completed.map((lessonId) => ({ lessonId })) } }));
+          if (rest.length) save(saveLessonsFn({ data: { lessons: rest.map((lessonId) => ({ lessonId })) } }));
+        }
         if (Object.keys(progress.spots).length) setMarks(progress.spots);
         else if (Object.keys(marks).length) save(saveSpotsFn({ data: { spots: Object.entries(marks).map(([spotId, mark]) => ({ spotId, mark })) } }));
       })
@@ -399,14 +446,23 @@ function Index() {
     };
   }, [userId]);
 
+  // The league loads when its tab opens, and again after each change while it's open.
   useEffect(() => {
-    // Wait for the saved numbers to load first, so the defaults never overwrite them.
-    if (!userId || !progressReady) return;
-    const timer = window.setTimeout(() => {
-      save(saveStatsFn({ data: { xp, streak } }));
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [userId, progressReady, xp, streak]);
+    if (!userId || tab !== "league") return;
+    let cancelled = false;
+    setLeagueLoading(true);
+    loadLeagueFn()
+      .then((data) => {
+        if (!cancelled) setLeague(data);
+      })
+      .catch((error: unknown) => console.error("Walkin' Here couldn't load the league:", error))
+      .finally(() => {
+        if (!cancelled) setLeagueLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, tab, xp, nickname]);
 
   useEffect(() => {
     if (!profileOpen) return;
@@ -443,18 +499,67 @@ function Index() {
   );
   const lessonXp = Math.max(0, xp - spotXp);
   const wantSpots = useMemo(() => SPOTS.filter((s) => marks[s.id] === "want"), [marks]);
-  const slangOfDay = SLANG[new Date().getDate() % SLANG.length]!;
+  // "For you" applies the picks; Standard (or no picks) is the usual app.
+  const forYou = personalized && hasPicks(prefs) ? prefs : null;
+  const today = nycDate();
+  const rankedLessons = useMemo(() => rankLessons(forYou), [forYou]);
+  const forYouSpots = useMemo(() => (forYou ? rankSpots(forYou) : null), [forYou]);
+  const header = greeting(forYou);
+  const slangOfDay = useMemo(() => slangForDay(today, forYou), [today, forYou]);
+  const challenge = useMemo(() => challengeFor(today, forYou), [today, forYou]);
+  const nextLesson = rankedLessons.find((r) => !completed.includes(r.lesson.id))?.lesson ?? rankedLessons[0]!.lesson;
 
   function finishLesson(lesson: Lesson, earned: number) {
-    setXp((v) => v + earned);
-    if (!completed.includes(lesson.id)) {
-      setCompleted((c) => [...c, lesson.id]);
-      setStreak((s) => s + 1);
-    }
+    const firstTime = !completed.includes(lesson.id);
+    if (firstTime) setCompleted((c) => [...c, lesson.id]);
     setActive(null);
     setCelebrate((n) => n + 1);
-    if (user) save(saveLessonsFn({ data: { lessons: [{ lessonId: lesson.id, earnedXp: earned }] } }));
-    else setTrialXp(earned);
+    if (user) {
+      credit("lesson", lesson.id, earned);
+      // The last lesson earns the certified card.
+      if (firstTime && LESSONS.every((l) => l.id === lesson.id || completed.includes(l.id))) setCardOpen(true);
+    } else {
+      setXp((v) => v + earned);
+      setTrialXp(earned);
+    }
+  }
+
+  function setMode(next: boolean) {
+    setPersonalized(next);
+    save(savePrefsFn({ data: { personalized: next } }));
+  }
+
+  async function finishSetup(picks: Prefs, chosenNickname: string): Promise<string | null> {
+    if (chosenNickname !== nickname) {
+      const result = await setNicknameFn({ data: { nickname: chosenNickname } });
+      if (!result.ok) return result.error;
+      setNicknameState(result.nickname);
+    }
+    const kept = hasPicks(picks) ? picks : null;
+    setPrefs(kept);
+    setPersonalized(true);
+    setSetupOpen(null);
+    save(savePrefsFn({ data: { prefs: kept, personalized: true, setupDone: true } }));
+    return null;
+  }
+
+  function skipSetup() {
+    if (setupOpen === "first") save(savePrefsFn({ data: { setupDone: true } }));
+    setSetupOpen(null);
+  }
+
+  function resetPicks() {
+    setPrefs(null);
+    setSetupOpen(null);
+    save(savePrefsFn({ data: { prefs: null } }));
+  }
+
+  function setOnBoard(onBoard: boolean) {
+    setLeague((l) => (l ? { ...l, me: { ...l.me, onBoard } } : l));
+    savePrefsFn({ data: { onBoard } })
+      .then(() => loadLeagueFn())
+      .then(setLeague)
+      .catch((error: unknown) => console.error("Walkin' Here couldn't save:", error));
   }
 
   if (sessionPending && !sessionLoadedOnce.current) {
@@ -481,7 +586,7 @@ function Index() {
           </span>
           <span
             className="nc-mascot grid size-9 place-items-center border border-border bg-surface text-lg"
-            title="Pete the Pigeon, our sassy mascot"
+            title="Toki, our sassy mascot"
           >
             🐦
           </span>
@@ -528,6 +633,8 @@ function Index() {
                   <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <Button role="menuitem" variant="ghost" className="mt-1 w-full justify-start" onClick={() => { if (tab !== "account") setReturnTab(tab); setTab("account"); setProfileOpen(false); }}>View / edit profile</Button>
+                <Button role="menuitem" variant="ghost" className="w-full justify-start" onClick={() => { setSetupOpen("edit"); setProfileOpen(false); }}>✨ Your picks</Button>
+                <Button role="menuitem" variant="ghost" className="w-full justify-start" onClick={() => { setCardOpen(true); setProfileOpen(false); }}>🪪 Your NYC card</Button>
                 <Button role="menuitem" variant="ghost" className="w-full justify-start text-destructive" onClick={async () => { setProfileOpen(false); await authClient.signOut(); setTab("learn"); }}>Sign out</Button>
               </div>
             )}
@@ -537,14 +644,14 @@ function Index() {
 
       <nav
         aria-label="Sections"
-        className="relative mx-auto flex max-w-7xl items-center gap-1 px-6"
+        className="relative mx-auto flex max-w-7xl flex-wrap items-center gap-1 gap-y-2 px-6"
       >
         {(
           [
             { id: "learn", label: "Daily lessons", emoji: "📘" },
             { id: "do", label: "Things to Do", emoji: "🗺️" },
             { id: "slang", label: "Slang", emoji: "🗣️" },
-
+            { id: "league", label: "League", emoji: "🏆" },
           ] as const
         ).map((t) => (
           <button
@@ -568,17 +675,38 @@ function Index() {
         <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-10">
           <section className="grid items-end gap-10 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
-              <p className="atlas-kicker">New York field guide · Edition 01</p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="atlas-kicker">{header ? header.kicker : "New York field guide · Edition 01"}</p>
+                {hasPicks(prefs) ? (
+                  <div role="group" aria-label="Personalization" className="flex rounded-full border border-border bg-surface p-0.5 text-xs font-semibold shadow-sm">
+                    {([[true, "✨ For you"], [false, "Standard"]] as const).map(([value, label]) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-pressed={personalized === value}
+                        onClick={() => setMode(value)}
+                        className={cn("rounded-full px-3 py-1.5 transition", personalized === value ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground")}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setSetupOpen("edit")} className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-muted-foreground shadow-sm hover:text-foreground">
+                    ✨ Make it yours
+                  </button>
+                )}
+              </div>
               <h1 className="mt-4 max-w-xl text-5xl leading-[0.94] sm:text-7xl">Learn the city by walking its lines.</h1>
-              <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">Three-minute lessons for the unwritten New York: the subway, the sidewalk, the counter, and the grid.</p>
+              <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">{header?.subline ?? "Three-minute lessons for the unwritten New York: the subway, the sidewalk, the counter, and the grid."}</p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Button size="lg" onClick={() => setActive(LESSONS.find((lesson) => !completed.includes(lesson.id)) ?? LESSONS[0]!)}>Start today's lesson →</Button>
+                <Button size="lg" onClick={() => setActive(nextLesson)}>Start today's lesson →</Button>
                 <span className="text-sm text-muted-foreground">{todayXp}/{dailyGoal} XP today</span>
                 <Confetti burst={celebrate} count={34} />
               </div>
             </div>
             <div className="relative">
-              <AtlasMap completed={completed} onStart={setActive} />
+              <AtlasMap completed={completed} onStart={setActive} nextId={nextLesson.id} />
               <figure className="relative -mt-16 ml-auto w-[48%] border-4 border-background shadow-xl">
                 <img src={HERO_IMAGE} alt="Crowds crossing a busy Manhattan street" width={800} height={620} className="aspect-[4/3] w-full object-cover" />
                 <figcaption className="bg-surface px-3 py-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Midtown · 8:41 AM</figcaption>
@@ -651,14 +779,25 @@ function Index() {
               </div>
             </section>
 
+            <DailyChallenge
+              key={challenge.id}
+              item={challenge}
+              done={challengeDone}
+              streak={streak}
+              onAnswer={(choice) => {
+                if (choice === challenge.answer) setCelebrate((n) => n + 1);
+                credit("challenge", challenge.id, choice === challenge.answer ? 10 : 0, choice);
+              }}
+            />
+
             <section className="relative mt-10">
-              <h2 className="text-2xl font-semibold">This week's path</h2>
+              <h2 className="text-2xl font-semibold">{forYou ? "Your path" : "This week's path"}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {LESSONS.length} lessons. Do them in any order.
+                {LESSONS.length} lessons. {forYou ? "Ordered for you; do them in any order." : "Do them in any order."}
               </p>
 
               <ul className="mt-6 border-t border-border">
-                {LESSONS.map((lesson, i) => {
+                {rankedLessons.map(({ lesson, because }, i) => {
                   const done = completed.includes(lesson.id);
                   return (
                     <li
@@ -698,6 +837,7 @@ function Index() {
                         </div>
                         <h3 className="mt-3 text-2xl font-normal">{lesson.title}</h3>
                         <p className="mt-1 text-sm text-muted-foreground">{lesson.blurb}</p>
+                        {because && <p className="mt-2 inline-block rounded-full bg-signal/20 px-2.5 py-1 text-xs font-semibold">✨ For you: {because}</p>}
                         <p className="mt-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
                           {lesson.minutes} min · {lesson.questions.length} questions
                         </p>
@@ -731,7 +871,7 @@ function Index() {
                 </div>
                 <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
                   <span>{completed.length}/{LESSONS.length} lessons done</span>
-                  <span>Longest: 9 days</span>
+                  <span>Longest: {bestStreak} {bestStreak === 1 ? "day" : "days"}</span>
                 </div>
               </div>
 
@@ -772,9 +912,10 @@ function Index() {
               </div>
 
               <SlangOfDay
+                key={slangOfDay.id}
                 term={slangOfDay}
                 onReward={(amount) => {
-                  setXp((v) => v + amount);
+                  credit("slang-day", slangOfDay.id, amount);
                   setCelebrate((n) => n + 1);
                 }}
               />
@@ -829,22 +970,36 @@ function Index() {
           marks={marks}
           onMark={markSpot}
           onCelebrate={() => setCelebrate((n) => n + 1)}
+          forYou={forYouSpots}
+          canPersonalize={hasPicks(prefs)}
+          personalized={personalized}
+          onMode={setMode}
+          onSetup={() => setSetupOpen("edit")}
         />
       )}
 
       {tab === "slang" && (
         <SlangView
-          onReward={(amount, streakCredit) => {
-            setXp((v) => v + amount);
-            if (streakCredit) setStreak((s) => s + 1);
+          onReward={(amount) => {
+            credit("slang-quiz", "quiz", amount);
             setCelebrate((n) => n + 1);
           }}
+        />
+      )}
+
+      {tab === "league" && (
+        <League
+          data={league}
+          loading={leagueLoading}
+          onToggleBoard={setOnBoard}
+          onEditNickname={() => setSetupOpen("nickname")}
+          onStartChallenge={() => setTab("learn")}
         />
       )}
       {tab === "account" && (
         <div>
           <div className="mx-auto max-w-3xl px-6 pt-8">
-            <Button variant="outline" onClick={() => setTab(returnTab)}>← Back to {returnTab === "learn" ? "Daily lessons" : returnTab === "do" ? "Things to Do" : "Slang"}</Button>
+            <Button variant="outline" onClick={() => setTab(returnTab)}>← Back to {returnTab === "learn" ? "Daily lessons" : returnTab === "do" ? "Things to Do" : returnTab === "slang" ? "Slang" : "League"}</Button>
           </div>
           <AuthPanel user={user} onSignedOut={() => setTab("learn")} />
         </div>
@@ -862,6 +1017,34 @@ function Index() {
 
       {active && (
         <LessonPlayer lesson={active} onClose={() => setActive(null)} onFinish={finishLesson} />
+      )}
+
+      {setupOpen && (
+        <Onboarding
+          initial={prefs}
+          initialNickname={nickname}
+          editing={setupOpen !== "first"}
+          startAt={setupOpen === "nickname" ? 4 : 0}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
+          {...(setupOpen === "edit" && hasPicks(prefs) ? { onReset: resetPicks } : {})}
+        />
+      )}
+
+      {cardOpen && (
+        <NycCard
+          info={{
+            name: nickname ?? user.name ?? "New Yorker",
+            rank: level.name,
+            xp,
+            streak,
+            bestStreak,
+            lessonsDone: LESSONS.filter((l) => completed.includes(l.id)).length,
+            lessonsTotal: LESSONS.length,
+            home: prefs?.borough && prefs.borough !== "elsewhere" ? (prefs.borough === "Bronx" ? "The Bronx" : prefs.borough) : null,
+          }}
+          onClose={() => setCardOpen(false)}
+        />
       )}
     </main>
   );
@@ -1011,7 +1194,10 @@ function LessonPlayer({
                   <p className="font-display text-sm font-semibold">
                     {picked === q.answer ? "Nice — that's the local move." : "Not quite."}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">{q.explain}</p>
+                  <div className="mt-1 flex items-start gap-3">
+                    <p className="flex-1 text-sm text-muted-foreground">{q.explain}</p>
+                    {q.say && <SpeakButton text={q.say} label="Hear it said" />}
+                  </div>
                   <button
                     onClick={next}
                     className="nc-press mt-4 w-full rounded-full bg-signal py-3 font-display text-sm font-semibold text-signal-foreground shadow-[0_5px_0_color-mix(in_oklab,var(--signal)_62%,black)]"
@@ -1034,17 +1220,37 @@ function SpotsView({
   marks,
   onMark,
   onCelebrate,
+  forYou,
+  canPersonalize,
+  personalized,
+  onMode,
+  onSetup,
 }: {
   marks: Record<string, SpotMark>;
   onMark: (spot: Spot, mark: SpotMark) => void;
   onCelebrate: () => void;
+  /** "For you" spots with reasons, or null in Standard mode. */
+  forYou: { spot: Spot; because?: string }[] | null;
+  canPersonalize: boolean;
+  personalized: boolean;
+  onMode: (personalized: boolean) => void;
+  onSetup: () => void;
 }) {
-  const [filter, setFilter] = useState<SpotCategory | "all">("all");
+  const [filter, setFilter] = useState<SpotCategory | "all" | "foryou">(forYou ? "foryou" : "all");
+  const activeFilter = filter === "foryou" && !forYou ? "all" : filter;
 
   const list = useMemo(
-    () => (filter === "all" ? SPOTS : SPOTS.filter((s) => s.category === filter)),
-    [filter],
+    () =>
+      activeFilter === "foryou" && forYou
+        ? forYou
+        : (activeFilter === "all" ? SPOTS : SPOTS.filter((s) => s.category === activeFilter)).map((spot): { spot: Spot; because?: string } => ({ spot })),
+    [activeFilter, forYou],
   );
+  const chips = [
+    ...(forYou ? [{ id: "foryou" as const, label: "For you", emoji: "✨" }] : []),
+    { id: "all" as const, label: "All spots", emoji: "🗽" },
+    ...SPOT_CATEGORIES,
+  ];
 
   const beenCount = Object.values(marks).filter((m) => m === "been").length;
   const wantCount = Object.values(marks).filter((m) => m === "want").length;
@@ -1083,6 +1289,19 @@ function SpotsView({
         <span className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary shadow-sm">
           🔖 {wantCount} want to go
         </span>
+        {canPersonalize ? (
+          <button
+            type="button"
+            onClick={() => onMode(!personalized)}
+            className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm hover:text-foreground"
+          >
+            {personalized ? "✨ For you is on · switch to Standard" : "Standard · switch to ✨ For you"}
+          </button>
+        ) : (
+          <button type="button" onClick={onSetup} className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm hover:text-foreground">
+            ✨ Make it yours
+          </button>
+        )}
       </div>
 
       <div
@@ -1091,12 +1310,12 @@ function SpotsView({
         className="nc-rise mt-6 flex flex-wrap gap-2"
         style={{ animationDelay: "0.18s" }}
       >
-        {[{ id: "all" as const, label: "All spots", emoji: "✨" }, ...SPOT_CATEGORIES].map((c) => {
-          const on = filter === c.id;
+        {chips.map((c) => {
+          const on = activeFilter === c.id;
           return (
             <button
               key={c.id}
-              onClick={() => setFilter(c.id as SpotCategory | "all")}
+              onClick={() => setFilter(c.id)}
               aria-pressed={on}
               className={cn(
                 "nc-press rounded-full border px-4 py-2 text-sm font-medium transition duration-300 hover:-translate-y-0.5",
@@ -1112,11 +1331,12 @@ function SpotsView({
         })}
       </div>
 
-      <ul key={filter} className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((spot, i) => (
+      <ul key={activeFilter} className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {list.map(({ spot, because }, i) => (
           <SpotCard
             key={spot.id}
             spot={spot}
+            because={because}
             index={i}
             mark={marks[spot.id]}
             onMark={onMark}
@@ -1130,12 +1350,14 @@ function SpotsView({
 
 function SpotCard({
   spot,
+  because,
   index,
   mark,
   onMark,
   onCelebrate,
 }: {
   spot: Spot;
+  because?: string | undefined;
   index: number;
   mark: SpotMark | undefined;
   onMark: (spot: Spot, mark: SpotMark) => void;
@@ -1185,7 +1407,9 @@ function SpotCard({
         </div>
 
         <div className="flex flex-1 flex-col p-5">
+          {spot.credit && <p className="-mt-3 mb-2 text-right text-[10px] text-muted-foreground">Photo: {spot.credit}</p>}
           <h3 className="text-lg font-semibold leading-snug">{spot.name}</h3>
+          {because && <p className="mt-1.5 inline-block w-fit rounded-full bg-signal/20 px-2.5 py-1 text-xs font-semibold">✨ For you: {because}</p>}
           <p className="mt-1 text-sm text-muted-foreground">{spot.blurb}</p>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
@@ -1272,7 +1496,7 @@ function SlangCard({ term, index }: { term: SlangTerm; index: number }) {
 
   return (
     <li className="nc-rise" style={{ animationDelay: `${0.06 + index * 0.04}s` }}>
-      <div className="nc-flip h-[380px]" data-flipped={flipped}>
+      <div className="nc-flip h-[400px]" data-flipped={flipped}>
         <div className="nc-flip-inner">
           <button
             onClick={() => setFlipped(true)}
@@ -1283,7 +1507,10 @@ function SlangCard({ term, index }: { term: SlangTerm; index: number }) {
               {cat.emoji} {cat.label}
             </span>
             <h3 className="mt-5 font-display text-3xl font-bold leading-tight">{term.term}</h3>
-            <p className="mt-2 font-mono text-xs text-signal">{term.phonetic}</p>
+            <span className="mt-2 flex items-center gap-2">
+              <span className="font-mono text-xs text-signal">{term.phonetic}</span>
+              <SpeakButton text={term.say ?? term.term} label={`Hear "${term.term}" said aloud`} />
+            </span>
             <p className="mt-4 text-sm text-muted-foreground">{term.short}</p>
             <span className="mt-auto flex items-center gap-2 pt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-signal">
               Tap to flip
@@ -1303,9 +1530,10 @@ function SlangCard({ term, index }: { term: SlangTerm; index: number }) {
               </button>
             </div>
             <p className="mt-3 text-sm leading-relaxed">{term.definition}</p>
-            <p className="mt-4 rounded-xl border-l-2 border-signal bg-surface-2 px-3 py-2 text-sm italic">
-              {term.example}
-            </p>
+            <div className="mt-4 flex items-start gap-2 rounded-xl border-l-2 border-signal bg-surface-2 px-3 py-2">
+              <p className="flex-1 text-sm italic">{term.example}</p>
+              <SpeakButton text={term.example} label="Hear the example" />
+            </div>
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-signal">
               Cringe meter
             </p>

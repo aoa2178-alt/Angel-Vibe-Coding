@@ -19,6 +19,8 @@ export type SlangTerm = {
   /** 1 = safe for anyone, 5 = you will sound like a tryhard */
   cringe: number;
   quiz: { prompt: string; options: string[]; answer: number };
+  /** How the read-aloud voice should say the term, when its spelling would trip it up. */
+  say?: string;
 };
 
 export const SLANG: SlangTerm[] = [
@@ -79,6 +81,7 @@ export const SLANG: SlangTerm[] = [
   {
     id: "facts",
     term: "Facts / No Cap",
+    say: "Facts. No cap.",
     phonetic: "/fækts/ · /noʊ kæp/",
     category: "everyday",
     short: "Agreed / no lie",
@@ -133,6 +136,7 @@ export const SLANG: SlangTerm[] = [
   {
     id: "yerrr",
     term: "Yerrr",
+    say: "Yerrrrr!",
     phonetic: "/jɜːr/ (hold the r)",
     category: "streets",
     short: "Hey! / hello / I'm here",
@@ -205,6 +209,7 @@ export const SLANG: SlangTerm[] = [
   {
     id: "bec",
     term: "BEC",
+    say: "B. E. C.",
     phonetic: "/ˌbiː.iːˈsiː/",
     category: "food",
     short: "Bacon, egg and cheese",
@@ -228,6 +233,7 @@ export const SLANG: SlangTerm[] = [
   {
     id: "outerboro",
     term: "OD / Odee",
+    say: "Oh dee",
     phonetic: "/oʊˈdiː/",
     category: "everyday",
     short: "Excessively, way too much",

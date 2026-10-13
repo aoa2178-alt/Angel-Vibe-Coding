@@ -4,6 +4,8 @@ export type Question = {
   options: string[];
   answer: number;
   explain: string;
+  /** A line the read-aloud button says, for questions about how something is pronounced. */
+  say?: string;
 };
 
 export type Lesson = {
@@ -310,6 +312,7 @@ export const LESSONS: Lesson[] = [
     questions: [
       {
         prompt: "How do New Yorkers say Houston Street?",
+        say: "Houston Street. How-stun Street.",
         options: ["HYOO-ston, like the city in Texas", "HOW-stun", "HOOS-ton"],
         answer: 1,
         explain:
@@ -317,6 +320,7 @@ export const LESSONS: Lesson[] = [
       },
       {
         prompt: "What does the name SoHo mean?",
+        say: "SoHo. South of How-stun.",
         options: ["South of Houston Street", "Soho, after the London neighborhood", "South Hoboken"],
         answer: 0,
         explain:
@@ -324,6 +328,7 @@ export const LESSONS: Lesson[] = [
       },
       {
         prompt: "Tribeca is short for…",
+        say: "Try-beck-uh. The Triangle Below Canal.",
         options: ["Triangle Below Canal Street", "Tribe of Ecuador", "Three Bridges Area"],
         answer: 0,
         explain:
@@ -331,6 +336,7 @@ export const LESSONS: Lesson[] = [
       },
       {
         prompt: "DUMBO, in Brooklyn, stands for…",
+        say: "Dumbo. Down Under the Manhattan Bridge Overpass.",
         options: [
           "Down Under the Manhattan Bridge Overpass",
           "Downtown Under Manhattan's Bay Outlook",

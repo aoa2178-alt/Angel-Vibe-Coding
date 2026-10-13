@@ -4204,3 +4204,16 @@ blockquote {
     display: none;
   }
 }
+
+/* Concise career cards (2026-10-13): one-line summaries, so the tiles hug their text. */
+.experience-tile {
+  min-height: 0;
+}
+
+.experience-tile p {
+  margin-top: 0.75rem;
+}
+
+.education-tile {
+  min-height: 0;
+}

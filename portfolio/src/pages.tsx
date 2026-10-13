@@ -26,7 +26,7 @@ const experience = [
     role: "MBA Operations Intern",
     context: "Los Altos · AI infrastructure",
     summary:
-      "Built a 0-to-1 supply-chain operating model for an AI inference server, mapping 20+ ownership and export-control gaps across the path from silicon to manufacturing.",
+      "Built the supply-chain operating model for an AI inference server.",
   },
   {
     organization: "TOPPAN Security",
@@ -35,7 +35,7 @@ const experience = [
     role: "MBA Strategy Consultant",
     context: "Paris · Digital identity",
     summary:
-      "Built a go-to-market strategy for identity verification, prioritizing four regulated industries representing an estimated $101M revenue opportunity.",
+      "Go-to-market strategy across four regulated industries, a ~$101M opportunity.",
   },
   {
     organization: "Deloitte",
@@ -44,9 +44,7 @@ const experience = [
     role: "Senior Consultant",
     context: "Lagos · Multi-sector consulting",
     summary:
-      "Led procurement, payments, telecom, and industrial programs, including work that delivered a 17% cost reduction and cut fulfillment delays by 90%.",
-    progression:
-      "Senior Consultant 2024–25 · Semi-Senior 2023–24 · Associate II 2022–23 · Associate 2021–22",
+      "Procurement and operations programs: 17% lower cost, 90% fewer fulfillment delays.",
   },
   {
     organization: "KPMG",
@@ -55,7 +53,7 @@ const experience = [
     role: "Consultant",
     context: "Lagos · Financial services",
     summary:
-      "Assessed more than 50 bank locations after a merger, informing the consolidation of 10+ branches within an approximately $80M cost-synergy program.",
+      "Post-merger review of 50+ bank branches for a ~$80M synergy program.",
   },
 ];
 
@@ -886,9 +884,6 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                     </div>
                     <h3>{item.organization}</h3>
                     <h4>{item.role}</h4>
-                    {item.progression && (
-                      <span className="career-progression">{item.progression}</span>
-                    )}
                     <p>{item.summary}</p>
                   </article>
                 ))}
@@ -911,11 +906,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>UC Berkeley Haas</h3>
                   <h4>Master of Business Administration</h4>
-                  <p>
-                    Strategy, energy, and technology, with leadership across
-                    MBA admissions, the African Business Club, and Haas Tech
-                    Club.
-                  </p>
+                  <p>Strategy, energy, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--columbia">
@@ -925,10 +916,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>Columbia Business School</h3>
                   <h4>MBA Exchange Program</h4>
-                  <p>
-                    Coursework and community focused on operations, AI, and
-                    technology.
-                  </p>
+                  <p>Operations, AI, and technology.</p>
                 </article>
 
                 <article className="education-tile education-tile--ibadan">
@@ -938,10 +926,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                   </div>
                   <h3>University of Ibadan</h3>
                   <h4>BSc Mathematics</h4>
-                  <p>
-                    Graduated in the top 5% of the class and applied analytics
-                    to public-sector budget planning.
-                  </p>
+                  <p>Top 5% of the class.</p>
                 </article>
               </div>
             </section>

@@ -790,58 +790,41 @@ function Index() {
               }}
             />
 
-            <section className="relative mt-10">
-              <h2 className="text-2xl font-semibold">{forYou ? "Your path" : "This week's path"}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {LESSONS.length} lessons. {forYou ? "Ordered for you; do them in any order." : "Do them in any order."}
-              </p>
+            <section className="relative mt-10 rounded-3xl bg-[#121212] p-4 text-white shadow-xl sm:p-6">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 px-2">
+                <h2 className="font-display text-2xl font-bold">{forYou ? "Your path" : "This week's path"}</h2>
+                <p className="text-sm text-[#a8a8a8]">
+                  {completed.length}/{LESSONS.length} done · {forYou ? "ordered for you, any order works" : "do them in any order"}
+                </p>
+              </div>
 
-              <ul className="mt-6 border-t border-border">
+              <ul className="mt-3">
                 {rankedLessons.map(({ lesson, because }, i) => {
                   const done = completed.includes(lesson.id);
+                  const isNext = lesson.id === nextLesson.id && !done;
+                  const image = LESSON_IMAGES[lesson.id];
                   return (
-                    <li
-                      key={lesson.id}
-                      className="nc-rise"
-                      style={{ animationDelay: `${0.1 + i * 0.06}s` }}
-                    >
+                    <li key={lesson.id}>
                       <button
                         onClick={() => setActive(lesson)}
                         className={cn(
-                          "group nc-press grid h-full w-full grid-cols-[48px_100px_1fr_auto] items-center gap-4 border-b border-border py-5 text-left transition duration-300 hover:bg-surface/70 sm:grid-cols-[56px_140px_1fr_auto]",
-                          done && "opacity-80",
+                          "group grid w-full grid-cols-[28px_52px_1fr_auto] items-center gap-3 rounded-xl px-2 py-2.5 text-left transition hover:bg-[#1f1f1f] sm:grid-cols-[40px_60px_1fr_auto] sm:gap-4",
+                          isNext && "bg-[#1f1f1f]",
                         )}
                       >
-                        <span className="text-center font-display text-2xl text-muted-foreground">0{i + 1}</span><span className="block overflow-hidden">
-                          <img
-                            src={LESSON_IMAGES[lesson.id] ?? CELEBRATION_IMAGES[0]}
-                            alt={lesson.title}
-                            loading="lazy"
-                            width={1280}
-                            height={720}
-                            className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                          />
+                        <span className="text-center font-mono text-sm font-bold text-[#888]">{String(i + 1).padStart(2, "0")}</span>
+                        <span className="grid size-[52px] place-items-center overflow-hidden rounded-md bg-[#262626] text-2xl sm:size-[60px]">
+                          {image ? <img src={image} alt="" className="h-full w-full object-cover" /> : <span aria-hidden>{lesson.emoji}</span>}
                         </span>
-                        <div><div className="flex items-start justify-between gap-4">
-                          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-surface-2 text-xl transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                            {lesson.emoji}
+                        <span className="min-w-0">
+                          <span className="block truncate font-semibold">{lesson.title}</span>
+                          <span className="block truncate text-xs text-[#a8a8a8]">
+                            {lesson.minutes} min · {lesson.questions.length} questions{because ? ` · for you: ${because}` : ` · ${lesson.blurb}`}
                           </span>
-                          <span
-                            className={cn(
-                              "rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
-                              done ? "bg-mint/10 text-mint" : "bg-surface-2 text-muted-foreground",
-                            )}
-                          >
-                            {done ? "Completed" : `+${lesson.xp} XP`}
-                          </span>
-                        </div>
-                        <h3 className="mt-3 text-2xl font-normal">{lesson.title}</h3>
-                        <p className="mt-1 text-sm text-muted-foreground">{lesson.blurb}</p>
-                        {because && <p className="mt-2 inline-block rounded-full bg-signal/20 px-2.5 py-1 text-xs font-semibold">✨ For you: {because}</p>}
-                        <p className="mt-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                          {lesson.minutes} min · {lesson.questions.length} questions
-                        </p>
-                        </div><span className="text-xl text-primary transition group-hover:translate-x-1">→</span>
+                        </span>
+                        <span className={cn("text-right text-xs font-bold sm:text-sm", done ? "text-mint" : "text-signal")}>
+                          {done ? "✓ Done" : isNext ? "Start ▶" : `+${lesson.xp} XP`}
+                        </span>
                       </button>
                     </li>
                   );
@@ -1237,134 +1220,160 @@ function SpotsView({
   onSetup: () => void;
 }) {
   const [filter, setFilter] = useState<SpotCategory | "all" | "foryou">(forYou ? "foryou" : "all");
+  const [open, setOpen] = useState<{ spot: Spot; because?: string | undefined } | null>(null);
   const activeFilter = filter === "foryou" && !forYou ? "all" : filter;
+  const reasons = useMemo(() => new Map((forYou ?? []).map((x) => [x.spot.id, x.because])), [forYou]);
 
-  const list = useMemo(
-    () =>
-      activeFilter === "foryou" && forYou
-        ? forYou
-        : (activeFilter === "all" ? SPOTS : SPOTS.filter((s) => s.category === activeFilter)).map((spot): { spot: Spot; because?: string } => ({ spot })),
-    [activeFilter, forYou],
-  );
+  // Shelves for "For you" and "All": picks first (when personalized), then one shelf per category.
+  const shelves = useMemo(() => {
+    const byCategory = SPOT_CATEGORIES.map((c) => ({
+      id: c.id,
+      title: `${c.emoji} ${c.label}`,
+      note: `${SPOTS.filter((s) => s.category === c.id).length} places`,
+      items: SPOTS.filter((s) => s.category === c.id).map((spot) => ({ spot, because: reasons.get(spot.id) })),
+    }));
+    if (activeFilter === "foryou" && forYou?.length) {
+      return [{ id: "picked", title: "Picked for you", note: forYou[0]?.because ? `Because ${forYou[0].because}` : "From your picks", items: forYou }, ...byCategory];
+    }
+    return byCategory;
+  }, [activeFilter, forYou, reasons]);
+
+  const grid = activeFilter !== "all" && activeFilter !== "foryou" ? SPOTS.filter((s) => s.category === activeFilter) : null;
+  const beenCount = Object.values(marks).filter((m) => m === "been").length;
+  const wantCount = Object.values(marks).filter((m) => m === "want").length;
   const chips = [
     ...(forYou ? [{ id: "foryou" as const, label: "For you", emoji: "✨" }] : []),
-    { id: "all" as const, label: "All spots", emoji: "🗽" },
+    { id: "all" as const, label: "All", emoji: "🗽" },
     ...SPOT_CATEGORIES,
   ];
 
-  const beenCount = Object.values(marks).filter((m) => m === "been").length;
-  const wantCount = Object.values(marks).filter((m) => m === "want").length;
-
   return (
-    <section className="relative mx-auto max-w-7xl px-6 pb-16 pt-6">
-      <p className="nc-rise font-mono text-xs uppercase tracking-[0.25em] text-signal">
-        Field work · {SPOTS.length} spots
-      </p>
-      <h1
-        className="nc-rise mt-4 max-w-2xl text-4xl font-bold leading-[1.08] sm:text-5xl"
-        style={{ animationDelay: "0.06s" }}
-      >
-        Things to do that{" "}
-        <span className="bg-gradient-to-r from-signal via-primary to-signal bg-clip-text text-transparent nc-shimmer">
-          locals
-        </span>{" "}
-        actually do.
-      </h1>
-      <p
-        className="nc-rise mt-4 max-w-xl text-base text-muted-foreground"
-        style={{ animationDelay: "0.1s" }}
-      >
-        Curated spots with the pro-tip attached — the resident discount, the right side of the boat,
-        the night the wine is free. Mark one <strong className="font-semibold">Been there</strong>{" "}
-        and bank the XP.
-      </p>
+    <section className="relative mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
+      <div className="rounded-3xl bg-[#121212] p-5 text-white shadow-xl sm:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-bold sm:text-4xl">Things to Do</h1>
+            <p className="mt-1 text-sm text-[#a8a8a8]">
+              {SPOTS.length} places · {beenCount} been · {wantCount} saved · mark one “Been there” to bank the XP
+            </p>
+          </div>
+          {canPersonalize ? (
+            <button type="button" onClick={() => onMode(!personalized)} className="rounded-full bg-[#262626] px-3.5 py-2 text-xs font-semibold text-[#ddd] hover:bg-[#333]">
+              {personalized ? "✨ For you · switch to Standard" : "Standard · switch to ✨ For you"}
+            </button>
+          ) : (
+            <button type="button" onClick={onSetup} className="rounded-full bg-[#262626] px-3.5 py-2 text-xs font-semibold text-[#ddd] hover:bg-[#333]">
+              ✨ Make it yours
+            </button>
+          )}
+        </div>
 
-      <div
-        className="nc-rise mt-6 flex flex-wrap items-center gap-2"
-        style={{ animationDelay: "0.14s" }}
-      >
-        <span className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-mint shadow-sm">
-          ✅ {beenCount} been there
-        </span>
-        <span className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary shadow-sm">
-          🔖 {wantCount} want to go
-        </span>
-        {canPersonalize ? (
-          <button
-            type="button"
-            onClick={() => onMode(!personalized)}
-            className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm hover:text-foreground"
-          >
-            {personalized ? "✨ For you is on · switch to Standard" : "Standard · switch to ✨ For you"}
-          </button>
+        <div role="group" aria-label="Category filters" className="mt-5 flex flex-wrap gap-2">
+          {chips.map((c) => {
+            const on = activeFilter === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setFilter(c.id)}
+                aria-pressed={on}
+                className={cn(
+                  "nc-press rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition",
+                  on ? "bg-signal text-signal-foreground" : "bg-[#262626] text-[#ddd] hover:bg-[#333]",
+                )}
+              >
+                <span aria-hidden className="mr-1">{c.emoji}</span>
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {grid ? (
+          <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {grid.map((spot) => (
+              <li key={spot.id}>
+                <SpotTile spot={spot} mark={marks[spot.id]} onOpen={() => setOpen({ spot, because: reasons.get(spot.id) })} />
+              </li>
+            ))}
+          </ul>
         ) : (
-          <button type="button" onClick={onSetup} className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm hover:text-foreground">
-            ✨ Make it yours
-          </button>
+          shelves.map((shelf) => (
+            <div key={shelf.id} className="mt-7">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="font-display text-lg font-bold">{shelf.title}</h2>
+                <span className="text-xs text-[#a8a8a8]">{shelf.note}</span>
+              </div>
+              <ul className="mt-3 grid auto-cols-[minmax(150px,1fr)] grid-flow-col gap-4 overflow-x-auto pb-2 [scrollbar-width:thin] [scrollbar-color:#3a3a3a_transparent] sm:auto-cols-[minmax(170px,200px)]">
+                {shelf.items.map(({ spot, because }) => (
+                  <li key={spot.id}>
+                    <SpotTile spot={spot} mark={marks[spot.id]} onOpen={() => setOpen({ spot, because })} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
         )}
       </div>
 
-      <div
-        role="group"
-        aria-label="Category filters"
-        className="nc-rise mt-6 flex flex-wrap gap-2"
-        style={{ animationDelay: "0.18s" }}
-      >
-        {chips.map((c) => {
-          const on = activeFilter === c.id;
-          return (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id)}
-              aria-pressed={on}
-              className={cn(
-                "nc-press rounded-full border px-4 py-2 text-sm font-medium transition duration-300 hover:-translate-y-0.5",
-                on
-                  ? "border-signal bg-signal text-signal-foreground shadow-[0_4px_0_color-mix(in_oklab,var(--signal)_62%,black)]"
-                  : "border-border bg-surface text-muted-foreground hover:border-signal/60 hover:text-foreground",
-              )}
-            >
-              <span className="mr-1.5">{c.emoji}</span>
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <ul key={activeFilter} className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map(({ spot, because }, i) => (
-          <SpotCard
-            key={spot.id}
-            spot={spot}
-            because={because}
-            index={i}
-            mark={marks[spot.id]}
-            onMark={onMark}
-            onCelebrate={onCelebrate}
-          />
-        ))}
-      </ul>
+      {open && (
+        <SpotSheet
+          spot={open.spot}
+          because={open.because}
+          mark={marks[open.spot.id]}
+          onMark={onMark}
+          onCelebrate={onCelebrate}
+          onClose={() => setOpen(null)}
+        />
+      )}
     </section>
   );
 }
 
-function SpotCard({
+/** A square photo tile; opening it shows the details and the Been there / Want to go buttons. */
+function SpotTile({ spot, mark, onOpen }: { spot: Spot; mark: SpotMark | undefined; onOpen: () => void }) {
+  return (
+    <button type="button" onClick={onOpen} className="group block w-full text-left">
+      <span className="relative block aspect-square overflow-hidden rounded-xl bg-[#1f1f1f]">
+        <img src={spot.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        <span className="absolute bottom-2 left-2 rounded-md bg-black/70 px-1.5 py-1 font-mono text-[11px] font-bold text-signal">+{spot.xp} XP</span>
+        {mark === "been" && <span className="absolute right-2 top-2 rounded-full bg-mint px-2 py-0.5 text-[11px] font-bold text-white">✓ Been</span>}
+        {mark === "want" && <span className="absolute right-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-bold text-black">🔖 Saved</span>}
+      </span>
+      <span className="mt-2 block truncate text-sm font-bold">{spot.name}</span>
+      <span className="block truncate text-xs text-[#a8a8a8]">
+        {spot.neighborhood} · {spot.subway.split("·")[0]!.trim()}
+      </span>
+    </button>
+  );
+}
+
+/** Details for one place, as a sheet: the tip, the trains, the cost, and the two marks. */
+function SpotSheet({
   spot,
   because,
-  index,
   mark,
   onMark,
   onCelebrate,
+  onClose,
 }: {
   spot: Spot;
   because?: string | undefined;
-  index: number;
   mark: SpotMark | undefined;
   onMark: (spot: Spot, mark: SpotMark) => void;
   onCelebrate: () => void;
+  onClose: () => void;
 }) {
   const [burst, setBurst] = useState(0);
   const category = SPOT_CATEGORIES.find((c) => c.id === spot.category)!;
+
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   function been() {
     if (mark !== "been") {
@@ -1375,175 +1384,107 @@ function SpotCard({
   }
 
   return (
-    <li className="nc-rise" style={{ animationDelay: `${0.08 + index * 0.05}s` }}>
-      <article
-        className={cn(
-          "group relative flex h-full flex-col overflow-hidden border-b-2 border-border bg-surface shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl",
-          mark === "been" && "border-mint/60",
-        )}
-      >
-        <Confetti burst={burst} count={22} />
-        <div className="relative overflow-hidden">
-          <img
-            src={spot.image}
-            alt={spot.name}
-            loading="lazy"
-            width={1280}
-            height={720}
-            className="h-40 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 flex flex-wrap items-center gap-2 p-3 font-mono text-[10px] uppercase tracking-[0.18em] text-background">
-            <span className="rounded-full bg-signal px-2.5 py-1 text-signal-foreground">
-              {category.emoji} {category.label}
-            </span>
-            <span>{spot.neighborhood}</span>
-          </div>
-          {mark === "been" && (
-            <span className="nc-pop absolute right-3 top-3 rounded-full bg-mint px-2.5 py-1 text-xs font-semibold text-background shadow">
-              ✅ Been there
-            </span>
-          )}
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={spot.name} onClick={onClose}>
+      <div className="nc-rise relative max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-[#181818] text-white shadow-2xl sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
+        <Confetti burst={burst} count={26} />
+        <div className="relative aspect-[16/9]">
+          <img src={spot.image} alt={spot.name} className="h-full w-full object-cover" />
+          <button type="button" onClick={onClose} aria-label="Close" className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-black/60 text-lg">✕</button>
+          <span className="absolute bottom-3 left-3 rounded-full bg-signal px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-signal-foreground">
+            {category.emoji} {category.label}
+          </span>
         </div>
-
-        <div className="flex flex-1 flex-col p-5">
-          {spot.credit && <p className="-mt-3 mb-2 text-right text-[10px] text-muted-foreground">Photo: {spot.credit}</p>}
-          <h3 className="text-lg font-semibold leading-snug">{spot.name}</h3>
-          {because && <p className="mt-1.5 inline-block w-fit rounded-full bg-signal/20 px-2.5 py-1 text-xs font-semibold">✨ For you: {because}</p>}
-          <p className="mt-1 text-sm text-muted-foreground">{spot.blurb}</p>
-
-          <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted-foreground">
-              📍 {spot.borough}
-            </span>
-            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted-foreground">
-              🚇 {spot.subway}
-            </span>
-            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-muted-foreground">
-              💵 {spot.cost}
-            </span>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-signal/40 bg-signal/10 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-signal">
-              Local pro-tip
-            </p>
+        {spot.credit && <p className="px-5 pt-1.5 text-right text-[10px] text-[#888]">Photo: {spot.credit}</p>}
+        <div className="p-5 sm:p-6">
+          <h2 className="font-display text-2xl font-bold">{spot.name}</h2>
+          {because && <p className="mt-2 inline-block rounded-full bg-signal/15 px-2.5 py-1 text-xs font-semibold text-signal">✨ For you: {because}</p>}
+          <p className="mt-2 text-sm text-[#cfcfcf]">{spot.blurb}</p>
+          <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+            <div className="rounded-xl bg-[#232323] px-3 py-2"><dt className="text-[11px] text-[#999]">Where</dt><dd>{spot.neighborhood}, {spot.borough}</dd></div>
+            <div className="rounded-xl bg-[#232323] px-3 py-2"><dt className="text-[11px] text-[#999]">Trains</dt><dd>{spot.subway}</dd></div>
+            <div className="rounded-xl bg-[#232323] px-3 py-2"><dt className="text-[11px] text-[#999]">Cost</dt><dd>{spot.cost}</dd></div>
+          </dl>
+          <div className="mt-4 rounded-2xl border border-signal/30 bg-signal/10 p-4">
+            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-signal">Local pro-tip</p>
             <p className="mt-1.5 text-sm leading-relaxed">{spot.tip}</p>
           </div>
-
           <div className="mt-5 flex items-center gap-2">
             <button
+              type="button"
               onClick={been}
               aria-pressed={mark === "been"}
               className={cn(
-                "nc-press flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold transition duration-300",
-                mark === "been"
-                  ? "border-mint bg-mint/15 text-mint"
-                  : "border-border bg-surface-2 hover:-translate-y-0.5 hover:border-mint/60",
+                "nc-press flex-1 rounded-full px-4 py-3 text-sm font-bold transition",
+                mark === "been" ? "bg-mint text-white" : "bg-signal text-signal-foreground hover:brightness-105",
               )}
             >
-              {mark === "been" ? "✅ Been there" : `Been there · +${spot.xp} XP`}
+              {mark === "been" ? "✓ Been there" : `Been there · +${spot.xp} XP`}
             </button>
             <button
+              type="button"
               onClick={() => onMark(spot, "want")}
               aria-pressed={mark === "want"}
-              aria-label="Want to go"
-              title="Want to go"
-              className={cn(
-                "nc-press grid size-11 shrink-0 place-items-center rounded-full border text-base transition duration-300",
-                mark === "want"
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-border bg-surface-2 hover:-translate-y-0.5 hover:border-primary/60",
-              )}
+              className={cn("nc-press rounded-full px-4 py-3 text-sm font-bold transition", mark === "want" ? "bg-white text-black" : "bg-[#262626] text-[#ddd] hover:bg-[#333]")}
             >
-              {mark === "want" ? "🔖" : "📌"}
+              {mark === "want" ? "🔖 Saved" : "📌 Want to go"}
             </button>
           </div>
         </div>
-      </article>
-    </li>
+      </div>
+    </div>
   );
 }
 
 /* ---------------- slang ---------------- */
 
-function CringeMeter({ level }: { level: number }) {
-  const label =
-    level <= 1 ? "Safe for anyone" : level <= 2 ? "Low risk" : level <= 3 ? "Use sparingly" : level <= 4 ? "Insider only" : "Tryhard alert";
-  return (
-    <div className="flex items-center gap-2">
-      <span className="flex gap-1" aria-hidden>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <span
-            key={n}
-            className={cn(
-              "h-1.5 w-5 rounded-full transition-colors duration-500",
-              n <= level ? (level >= 4 ? "bg-destructive" : "bg-signal") : "bg-surface-2",
-            )}
-          />
-        ))}
-      </span>
-      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-        {label}
-      </span>
-    </div>
-  );
+function cringeLabel(level: number) {
+  return level <= 1 ? "Safe for anyone" : level <= 2 ? "Low risk" : level <= 3 ? "Use sparingly" : level <= 4 ? "Insider only" : "Tryhard alert";
 }
 
-function SlangCard({ term, index }: { term: SlangTerm; index: number }) {
-  const [flipped, setFlipped] = useState(false);
+/** One slang term as a "track": play it, see what it means, open it for the example and the cringe check. */
+function SlangCard({ term }: { term: SlangTerm }) {
+  const [open, setOpen] = useState(false);
   const cat = SLANG_CATEGORIES.find((c) => c.id === term.category)!;
 
   return (
-    <li className="nc-rise" style={{ animationDelay: `${0.06 + index * 0.04}s` }}>
-      <div className="nc-flip h-[400px]" data-flipped={flipped}>
-        <div className="nc-flip-inner">
-          <button
-            onClick={() => setFlipped(true)}
-            aria-label={`Flip ${term.term} for the definition`}
-            className="nc-flip-face group flex w-full flex-col items-start border-t-4 border-primary bg-surface p-6 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
-          >
-            <span className="rounded-full bg-surface-2 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              {cat.emoji} {cat.label}
-            </span>
-            <h3 className="mt-5 font-display text-3xl font-bold leading-tight">{term.term}</h3>
-            <span className="mt-2 flex items-center gap-2">
-              <span className="font-mono text-xs text-signal">{term.phonetic}</span>
-              <SpeakButton text={term.say ?? term.term} label={`Hear "${term.term}" said aloud`} />
-            </span>
-            <p className="mt-4 text-sm text-muted-foreground">{term.short}</p>
-            <span className="mt-auto flex items-center gap-2 pt-6 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors group-hover:text-signal">
-              Tap to flip
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </span>
-          </button>
-
-          <div className="nc-flip-back nc-flip-face border-t-4 border-signal bg-surface p-6 text-left shadow-lg">
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-display text-xl font-bold">{term.term}</h3>
-              <button
-                onClick={() => setFlipped(false)}
-                aria-label="Flip back"
-                className="nc-press shrink-0 text-lg text-muted-foreground transition hover:rotate-180 hover:text-foreground"
-              >
-                ↺
-              </button>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed">{term.definition}</p>
-            <div className="mt-4 flex items-start gap-2 rounded-xl border-l-2 border-signal bg-surface-2 px-3 py-2">
-              <p className="flex-1 text-sm italic">{term.example}</p>
-              <SpeakButton text={term.example} label="Hear the example" />
-            </div>
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-signal">
-              Cringe meter
-            </p>
-            <div className="mt-2">
-              <CringeMeter level={term.cringe} />
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{term.warning}</p>
-          </div>
-        </div>
+    <li className="rounded-2xl bg-gradient-to-br from-[#2a2a2a] to-[#1b1b1b] p-4 sm:p-5">
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-controls={`slang-${term.id}`}
+          className="min-w-0 flex-1 text-left"
+        >
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#999]">
+            {cat.emoji} {cat.label}
+          </span>
+          <span className="mt-1 block font-display text-2xl font-bold leading-tight">{term.term}</span>
+          <span className="block font-mono text-xs text-signal">{term.phonetic}</span>
+          <span className="mt-1 block text-sm text-[#bdbdbd]">{term.short}</span>
+        </button>
+        <SpeakButton variant="play" text={`${term.say ?? term.term}. ${term.example}`} label={`Hear "${term.term}" said aloud`} />
       </div>
+
+      <div className="mt-3 flex items-center gap-2" title={cringeLabel(term.cringe)}>
+        <span className="flex flex-1 gap-1" aria-hidden>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <span key={n} className={cn("h-1 flex-1 rounded-full", n <= term.cringe ? (term.cringe >= 4 ? "bg-destructive" : "bg-signal") : "bg-[#333]")} />
+          ))}
+        </span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#999]">{cringeLabel(term.cringe)}</span>
+      </div>
+
+      {open && (
+        <div id={`slang-${term.id}`} className="nc-rise mt-4 border-t border-[#333] pt-4 text-sm">
+          <p className="leading-relaxed text-[#ddd]">{term.definition}</p>
+          <p className="mt-3 rounded-xl bg-black/30 px-3 py-2 italic text-white">{term.example}</p>
+          <p className="mt-3 text-xs leading-relaxed text-[#a8a8a8]">{term.warning}</p>
+        </div>
+      )}
+      <button type="button" onClick={() => setOpen((o) => !o)} className="mt-3 text-xs font-semibold text-signal hover:underline">
+        {open ? "Show less" : "What it means & when to use it"}
+      </button>
     </li>
   );
 }
@@ -1558,102 +1499,68 @@ function SlangView({ onReward }: { onReward: (amount: number, streakCredit: bool
     return SLANG.filter(
       (t) =>
         (filter === "all" || t.category === filter) &&
-        (!q ||
-          t.term.toLowerCase().includes(q) ||
-          t.short.toLowerCase().includes(q) ||
-          t.definition.toLowerCase().includes(q)),
+        (!q || t.term.toLowerCase().includes(q) || t.short.toLowerCase().includes(q) || t.definition.toLowerCase().includes(q)),
     );
   }, [filter, query]);
 
   return (
-    <section className="relative mx-auto max-w-7xl px-6 pb-16 pt-6">
-      <p className="nc-rise font-mono text-xs uppercase tracking-[0.25em] text-signal">
-        Talk the talk · {SLANG.length} terms
-      </p>
-      <h1
-        className="nc-rise mt-4 max-w-2xl text-4xl font-bold leading-[1.08] sm:text-5xl"
-        style={{ animationDelay: "0.06s" }}
-      >
-        Say it right, or{" "}
-        <span className="bg-gradient-to-r from-signal via-primary to-signal bg-clip-text text-transparent nc-shimmer">
-          don't say it
-        </span>{" "}
-        at all.
-      </h1>
-      <p
-        className="nc-rise mt-4 max-w-xl text-base text-muted-foreground"
-        style={{ animationDelay: "0.1s" }}
-      >
-        Flip a card for the definition, a real line of dialogue, and a cringe meter telling you how
-        much rope you actually have with that word.
-      </p>
+    <section className="relative mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
+      <div className="rounded-3xl bg-[#121212] p-5 text-white shadow-xl sm:p-8">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="font-display text-3xl font-bold sm:text-4xl">Slang</h1>
+            <p className="mt-1 text-sm text-[#a8a8a8]">{SLANG.length} terms · press ▶ to hear one · say it right, or don't say it at all</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setChallenge(true)}
+            className="nc-press rounded-full bg-signal px-5 py-2.5 font-display text-sm font-bold text-signal-foreground hover:brightness-105"
+          >
+            ⚡ Slang Challenge
+          </button>
+        </div>
 
-      <div
-        className="nc-rise mt-6 flex flex-wrap items-center gap-3"
-        style={{ animationDelay: "0.14s" }}
-      >
-        <label className="relative flex-1 min-w-[220px]">
+        <label className="relative mt-5 block">
           <span className="sr-only">Search slang</span>
-          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm">
-            🔍
-          </span>
+          <span aria-hidden className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm">🔍</span>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Look up a word — deadass, brick, pie…"
-            className="w-full rounded-full border border-border bg-surface py-3 pl-11 pr-4 text-sm shadow-sm outline-none transition duration-300 placeholder:text-muted-foreground focus:border-signal focus:ring-2 focus:ring-signal/30"
+            placeholder="Look up a word: deadass, brick, pie…"
+            className="w-full rounded-full border border-[#333] bg-[#1f1f1f] py-3 pl-11 pr-4 text-sm text-white outline-none placeholder:text-[#888] focus:border-signal"
           />
         </label>
-        <button
-          onClick={() => setChallenge(true)}
-          className="nc-press rounded-full bg-signal px-6 py-3 font-display text-sm font-semibold text-signal-foreground shadow-[0_5px_0_color-mix(in_oklab,var(--signal)_62%,black)] hover:brightness-105"
-        >
-          ⚡ Slang Challenge
-        </button>
+
+        <div role="group" aria-label="Slang categories" className="mt-4 flex flex-wrap gap-2">
+          {[{ id: "all" as const, label: "All slang", emoji: "✨" }, ...SLANG_CATEGORIES].map((c) => {
+            const on = filter === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setFilter(c.id as SlangCategory | "all")}
+                aria-pressed={on}
+                className={cn("nc-press rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition", on ? "bg-signal text-signal-foreground" : "bg-[#262626] text-[#ddd] hover:bg-[#333]")}
+              >
+                <span aria-hidden className="mr-1">{c.emoji}</span>
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {list.length === 0 ? (
+          <p className="mt-8 rounded-2xl bg-[#1f1f1f] p-5 text-sm text-[#bbb]">Nothing matches “{query}”. Try “coffee”, “cold”, or “Manhattan”.</p>
+        ) : (
+          <ul className="mt-6 grid items-start gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {list.map((t) => (
+              <SlangCard key={t.id} term={t} />
+            ))}
+          </ul>
+        )}
       </div>
 
-      <div
-        role="group"
-        aria-label="Slang categories"
-        className="nc-rise mt-5 flex flex-wrap gap-2"
-        style={{ animationDelay: "0.18s" }}
-      >
-        {[{ id: "all" as const, label: "All slang", emoji: "✨" }, ...SLANG_CATEGORIES].map((c) => {
-          const on = filter === c.id;
-          return (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id as SlangCategory | "all")}
-              aria-pressed={on}
-              className={cn(
-                "nc-press rounded-full border px-4 py-2 text-sm font-medium transition duration-300 hover:-translate-y-0.5",
-                on
-                  ? "border-signal bg-signal text-signal-foreground shadow-[0_4px_0_color-mix(in_oklab,var(--signal)_62%,black)]"
-                  : "border-border bg-surface text-muted-foreground hover:border-signal/60 hover:text-foreground",
-              )}
-            >
-              <span className="mr-1.5">{c.emoji}</span>
-              {c.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {list.length === 0 ? (
-        <p className="nc-rise mt-10 rounded-2xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-          Nothing matches “{query}”. Try “coffee”, “cold”, or “Manhattan”.
-        </p>
-      ) : (
-        <ul key={`${filter}-${query}`} className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((t, i) => (
-            <SlangCard key={t.id} term={t} index={i} />
-          ))}
-        </ul>
-      )}
-
-      {challenge && (
-        <SlangChallenge onClose={() => setChallenge(false)} onReward={onReward} />
-      )}
+      {challenge && <SlangChallenge onClose={() => setChallenge(false)} onReward={onReward} />}
     </section>
   );
 }

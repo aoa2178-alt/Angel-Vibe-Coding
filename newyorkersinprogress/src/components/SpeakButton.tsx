@@ -2,7 +2,18 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /** Read text aloud with the browser's built-in voice. Hidden where the browser can't speak. */
-export function SpeakButton({ text, label, className }: { text: string; label: string; className?: string }) {
+export function SpeakButton({
+  text,
+  label,
+  className,
+  variant = "small",
+}: {
+  text: string;
+  label: string;
+  className?: string;
+  /** "play": the big round play button on the dark slang cards. */
+  variant?: "small" | "play";
+}) {
   const [supported, setSupported] = useState(false);
   const [speaking, setSpeaking] = useState(false);
 
@@ -42,12 +53,14 @@ export function SpeakButton({ text, label, className }: { text: string; label: s
         }
       }}
       className={cn(
-        "nc-press inline-grid size-8 shrink-0 cursor-pointer place-items-center rounded-full border border-border bg-surface text-sm shadow-sm transition hover:border-signal hover:bg-signal/15",
-        speaking && "border-signal bg-signal/25",
+        variant === "play"
+          ? "nc-press inline-grid size-11 shrink-0 cursor-pointer place-items-center rounded-full bg-signal text-base font-bold text-signal-foreground shadow-md transition hover:scale-105"
+          : "nc-press inline-grid size-8 shrink-0 cursor-pointer place-items-center rounded-full border border-border bg-surface text-sm shadow-sm transition hover:border-signal hover:bg-signal/15",
+        speaking && (variant === "play" ? "ring-4 ring-signal/30" : "border-signal bg-signal/25"),
         className,
       )}
     >
-      <span aria-hidden>{speaking ? "🔊" : "🔈"}</span>
+      <span aria-hidden>{variant === "play" ? (speaking ? "❚❚" : "▶") : speaking ? "🔊" : "🔈"}</span>
     </span>
   );
 }

@@ -53,5 +53,6 @@ The weekly price watcher (`agents/price-watcher.md`) proposes new price points o
 
 - Static site on Vercel: no accounts, no database, no API keys in the browser.
 - The only data sent anywhere is the optional decision report: ten scenario fields (no personal data) posted to the n8n webhook when you click the button.
+- Security review: see [SECURITY.md](SECURITY.md).
 
 The defaults are illustrative (October 2026), and every one can be edited. "Rent" and "Own" mean running an open-weight model yourself, because frontier models like Claude and GPT are API-only.

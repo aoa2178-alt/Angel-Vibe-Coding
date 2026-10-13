@@ -90,7 +90,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
         )}
         {r && (
           <li>
-            <span className="font-semibold text-ink">Is it worth it:</span>{" "}
+            <span className="font-semibold text-ink">Business case:</span>{" "}
             {r.savings > 0
               ? `yes. AI saves ${formatUsd(r.savings)} a month against doing the work by hand and pays back its setup in ${months(r.paybackMonths!)}.`
               : `not at these numbers: AI costs ${formatUsd(-r.savings)} a month more than people do. Fix the success rate or review time before investing.`}
@@ -98,7 +98,7 @@ export function CallRecommendation({ call, plan, setPlan }: { call: Call; plan: 
         )}
         {product && (
           <li>
-            <span className="font-semibold text-ink">Is it worth it:</span>{" "}
+            <span className="font-semibold text-ink">Business case:</span>{" "}
             {product.margin >= 0 ? `yes. The product clears ${formatUsd(product.margin)} a month after compute.` : `not yet: free users cost ${formatUsd(-product.margin)} a month more than paying users bring in.`}
           </li>
         )}

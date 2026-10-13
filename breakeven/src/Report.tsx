@@ -294,7 +294,7 @@ export function Report() {
       </Section>
 
       {bc && (
-        <Section n={++n} title="Is AI worth it for this work?">
+        <Section n={++n} title="AI business case">
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             <Stat label="People cost today" value={`${money(bc.people_cost_monthly)}/mo`} />
             <Stat label="Cost with AI" value={`${money(bc.cost_with_ai_monthly)}/mo`} />

@@ -1,6 +1,6 @@
 # Breakeven
 
-**How should we run our AI, and is it worth it?**
+**AI infrastructure cost, at your volume:** does AI pay off, and should you run it on an API, rented GPUs or your own?
 
 Live: https://breakeven-silk.vercel.app · Capstone for the CBS Vibe Coding class (Angel Ade-Oduntan).
 
@@ -38,7 +38,7 @@ All the math is in pure, tested functions in `src/lib/`; every rule is written o
 | File | What it does |
 |---|---|
 | `tco.ts` | The cost model: API = tokens × blended price; Rent = GPUs × 730 h × $/GPU-hour; Own = whole 8-GPU servers × (depreciation + support + electricity × PUE + colocation). GPUs needed = average tokens/sec ÷ (throughput × utilization). |
-| `roi.ts`, `necessity.ts` | Is it worth it, and is AI the right tool: the business case, alternatives and scenarios, verdict and missing evidence. |
+| `roi.ts`, `necessity.ts` | The AI business case and whether AI is the right tool: the business case, alternatives and scenarios, verdict and missing evidence. |
 | `freemium.ts` | Product mode: cost per free and paid user, margin, break-even conversion. |
 | `scorecard.ts` | Beyond cost: data control, time to launch, quality, ease, flexibility, weighted to a score out of 100. |
 | `operate.ts` | Running it well: Erlang C queueing with Kingman variability, Little's Law, hybrid own/rent (newsvendor critical ratio), GPU retirement (sunk cost). |

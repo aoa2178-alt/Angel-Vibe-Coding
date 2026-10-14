@@ -6,6 +6,7 @@ import { PillBar, SiteFooter } from "@/components/Site";
 import { HelpDesk } from "@/components/HelpDesk";
 
 const NAV = [
+  { href: "#overview", label: "Overview" },
   { href: "#how", label: "Approach" },
   { href: "/sources", label: "Sources" },
   { href: "/faq", label: "FAQ" },
@@ -65,6 +66,28 @@ export function Landing() {
             </p>
           </div>
           <CostPod />
+        </section>
+
+        {/* The narrated explainer video. Loads only when played. */}
+        <section id="overview" className="scroll-mt-20 border-t border-line">
+          <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-4 py-20 sm:px-8 sm:py-24 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="kicker">Overview</p>
+              <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Breakeven in 95 seconds.</h2>
+              <p className="mt-4 max-w-[460px] text-[15px] leading-6 text-muted">
+                The business case, the cost comparison, where the answer flips, and the decision dashboard, narrated with a worked example.
+              </p>
+            </div>
+            <video
+              className="aspect-video w-full rounded-[10px] border border-line bg-surface"
+              src="/video/explainer.webm"
+              poster="/video/explainer-poster.jpg"
+              controls
+              preload="none"
+              playsInline
+              aria-label="Breakeven explainer video, 95 seconds, narrated"
+            />
+          </div>
         </section>
 
         {/* Approach: three analyses and the recommendation. */}

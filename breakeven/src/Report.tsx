@@ -3,6 +3,9 @@ import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { OPTIONS } from "@/components/options";
 import { HelpDesk } from "@/components/HelpDesk";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Explain, ReadAloud } from "@/components/Explain";
+import type { TermId } from "@/lib/glossary";
 import { buildPayload, buildResults, readReportForm } from "@/lib/decisionReport";
 import { readPlan, stepHref } from "@/lib/plan";
 import type { OptionId } from "@/lib/tco";
@@ -22,10 +25,13 @@ const tokens = (v: number | null | undefined) => {
 const pct = (v: number | null | undefined) => (v === null || v === undefined ? "—" : `${v}%`);
 const idOf = (name: string): OptionId => (Object.keys(OPTIONS) as OptionId[]).find((id) => OPTIONS[id].name === name) ?? "api";
 
-function Tile({ label, value, sub, tone }: { label: string; value: ReactNode; sub: string; tone?: "good" | undefined }) {
+function Tile({ label, value, sub, tone, term }: { label: string; value: ReactNode; sub: string; tone?: "good" | undefined; term?: TermId }) {
   return (
     <div className="rounded-2xl border border-line bg-surface p-4">
-      <p className="kicker truncate">{label}</p>
+      <p className="kicker">
+        {label}
+        {term && <Explain id={term} />}
+      </p>
       <p className={`mt-1 text-2xl font-extrabold ${tone === "good" ? "text-[#0e7f72] dark:text-[#4fd1c0]" : ""}`}>{value}</p>
       <p className="mt-0.5 text-xs text-ink-2">{sub}</p>
     </div>
@@ -151,6 +157,12 @@ export function Report() {
         <a href={back} onClick={linkClick(back)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-ink">
           <ArrowLeft className="size-4" aria-hidden /> Back to the recommendation
         </a>
+        <span className="ml-auto" />
+        <ReadAloud
+          label="Read it to me"
+          text={`Decision report for ${d.scenario_name}. The recommendation is ${r.recommended.replace(" (API)", "")}, at ${money(rec.monthly)} a month, or ${money(rec.yearly)} a year.${r.yearly_change_vs_today !== null && r.yearly_change_vs_today > 0 ? ` That saves ${money(r.yearly_change_vs_today)} a year against how you run AI today.` : ""}${bc && bc.savings_monthly > 0 ? ` AI saves ${money(bc.savings_monthly)} a month against people alone.` : ""} ${changes.length ? `What would change it: ${String(changes[0]).replace(" → ", ", which switches it to ")}.` : ""}`}
+        />
+        <ThemeToggle />
         <button
           type="button"
           onClick={() => window.print()}
@@ -179,13 +191,14 @@ export function Report() {
           value={r.yearly_change_vs_today === null ? "—" : `${r.yearly_change_vs_today >= 0 ? "−" : "+"}${money(Math.abs(r.yearly_change_vs_today))}`}
           sub={r.yearly_change_vs_today === null ? "Set how you run AI today" : r.yearly_change_vs_today >= 0 ? "saved per year" : "extra per year"}
           tone={r.yearly_change_vs_today !== null && r.yearly_change_vs_today >= 0 ? "good" : undefined}
+          term="versusToday"
         />
         {bc ? (
-          <Tile label="Payback" value={bc.payback_months === null ? "None" : `${bc.payback_months} mo`} sub={bc.savings_monthly > 0 ? `AI saves ${money(bc.savings_monthly)} a month` : "AI doesn't pay off here"} />
+          <Tile term="payback" label="Payback" value={bc.payback_months === null ? "None" : `${bc.payback_months} mo`} sub={bc.savings_monthly > 0 ? `AI saves ${money(bc.savings_monthly)} a month` : "AI doesn't pay off here"} />
         ) : r.product ? (
           <Tile label="Margin after compute" value={pct(r.product.margin_pct)} sub={`${money(r.product.monthly_revenue)} revenue a month`} />
         ) : (
-          <Tile label="Fit score" value={`${rec.fit_score}/100`} sub="on your priorities" />
+          <Tile term="fitScore" label="Fit score" value={`${rec.fit_score}/100`} sub="on your priorities" />
         )}
       </div>
 

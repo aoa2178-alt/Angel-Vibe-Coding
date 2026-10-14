@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Check, Link2, Menu, RotateCcw, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
+import { ReadAloud } from "./Explain";
 import { HelpDesk } from "./HelpDesk";
 import { OPTIONS } from "./options";
 import { PillBar, SiteFooter } from "./Site";
@@ -304,7 +305,7 @@ export function PlanFrame({
 }
 
 /** The heading every step opens with: its number, its question, and one line on what it answers. */
-export function StepHeading({ route, children }: { route: StepRoute; children?: ReactNode }) {
+export function StepHeading({ route, children, narration }: { route: StepRoute; children?: ReactNode; narration?: string }) {
   const i = STEPS.findIndex((s) => s.route === route);
   const s = STEPS[i]!;
   return (
@@ -312,6 +313,11 @@ export function StepHeading({ route, children }: { route: StepRoute; children?: 
       <div>
         <p className="kicker">{i < 3 ? `Step ${i + 1} of 3 · ${s.label}` : s.label}</p>
         <h1 className="mt-2 text-4xl font-extrabold leading-none tracking-[-0.035em] sm:text-5xl">{s.question}</h1>
+        {narration && (
+          <div className="mt-3">
+            <ReadAloud text={narration} />
+          </div>
+        )}
       </div>
       {children && <div className="max-w-md text-base text-ink-2 lg:text-right">{children}</div>}
     </div>

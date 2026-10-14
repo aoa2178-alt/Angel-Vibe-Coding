@@ -1,8 +1,10 @@
-import { Download, Sparkles, Zap } from "lucide-react";
+import { Download, Zap } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
 import { CostChart } from "@/components/CostChart";
+import { Explain } from "@/components/Explain";
+import { FlipStrip } from "@/components/FlipStrip";
 import { Fold } from "@/components/Fold";
 import { CalcPad } from "@/components/Handheld";
 import { Odometer } from "@/components/Odometer";
@@ -12,6 +14,8 @@ import { Ownership } from "@/components/Ownership";
 import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
 import { Scorecard } from "@/components/Scorecard";
 import { Sensitivity } from "@/components/Sensitivity";
+import { volumeInWords, whyThisWins } from "@/lib/explain";
+import type { TermId } from "@/lib/glossary";
 import { planQuery, stepHref } from "@/lib/plan";
 import { isStale, latest, withLatest } from "@/lib/prices";
 import { DEFAULT_SCORES, scorecard } from "@/lib/scorecard";
@@ -60,6 +64,7 @@ export function RunIt() {
   const setAssumptions = (f: (a: Assumptions) => Assumptions) => setPlan((p) => ({ ...p, assumptions: f(p.assumptions) }));
   const card = useMemo(() => scorecard(costs, plan.weights, plan.scores), [costs, plan.weights, plan.scores]);
   const powerLink = stepHref("power-it", plan);
+  const activePreset = PRESETS.find((p) => Math.abs(Math.log(p.tokensM / workload.tokensM)) < 0.01);
 
   // "See where the answer flips" on the landing page links to #projection. Runs before the URL sync below drops the hash.
   useEffect(() => {
@@ -94,7 +99,10 @@ export function RunIt() {
         </>
       }
     >
-        <StepHeading route="run-it">
+        <StepHeading
+          route="run-it"
+          narration={`The cheapest way to run your AI is ${OPTIONS[winner].name.replace(" (API)", "")}. ${whyThisWins(workload, costs)} ${describeCrossovers(cross)}`}
+        >
           Total cost of ownership for a pay-per-token API, rented GPUs and owned infrastructure at your volume, the crossover points, and
           fit beyond cost.
         </StepHeading>
@@ -102,11 +110,30 @@ export function RunIt() {
         <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:items-start">
           {/* Inputs: stay in view on wide screens while the results scroll beside them */}
           <section aria-label="Your workload" className="rounded-2xl border border-line bg-surface p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="kicker">01 · Workload</p>
+            <h2 className="flex items-center gap-2 text-base font-semibold">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand text-xs font-bold text-white" aria-hidden>
+                1
+              </span>
+              How much AI will you use?
+              <Explain id="tokens" />
+            </h2>
+            <p className="mt-1.5 text-xs leading-5 text-ink-2">
+              AI usage is counted in <strong className="text-ink">tokens</strong>: small chunks of text, about ¾ of a word. Pick the size closest to you, or turn the dial.
+            </p>
 
             <div className="mt-4">
               <CalcPad tokensM={workload.tokensM} onChange={(m) => setW({ tokensM: m })} costs={costs} presets={PRESETS} />
             </div>
+            <p className="mt-2 text-right text-xs text-ink-2">{volumeInWords(workload.tokensM)}</p>
+            <p className="mt-1.5 text-xs leading-5 text-ink-2">
+              {activePreset ? (
+                <>
+                  <strong className="text-ink">{activePreset.label}:</strong> {activePreset.blurb.toLowerCase()}.
+                </>
+              ) : (
+                "Custom volume. Set it exactly below, or press a preset key."
+              )}
+            </p>
 
             <div className="mt-4 flex items-center justify-between gap-3">
               <label htmlFor="volume-exact" className="text-sm font-medium">
@@ -131,8 +158,9 @@ export function RunIt() {
 
             <PercentSlider
               id="output-share"
-              label="Output token share"
-              hint="Output tokens are priced above input tokens on most APIs."
+              term="outputShare"
+              label="Share the AI writes"
+              hint="Of all the tokens, the share the AI writes (the rest it reads). Writing costs more than reading on most APIs."
               value={workload.outputShare}
               onChange={(v) => setW({ outputShare: v })}
               min={0.05}
@@ -140,8 +168,9 @@ export function RunIt() {
             />
             <PercentSlider
               id="utilization"
-              label="Sustainable GPU utilization"
-              hint="Peaks leave capacity idle. Lower utilization requires more GPUs; higher utilization lengthens response times (see Operating strategies)."
+              term="utilization"
+              label="How busy each GPU runs"
+              hint="Fuller GPUs are cheaper per token, but answers slow down if they run too full, and traffic peaks need spare room (see Operating strategies)."
               value={workload.utilization}
               onChange={(v) => setW({ utilization: v })}
               min={0.2}
@@ -210,6 +239,12 @@ export function RunIt() {
 
           {/* Results */}
           <section aria-label="Results" aria-live="polite" className={`theme-${winner} grid min-w-0 gap-4`}>
+            <h2 className="flex items-center gap-2 text-base font-semibold">
+              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand text-xs font-bold text-white" aria-hidden>
+                2
+              </span>
+              The cheapest way to run it
+            </h2>
             <div className="win-panel relative overflow-hidden rounded-2xl p-5 text-white sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
@@ -227,10 +262,10 @@ export function RunIt() {
                 <Stat label="Per month">
                   <Odometer text={formatUsd(costs[winner].monthly)} />
                 </Stat>
-                <Stat label="Per M tokens">
+                <Stat label="Per M tokens" term="perM">
                   <Odometer text={formatUsd(costs[winner].perM, 2)} />
                 </Stat>
-                <Stat label="GPUs">
+                <Stat label="GPUs" term="gpus">
                   {costs[winner].gpus === null ? "None" : <Odometer text={String(costs[winner].gpus)} />}
                   {!!costs[winner].overflowGpus && (
                     <span className="text-sm font-normal text-white/80">
@@ -241,19 +276,14 @@ export function RunIt() {
               </div>
             </div>
 
+            <div className="why-box rounded-xl border-l-4 p-4 text-sm leading-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.08em]">Why this wins</p>
+              <p className="mt-1 text-ink">{whyThisWins(workload, costs)}</p>
+            </div>
+
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
-            <div className="flex gap-3 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
-              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden>
-                <Sparkles className="size-4" />
-              </span>
-              <div>
-                <p className="kicker">Crossover points</p>
-                <p className="mt-1 text-sm leading-6 text-ink">
-                  {describeCrossovers(cross)} {describePower(workload, assumptions)}
-                </p>
-              </div>
-            </div>
+            <FlipStrip workload={workload} assumptions={assumptions} sentence={`${describeCrossovers(cross)} ${describePower(workload, assumptions)}`.trim()} />
 
             <Fold id="projection" title="Cost curves by volume" sub="Monthly cost of each option across volumes, with the crossover points">
               <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
@@ -347,11 +377,12 @@ function Calculations({ workload, assumptions, costs }: { workload: Workload; as
   );
 }
 
-function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+function Stat({ label, term, children }: { label: string; term?: TermId; children: React.ReactNode }) {
   return (
     <div>
       <p className="text-[10px] uppercase tracking-[0.12em] text-white/75">
         {label}
+        {term && <Explain id={term} onDark />}
         <span
           title="Modeled: calculated by this app from data and assumptions"
           className="ml-1.5 inline-block whitespace-nowrap rounded border border-current px-1 align-[1px] text-[8.5px] leading-[1.5] tracking-[0.08em] opacity-75"
@@ -391,6 +422,7 @@ function describeCrossovers(c: ReturnType<typeof crossovers>) {
 
 function PercentSlider({
   id,
+  term,
   label,
   hint,
   value,
@@ -399,6 +431,7 @@ function PercentSlider({
   max,
 }: {
   id: string;
+  term: TermId;
   label: string;
   hint: string;
   value: number;
@@ -409,9 +442,10 @@ function PercentSlider({
   return (
     <div className="mt-6">
       <div className="flex items-end justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium">
-          {label}
-        </label>
+        <span className="text-sm font-medium">
+          <label htmlFor={id}>{label}</label>
+          <Explain id={term} />
+        </span>
         <span className="font-mono text-sm text-brand-ink">{Math.round(value * 100)}%</span>
       </div>
       <input

@@ -4,6 +4,7 @@ import { STRATEGY_META } from "./PowerIt";
 import { linkClick } from "@/components/Brand";
 import { DecisionReport } from "@/components/DecisionReport";
 import { CallShare, HowSolid } from "@/components/CallTools";
+import { ReadAloud } from "@/components/Explain";
 import { Fold } from "@/components/Fold";
 import { CallChecks, CallJudgment, CallLanding, CallMeasures, CallRecommendation } from "@/components/TheCall";
 import { callOf } from "@/lib/call";
@@ -52,6 +53,12 @@ export function Result() {
       plan={plan}
       actions={
         <>
+          <span className="hidden sm:inline-flex">
+            <ReadAloud
+              label="Read it to me"
+              text={`The recommendation for ${title.toLowerCase()}: ${OPTIONS[recommended].name.replace(" (API)", "")}, at ${formatUsd(costs[recommended].monthly)} a month.${r && r.savings > 0 ? ` AI saves ${formatUsd(r.savings)} a month against people alone.` : ""} ${describeWhatChanges(call)}`}
+            />
+          </span>
           <button
             type="button"
             onClick={() => window.print()}
@@ -268,4 +275,10 @@ function roiRisks(inputs: RoiInputs, r: RoiResult) {
     else if (breakEven !== null) out.push(`Each task the AI solves saves ${inputs.humanMinutes - inputs.reviewMinutes} of ${inputs.humanMinutes} minutes, so the case holds even at a low success rate.`);
   }
   return out;
+}
+
+/** One spoken sentence on what would change the call: the first check that flips it, if any. */
+function describeWhatChanges(call: ReturnType<typeof callOf>) {
+  const flip = [...call.volumeChecks, ...call.checks].find((c) => !c.holds);
+  return flip ? `It would change if ${flip.label.charAt(0).toLowerCase()}${flip.label.slice(1)}.` : "It holds even if prices move 25% either way.";
 }

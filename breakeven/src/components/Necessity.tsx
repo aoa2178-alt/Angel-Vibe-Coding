@@ -69,7 +69,7 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
                         <td className="py-2.5 pr-3 text-right font-mono">{o.id === "none" ? "–" : formatUsd(b.cash)}</td>
                         <td className="py-2.5 pr-3 text-right font-mono">{o.id === "none" ? "–" : b.payback === null ? "never" : b.payback === 0 ? "now" : months(b.payback)}</td>
                         {CASES.map((c) => (
-                          <td key={c} className={`py-2.5 pl-3 text-right font-mono ${o.cases[c].npv < 0 ? "text-[#a33a3a]" : ""}`}>
+                          <td key={c} className={`py-2.5 pl-3 text-right font-mono ${o.cases[c].npv < 0 ? "text-[#a33a3a] dark:text-[#ff8a80]" : ""}`}>
                             {o.id === "none" ? "$0" : formatMoney(o.cases[c].npv)}
                           </td>
                         ))}

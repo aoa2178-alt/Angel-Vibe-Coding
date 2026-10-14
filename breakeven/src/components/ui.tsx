@@ -1,3 +1,5 @@
+import { Explain } from "./Explain";
+import type { TermId } from "@/lib/glossary";
 import type { ReactNode } from "react";
 
 export const months = (m: number) => `${m < 10 ? m.toFixed(1) : Math.round(m).toLocaleString("en-US")} month${m === 1 ? "" : "s"}`;
@@ -38,10 +40,13 @@ export function NumberField({
   );
 }
 
-export function PanelStat({ label, children }: { label: string; children: ReactNode }) {
+export function PanelStat({ label, term, children }: { label: string; term?: TermId; children: ReactNode }) {
   return (
     <div className="min-w-0">
-      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/75">{label}</p>
+      <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/75">
+        {label}
+        {term && <Explain id={term} onDark />}
+      </p>
       <p className="mt-1.5 font-mono text-base font-semibold sm:text-xl">{children}</p>
     </div>
   );

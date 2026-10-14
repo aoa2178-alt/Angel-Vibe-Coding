@@ -1,0 +1,55 @@
+# Breakeven
+
+> AI infrastructure cost, at your volume. Breakeven helps a company decide whether AI pays off for a piece of work, and whether to run it on a pay-per-token API, rented cloud GPUs, or GPUs it owns. All math runs in the browser from tested formulas and dated, sourced public prices. Built by Angel Ade-Oduntan (Columbia Business School, B8160 Vibe Coding capstone).
+
+Live: https://breakeven-silk.vercel.app
+Contact: aoa2178@columbia.edu
+Code: https://github.com/aoa2178-alt/Angel-Vibe-Coding (folder breakeven/)
+
+## Pages (the path)
+
+- [Evaluate AI ROI](https://breakeven-silk.vercel.app/worth-it): the AI business case. People cost today against people plus AI compute: monthly savings, payback, 12-month ROI. A necessity test compares AI with rules automation and process redesign and returns Invest, Pilot, Defer, Reject or Don't use AI.
+- [Compare compute costs](https://breakeven-silk.vercel.app/run-it): monthly cost of the API, rented GPUs and owned GPUs at a volume, the volumes where the cheapest option changes, a scorecard beyond cost, and how busy GPUs can run.
+- [Power planning](https://breakeven-silk.vercel.app/power-it): only relevant when owning wins. Power needed and the cheapest way to bridge a late grid connection.
+- [Recommendation](https://breakeven-silk.vercel.app/result): the call, what would change it, and a 30/60/90 plan.
+- [Decision report](https://breakeven-silk.vercel.app/report): a one-page dashboard of the recommendation, printable.
+- [Sources](https://breakeven-silk.vercel.app/sources): every default with its range, source and confidence, plus price history.
+- [FAQ](https://breakeven-silk.vercel.app/faq)
+
+## Build a link to a scenario
+
+Every page reads the scenario from the URL, so an agent can open an exact case. Main parameters (all optional; anything missing uses the default):
+
+- `v`: AI tokens per month, in millions (default 2000 = 2B). Example: `v=30000` is 30B.
+- `t`: business-case template: `support`, `documents`, `sales` or `coding`.
+- `out`: share of tokens the AI writes, 0–1 (default 0.25).
+- `util`: how busy each GPU runs, 0–1 (default 0.6).
+- `now`: how the company runs AI today: `none`, `api`, `rent`, `own` or `mix`.
+- `mode=product`: an AI product you sell (freemium economics) instead of internal work.
+- Prices: `api_in`, `api_out` ($ per million tokens), `rent` ($ per GPU-hour), `hw` ($ per GPU), `dep` (years), `kw` (kW per GPU), `pue`, `kwh` ($ per kWh), `colo` ($ per kW-month), `support` (% of hardware a year), `tps` (tokens per second per GPU).
+- Report only: `report_name`, `report_now` (e.g. `Pay-per-token API`), `report_growth` (% a year), `report_years` (1–5).
+
+Examples:
+- Compare costs at 30B tokens a month: https://breakeven-silk.vercel.app/run-it?v=30000
+- Customer-support business case, running on the API today: https://breakeven-silk.vercel.app/worth-it?t=support&now=api
+- Decision report, 2B tokens, 60% growth over 3 years: https://breakeven-silk.vercel.app/report?t=support&v=2000&now=api&report_growth=60&report_years=3
+
+## How the numbers are calculated
+
+- GPUs needed = average tokens per second ÷ (GPU throughput × utilization), at least 1. Average tokens per second = monthly tokens ÷ (730 × 3600).
+- API cost = tokens × blended price, where blended = input price × (1 − output share) + output price × output share.
+- Rent cost = GPUs × 730 hours × $ per GPU-hour.
+- Own cost = GPUs, bought in whole 8-GPU servers, × (hardware ÷ depreciation months + support % of hardware ÷ 12 + kW × PUE × 730 × $ per kWh + kW × colocation $ per kW-month).
+- Business case: people cost today = tasks × minutes ÷ 60 × hourly cost. With AI: failed tasks redone by people + review time + AI compute at the cheapest option. Savings = the difference; payback = setup cost ÷ monthly savings.
+- The recommendation weighs cost with data control, time to launch, model quality, ease of running and flexibility (0–5 weights).
+
+## Defaults (October 2026, illustrative, all editable)
+
+API $2 input / $10 output per million tokens (Claude Sonnet 5.5 list price); rental $2.50 per H100-hour; hardware $35,000 per GPU all-in; 1.3 kW per GPU; PUE 1.3; electricity $0.10 per kWh; colocation $195 per kW-month; support 10% a year; 4-year depreciation; 1,500 tokens per second per GPU.
+
+At these defaults the API is cheapest below about 460M tokens a month, renting is cheapest in between, and owning is cheapest for good from about 43B tokens a month.
+
+## Notes for agents
+
+- Figures are estimates for planning, not provider quotes. "Rent" and "Own" assume running a comparable open-weight model; frontier models such as Claude and GPT are API-only.
+- Breakeven sends no data anywhere and has no accounts.

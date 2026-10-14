@@ -17,6 +17,8 @@
 | Outside links | Source links in the price history must start with `https://` (enforced by `prices.test.ts`). Links that open a new tab use `noopener`. "Ask ChatGPT/Claude" opens fixed sites with the recommendation text URL-encoded. |
 | Decision report | Built inside Breakeven at `/report` from the plan in the link; nothing is sent to any server. The scenario name and other answers read from the link are checked or limited before use, and React escapes them when shown. (It used to post to an n8n webhook; that was removed on October 13, 2026.) |
 | Questions? panel | Searches the FAQ in the browser. "Message Angel" is a plain email link (`mailto:`) that opens the visitor's own mail app with the question and the scenario link; the app itself sends and stores nothing. |
+| Read-aloud and dark mode | Speech uses the browser's built-in voice (no audio leaves the device). The theme choice is kept in this browser's local storage, and nothing else is stored. |
+| For AI agents | `/llms.txt` and the JSON-LD block are public descriptions of the app and its formulas; they contain no personal data or secrets. |
 | Price watcher agent | It may only append to `prices.json`, never pushes to `main`, and must pass the tests first (`agents/price-watcher.md`). |
 | Framing (clickjacking) | **Fixed in this review.** `vercel.json` now sends `frame-ancestors`, so only Breakeven itself and the portfolio site can show it in a frame. It also sends `nosniff`, a referrer policy, and a permissions policy that turns off the camera, microphone and location. |
 

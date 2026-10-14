@@ -10,6 +10,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+      <script>
+      // Apply the saved theme, or the system setting, before the page paints (no flash of the wrong one).
+      try {
+        var saved = localStorage.getItem("breakeven-theme");
+        var dark = saved ? saved === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (dark) document.documentElement.classList.add("dark");
+      } catch (e) {}
+    </script>
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="Breakeven for AI agents" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Breakeven",
+        "url": "https://breakeven-silk.vercel.app",
+        "description": "AI infrastructure cost, at your volume: whether AI pays off for a piece of work, and whether to run it on a pay-per-token API, rented cloud GPUs, or owned GPUs.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any (web browser)",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Angel Ade-Oduntan",
+          "email": "aoa2178@columbia.edu"
+        }
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

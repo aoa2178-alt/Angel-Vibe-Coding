@@ -20,6 +20,9 @@ Then:
 - **Sources** (`/sources`): range, reasoning, source and confidence for every default, plus price history.
 - **FAQ** (`/faq`).
 - **Questions?** A button on every page searches the FAQ and, for anything else, opens an email to Angel with the scenario link included.
+- **Explain it to me:** an info button beside each key term opens a plain-English meaning, and "Read this step to me" speaks the step's answer (the browser's own voice; nothing is sent anywhere). The cost comparison explains the volume in words, says why the cheapest option wins, and shows where the answer flips on one strip.
+- **Dark mode:** a sun/moon switch in the top bar; it follows the device setting until you pick one.
+- **For AI agents:** `/llms.txt` describes the app, every formula and how to build a link to any scenario; the home page also carries structured data (JSON-LD).
 
 Old links (`/calculator`, `/business-case`, `/speed-to-power`, `/methodology`) still work.
 

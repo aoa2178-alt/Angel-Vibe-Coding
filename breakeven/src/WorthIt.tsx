@@ -4,6 +4,7 @@ import { Fold } from "@/components/Fold";
 import { Necessity } from "@/components/Necessity";
 import { Odometer } from "@/components/Odometer";
 import { OPTIONS } from "@/components/options";
+import { Explain } from "@/components/Explain";
 import { PlanFrame, StepHeading, usePlan } from "@/components/PlanFrame";
 import { NumberField, PanelStat, months, percent } from "@/components/ui";
 import { PRODUCT_TEMPLATE, type FreemiumResult, type ProductInputs } from "@/lib/freemium";
@@ -16,6 +17,17 @@ import { formatTokensM, formatUsd } from "@/lib/tco";
 export function WorthIt() {
   const [plan, setPlan] = usePlan("worth-it", startPlan);
   const skip = stepHref("run-it", plan);
+  const narration = (() => {
+    if (plan.mode === "product") {
+      const f = planFreemium(plan);
+      return `Your AI product brings in ${formatUsd(f.revenue)} a month and spends ${formatUsd(f.compute)} on AI compute${f.marginPct === null ? "." : `, a ${Math.round(f.marginPct * 100)}% margin after compute.`}`;
+    }
+    const r = planRoi(plan);
+    const label = plan.templateId ? templateById(plan.templateId).label.toLowerCase() : "this work";
+    return r.savings > 0
+      ? `For ${label}, people alone cost ${formatUsd(r.humanCost)} a month. With AI, including the tasks people still redo, their review time and the compute, it costs ${formatUsd(r.aiCost)}. That saves ${formatUsd(r.savings)} a month${r.paybackMonths === null ? "." : `, and the setup cost pays back in ${months(r.paybackMonths)}.`}`
+      : `For ${label}, AI does not pay off at these numbers: with AI the work costs ${formatUsd(r.aiCost)} a month against ${formatUsd(r.humanCost)} with people alone.`;
+  })();
   return (
     <PlanFrame
       route="worth-it"
@@ -26,7 +38,7 @@ export function WorthIt() {
         </a>
       }
     >
-      <StepHeading route="worth-it">
+      <StepHeading route="worth-it" narration={narration}>
         {plan.mode === "product"
           ? "Unit economics of an AI product: compute cost per free and paid user, gross margin and break-even conversion. The token volume carries into the cost comparison."
           : "Current labour cost against the AI-enabled cost of the same work: net savings, payback and 12-month ROI. The token volume carries into the cost comparison."}
@@ -135,13 +147,16 @@ function RoiStep({
           <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#182536] text-white" : "border border-line bg-surface"}`}>
             {pays ? (
               <>
-                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">Net monthly savings</p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
+                  Net monthly savings
+                  <Explain id="savings" onDark />
+                </p>
                 <p className="mt-2 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
                   <Odometer text={formatUsd(r.savings)} />
                 </p>
                 <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4">
-                  <PanelStat label="Payback">{months(r.paybackMonths!)}</PanelStat>
-                  <PanelStat label="12-month ROI">{r.roi12 === null ? "n/a" : percent(r.roi12)}</PanelStat>
+                  <PanelStat label="Payback" term="payback">{months(r.paybackMonths!)}</PanelStat>
+                  <PanelStat label="12-month ROI" term="roi">{r.roi12 === null ? "n/a" : percent(r.roi12)}</PanelStat>
                   <PanelStat label="Token volume / mo">{formatTokensM(r.tokensM)}</PanelStat>
                 </div>
               </>

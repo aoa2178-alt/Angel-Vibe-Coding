@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Light only, like the design: dark: utilities apply only inside an explicit .dark ancestor, which the app never sets. */
+/* Dark mode: dark: utilities and the dark tokens below apply when <html> has the .dark class (the sun/moon switch, or the system setting). */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
@@ -72,6 +72,29 @@
   --rent-deep: #1b3a66;
   --own-deep: #1b5a43;
   --tint: 10%;
+}
+
+/* Dark mode tokens. Chart colors validated against the dark surface (lightness band, color-blind separation, contrast). */
+html.dark {
+  color-scheme: dark;
+  --bg: #0f151b;
+  --surface: #161e26;
+  --sunken: #1d2731;
+  --line: #2b3742;
+  --ink: #e8edf0;
+  --ink-2: #b9c4cb;
+  --muted: #8d99a3;
+  --brand: #2f7366;
+  --brand-ink: #74c7b5;
+  --brand-soft: #15302b;
+  --panel: #0b1117;
+  --panel-ink: #f5f7f8;
+  --panel-muted: #a9b6bf;
+  --panel-line: #24313d;
+  --series-api: #ad79db;
+  --series-rent: #3567c2;
+  --series-own: #2c9a6e;
+  --tint: 16%;
 }
 
 
@@ -416,4 +439,13 @@ label.rounded-full {
 /* The design's headings are semibold, not extra-bold. */
 .font-extrabold {
   font-weight: 600;
+}
+
+/* "Why this wins" note on the cost comparison. */
+.why-box {
+  background: var(--brand-soft);
+  border-color: var(--brand-ink);
+}
+.why-box > p:first-child {
+  color: var(--brand-ink);
 }

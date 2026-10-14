@@ -1,6 +1,7 @@
 import { ArrowRight, Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Logo, linkClick } from "./Brand";
+import { ThemeToggle } from "./ThemeToggle";
 
 export interface NavItem {
   href: string;
@@ -59,6 +60,7 @@ export function PillBar({
           </nav>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          <ThemeToggle />
           {actions ?? (
             <a
               href="/run-it"

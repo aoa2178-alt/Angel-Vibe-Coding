@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick, navigate } from "./Brand";
 import { OPTIONS } from "./options";
+import { chime, click, tick } from "@/lib/sound";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, cheapest, compare, crossovers, formatTokensM, formatUsd, type OptionId } from "@/lib/tco";
 
 /** Volumes the wheel steps through: 10M to 100B tokens a month, ten steps per decade. */
@@ -9,6 +10,15 @@ const nearest = (m: number) => STEPS.reduce((best, v, i) => (Math.abs(Math.log(v
 const clamp = (i: number) => Math.max(0, Math.min(STEPS.length - 1, i));
 const IDS: OptionId[] = ["api", "rent", "own"];
 const DOT: Record<OptionId, string> = { api: "#a77bdb", rent: "#5b8fd6", own: "#3aa17a" };
+/** Chimes when the cheapest option changes (not on first render). */
+function useWinChime(win: OptionId) {
+  const prev = useRef(win);
+  useEffect(() => {
+    if (prev.current !== win) chime();
+    prev.current = win;
+  }, [win]);
+}
+
 const typing = (e: KeyboardEvent) => e.target instanceof HTMLElement && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName);
 
 /**
@@ -112,12 +122,24 @@ export function CostPod() {
         ? `owning wins for good above about ${formatTokensM(cross.ownFromM)}`
         : "owning stays cheapest from here";
   const open = `/run-it?v=${Math.round(tokensM)}`;
-  const go = () => navigate(open);
+  const go = () => {
+    click();
+    navigate(open);
+  };
+  useWinChime(win);
+  const turn = (d: number) => {
+    tick();
+    setI((x) => clamp(x + d));
+  };
+  const press = (f: () => void) => () => {
+    click();
+    f();
+  };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (typing(e) || e.altKey || e.ctrlKey || e.metaKey) return;
-      if (e.key === "ArrowRight") setI((x) => clamp(x + 1));
-      else if (e.key === "ArrowLeft") setI((x) => clamp(x - 1));
+      if (e.key === "ArrowRight") turn(1);
+      else if (e.key === "ArrowLeft") turn(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -150,14 +172,14 @@ export function CostPod() {
         </p>
       </div>
       <Wheel
-        onTurn={(d) => setI((x) => clamp(x + d))}
+        onTurn={turn}
         onPress={go}
         pressLabel="OPEN"
         labels={{
-          top: ["10M", () => setI(0)],
-          left: ["−", () => setI((x) => clamp(x - 1))],
-          right: ["+", () => setI((x) => clamp(x + 1))],
-          bottom: ["10× ▸", () => setI((x) => clamp(x + 10))],
+          top: ["10M", press(() => setI(0))],
+          left: ["−", () => turn(-1)],
+          right: ["+", () => turn(1)],
+          bottom: ["10× ▸", press(() => setI((x) => clamp(x + 10)))],
         }}
       />
       <a href={open} onClick={linkClick(open)} className="sr-only">
@@ -194,7 +216,15 @@ export function CalcPad({
 }) {
   const win = (IDS as OptionId[]).reduce((a, b) => (costs[b].monthly < costs[a].monthly ? b : a));
   const i = nearest(tokensM);
-  const step = (d: number) => onChange(STEPS[clamp(i + d)]!);
+  const step = (d: number) => {
+    tick();
+    onChange(STEPS[clamp(i + d)]!);
+  };
+  const pick = (m: number) => {
+    click();
+    onChange(m);
+  };
+  useWinChime(win);
   const dial = useRef<HTMLDivElement>(null);
   const last = useRef<number | null>(null);
   const angle = (e: React.PointerEvent) => {
@@ -227,7 +257,7 @@ export function CalcPad({
       </div>
       <div className="mt-3.5 grid grid-cols-3 gap-2" role="group" aria-label="Presets">
         {presets.map((p) => (
-          <button key={p.id} type="button" onClick={() => onChange(p.tokensM)} aria-pressed={on(p.tokensM)} className={`${key} ${tone(p.tokensM)}`}>
+          <button key={p.id} type="button" onClick={() => pick(p.tokensM)} aria-pressed={on(p.tokensM)} className={`${key} ${tone(p.tokensM)}`}>
             {p.label}
             <span className="block text-[10px] font-normal opacity-75">{formatTokensM(p.tokensM)}</span>
           </button>
@@ -235,7 +265,7 @@ export function CalcPad({
       </div>
       <div className="mt-2 grid grid-cols-4 gap-2" role="group" aria-label="Round volumes">
         {[10, 1_000, 10_000, 100_000].map((m) => (
-          <button key={m} type="button" onClick={() => onChange(m)} aria-pressed={on(m)} className={`${key} ${tone(m)}`}>
+          <button key={m} type="button" onClick={() => pick(m)} aria-pressed={on(m)} className={`${key} ${tone(m)}`}>
             {formatTokensM(m)}
           </button>
         ))}

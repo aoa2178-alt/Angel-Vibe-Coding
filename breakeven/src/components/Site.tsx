@@ -1,6 +1,7 @@
 import { ArrowRight, Menu, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Logo, linkClick } from "./Brand";
+import { SoundToggle } from "./SoundToggle";
 import { ThemeToggle } from "./ThemeToggle";
 
 export interface NavItem {
@@ -60,6 +61,7 @@ export function PillBar({
           </nav>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          <SoundToggle className="max-sm:hidden" />
           <ThemeToggle />
           {actions ?? (
             <a

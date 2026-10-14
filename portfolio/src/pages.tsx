@@ -22,27 +22,27 @@ const experience = [
   {
     organization: "Majestic Labs AI",
     period: "2026",
-    detailPeriod: "Jul—Aug",
+    detailPeriod: "Jul to Aug",
     role: "MBA Operations Intern",
     context: "Los Altos · AI infrastructure",
   },
   {
     organization: "TOPPAN Security",
     period: "2026",
-    detailPeriod: "Jan—May",
+    detailPeriod: "Jan to May",
     role: "MBA Strategy Consultant",
     context: "Paris · Digital identity",
   },
   {
     organization: "Deloitte",
-    period: "2021—",
+    period: "2021 to",
     detailPeriod: "2025",
     role: "Senior Consultant",
     context: "Lagos · Multi-sector consulting",
   },
   {
     organization: "KPMG",
-    period: "2019—",
+    period: "2019 to",
     detailPeriod: "2021",
     role: "Consultant",
     context: "Lagos · Financial services",
@@ -444,10 +444,10 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
             <h2 id="ai-builds-heading">AI Builds</h2>
             <div className="portfolio-intro">
               <p>
-                Ten working products: eight that turn dense questions across AI
-                infrastructure, strategy, operations, and supply chains into
-                clear, practical decisions, a leadership simulator, and a
-                consumer app for learning a city.
+                Ten working products across AI infrastructure, strategy and
+                operations, plus a leadership simulator and a city-learning app.
+                Breakeven, the AI economics tool, won the Biggest Swing Award at
+                CBS Demo Day.
               </p>
               <a href="#ai-builds-grid">Explore all ten below ↓</a>
             </div>
@@ -465,14 +465,18 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 <span>01 / AI economics</span>
                 <span className="live-status">Live</span>
               </div>
+              <p className="ai-build-card__award">
+                <span aria-hidden="true">🏆</span> Biggest Swing Award · CBS Demo Day
+                <span className="ai-build-card__award-note">1 of 6 awards, 74 students</span>
+              </p>
               <h3>
                 <a className="ai-build-card__link" href="https://breakeven-silk.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Breakeven — </span>
+                  <span className="sr-only">Breakeven: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
               <p>
-                Decides whether to pay per token, rent GPUs, or own them—and
+                Decides whether to pay per token, rent GPUs, or own them, and
                 whether an AI use case pays off.
               </p>
               <TagPills id="breakeven" />
@@ -491,7 +495,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://loadline-weld.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Loadline — </span>
+                  <span className="sr-only">Loadline: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -515,7 +519,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://throughline-gilt.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Throughline — </span>
+                  <span className="sr-only">Throughline: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -539,7 +543,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://keel-one-rho.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Keel — </span>
+                  <span className="sr-only">Keel: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -563,7 +567,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://tender-six-iota.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Tender — </span>
+                  <span className="sr-only">Tender: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -587,7 +591,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://buildout-three.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Buildout — </span>
+                  <span className="sr-only">Buildout: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -611,7 +615,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://where-ai-lives.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Where AI Lives — </span>
+                  <span className="sr-only">Where AI Lives: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -635,7 +639,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://signal-zeta-five.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Signal — </span>
+                  <span className="sr-only">Signal: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -659,7 +663,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://ops-room-phi.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">The Ops Room — </span>
+                  <span className="sr-only">The Ops Room: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -683,7 +687,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               </div>
               <h3>
                 <a className="ai-build-card__link" href="https://walkinhere.vercel.app" target="_blank" rel="noreferrer">
-                  <span className="sr-only">Walkin' Here! — </span>
+                  <span className="sr-only">Walkin' Here!: </span>
                   Explore <span aria-hidden="true">↗</span>
                 </a>
               </h3>
@@ -892,7 +896,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
               <div className="education-tiles">
                 <article className="education-tile education-tile--haas">
                   <div className="education-tile__meta">
-                    <span>2025—2027</span>
+                    <span>2025 to 2027</span>
                     <span>Berkeley · California</span>
                   </div>
                   <h3>UC Berkeley Haas</h3>

@@ -753,6 +753,25 @@ blockquote {
   transition: transform 250ms ease;
 }
 
+/* The award on the Breakeven card. */
+.ai-build-card__award {
+  margin: 0.45rem 0 0;
+  width: fit-content;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #e3c766;
+  border-radius: 0.5rem;
+  background: #fff6d8;
+  color: #4d3b00;
+  font: 600 0.62rem/1.35 "DM Mono", monospace;
+  letter-spacing: 0.02em;
+}
+
+.ai-build-card__award-note {
+  display: block;
+  font-weight: 500;
+  color: #6b5a1f;
+}
+
 .live-status {
   color: var(--accent) !important;
 }

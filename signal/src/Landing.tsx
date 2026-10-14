@@ -64,7 +64,7 @@ export function Landing() {
           <div className="relative z-10 mx-auto max-w-[1320px] px-4 pt-12 text-center sm:px-8 sm:pt-16">
             <p className="kicker !text-[#a9c9cd]">Connecting the offline</p>
             <h1 className="mx-auto mt-4 max-w-3xl text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.045em] text-balance sm:text-6xl">
-              Who is <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">offline</span>, and why?
+              Who is offline, and why?
             </h1>
           </div>
           <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex max-w-[1320px] flex-wrap items-end justify-between gap-5 px-4 pb-6 sm:px-8">

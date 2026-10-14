@@ -99,7 +99,7 @@ export function Landing() {
             <div className="max-w-[520px]">
               <p className="kicker">Monthly business review</p>
               <h1 className="mt-4 text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.045em] sm:text-6xl">
-                Are we on plan, and <span className="whitespace-nowrap underline decoration-accent decoration-[5px] underline-offset-[10px]">why not</span>?
+                Are we on plan, and <span className="whitespace-nowrap">why not</span>?
               </h1>
               <p className="mt-5 text-lg leading-8 text-ink-2">Variance by driver, a re-forecast, and what to fund to close the gap.</p>
               <div className="mt-6 flex flex-wrap items-center gap-3">

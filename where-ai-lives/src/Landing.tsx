@@ -44,7 +44,7 @@ export function Landing() {
           <>
             <p className="kicker">AI data centers and the grid</p>
             <h1 className="mt-4 text-[2.6rem] leading-[1] tracking-[-0.035em] sm:text-[4.2rem]">
-              Where is AI being <span className="underline decoration-accent decoration-[5px] underline-offset-[10px]">built</span>?
+              Where is AI being built?
             </h1>
             <div className="pointer-events-auto mt-6 flex flex-wrap items-center gap-5">
               <a href={start} onClick={linkClick(start)} className="inline-flex items-center gap-2 rounded-[6px] bg-brand px-5 py-3 font-semibold text-on-brand transition hover:opacity-90">

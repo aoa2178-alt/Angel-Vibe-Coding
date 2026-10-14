@@ -44,7 +44,7 @@ export function Landing() {
           <div>
             <p className="kicker">Sourcing for an AI data hall</p>
             <h1 className="mt-4 text-[3rem] leading-[1] tracking-[-0.03em] sm:text-[5.5rem]">
-              What <em className="underline decoration-accent decoration-[5px] underline-offset-[10px]">should</em> this cost?
+              What <em>should</em> this cost?
             </h1>
             <p className="mt-6 max-w-md text-lg leading-8 text-ink-2">Should-cost from public commodity prices, bids compared on total cost, and a target price to negotiate to.</p>
             <div className="mt-7 flex flex-wrap items-center gap-5">

@@ -56,7 +56,7 @@ export function Landing() {
             <div className="max-w-xl">
               <p className="kicker">AI campus delivery</p>
               <h1 className="mt-3 text-[2.4rem] font-bold leading-[1.04] tracking-[-0.04em] sm:text-6xl">
-                Can this campus go live <span className="whitespace-nowrap underline decoration-brand decoration-[5px] underline-offset-[10px]">on time</span>?
+                Can this campus go live <span className="whitespace-nowrap">on time</span>?
               </h1>
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <CampusSelect value={id} onChange={setId} className="w-80 max-w-full" />

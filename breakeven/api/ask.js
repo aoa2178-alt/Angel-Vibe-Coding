@@ -1,6 +1,7 @@
 // POST /api/ask: answers a visitor's question about Breakeven with Claude.
 // The API key lives only in Vercel's environment (ANTHROPIC_API_KEY). Limits here are a soft guard against misuse;
 // the hard limit is the monthly spending cap set in the Anthropic console.
+import Anthropic from "@anthropic-ai/sdk";
 import { KNOWLEDGE } from "./_knowledge.js";
 
 const MODEL = "claude-haiku-5-5";
@@ -62,7 +63,9 @@ export function buildRequest({ question, context, history }) {
     messages.push({ role: "assistant", content: t.a });
   });
   messages.push({ role: "user", content: !history.length && context ? `<scenario>\n${context}\n</scenario>\n\n${question}` : question });
-  return { model: MODEL, max_tokens: 400, system: SYSTEM, messages };
+  // Haiku 5.5 thinks by default, and on "why" questions the thinking used up the token limit before any answer was
+  // written. These are short answers from a supplied reference, so thinking is off (allowed at effort high or below).
+  return { model: MODEL, max_tokens: 1024, thinking: { type: "disabled" }, output_config: { effort: "low" }, system: SYSTEM, messages };
 }
 
 export async function POST(request) {
@@ -85,20 +88,14 @@ export async function POST(request) {
   if (!allow(ip)) return json({ error: "limit" }, 429);
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify(buildRequest(parsed)),
-      signal: AbortSignal.timeout(18_000),
-    });
-    if (!res.ok) {
-      console.error("anthropic", res.status);
-      return json({ error: "unavailable" }, 502);
-    }
-    const data = await res.json();
-    const answer = (data.content ?? []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
+    const client = new Anthropic({ apiKey: key, maxRetries: 1, timeout: 18_000 });
+    const message = await client.messages.create(buildRequest(parsed));
+    if (message.stop_reason === "refusal") return json({ error: "unavailable" }, 502);
+    const answer = message.content.filter((b) => b.type === "text").map((b) => b.text).join("").trim();
     return answer ? json({ answer }) : json({ error: "unavailable" }, 502);
-  } catch {
+  } catch (error) {
+    if (error instanceof Anthropic.APIError) console.error("anthropic", error.status, error.message);
+    else console.error("ask failed", error instanceof Error ? error.name : "unknown");
     return json({ error: "unavailable" }, 502);
   }
 }

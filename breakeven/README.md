@@ -19,6 +19,7 @@ Then:
 - **Recommendation** (`/result`): the call first, then value against today, what would change it, a 30/60/90 plan and risks. It's printable, and **Generate Decision Report** opens a detailed report (`/report`): costs, crossovers, a growth outlook, the business case, the necessity test, what would change the call, and a 30/60/90 plan, ready to print or save as PDF. The report's link reopens it.
 - **Sources** (`/sources`): range, reasoning, source and confidence for every default, plus price history.
 - **FAQ** (`/faq`).
+- **Questions?** A button on every page searches the FAQ and, for anything else, opens an email to Angel with the scenario link included.
 
 Old links (`/calculator`, `/business-case`, `/speed-to-power`, `/methodology`) still work.
 

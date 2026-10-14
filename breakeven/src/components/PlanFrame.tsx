@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Check, Link2, Menu, RotateCcw, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { linkClick } from "./Brand";
+import { HelpDesk } from "./HelpDesk";
 import { OPTIONS } from "./options";
 import { PillBar, SiteFooter } from "./Site";
 import { needsPowerPlanning } from "@/lib/call";
@@ -297,6 +298,7 @@ export function PlanFrame({
       <div className="print:hidden">
         <SiteFooter />
       </div>
+      <HelpDesk />
     </div>
   );
 }

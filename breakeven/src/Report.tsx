@@ -2,6 +2,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { OPTIONS } from "@/components/options";
+import { HelpDesk } from "@/components/HelpDesk";
 import { buildPayload, buildResults, readReportForm } from "@/lib/decisionReport";
 import { readPlan, stepHref } from "@/lib/plan";
 import type { OptionId } from "@/lib/tco";
@@ -377,6 +378,7 @@ export function Report() {
       <p className="mt-6 text-xs text-ink-2">
         Figures come from Breakeven's model with illustrative October 2026 defaults; every assumption can be changed in the app. This report's link reopens it with the same numbers.
       </p>
+      <HelpDesk />
     </main>
   );
 }

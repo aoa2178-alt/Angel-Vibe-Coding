@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { CostPod, PAGES } from "@/components/Handheld";
 import { PillBar, SiteFooter } from "@/components/Site";
+import { HelpDesk } from "@/components/HelpDesk";
 
 const NAV = [
   { href: "#how", label: "Approach" },
@@ -96,6 +97,7 @@ export function Landing() {
       </main>
 
       <SiteFooter />
+      <HelpDesk />
     </div>
   );
 }

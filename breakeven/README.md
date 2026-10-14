@@ -55,8 +55,8 @@ The weekly price watcher (`agents/price-watcher.md`) proposes new price points o
 
 ## Data and privacy
 
-- Static site on Vercel: no accounts, no database, no API keys in the browser.
-- Nothing is sent anywhere: every page, including the decision report, is built in your browser.
+- Vercel site with one server function (`api/ask.js`) for Ask Claude: no accounts, no database, no API keys in the browser.
+- Calculations and the decision report run in your browser. Only a question typed into the Questions panel (with a short summary of the scenario on screen) is sent, to Claude, to answer. Set `ANTHROPIC_API_KEY` in Vercel to turn it on; without it the panel falls back to the built-in answers.
 - Security review: see [SECURITY.md](SECURITY.md).
 
 The defaults are illustrative (October 2026), and every one can be edited. "Rent" and "Own" mean running an open-weight model yourself, because frontier models like Claude and GPT are API-only.

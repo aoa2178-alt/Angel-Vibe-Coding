@@ -52,4 +52,4 @@ At these defaults the API is cheapest below about 460M tokens a month, renting i
 ## Notes for agents
 
 - Figures are estimates for planning, not provider quotes. "Rent" and "Own" assume running a comparable open-weight model; frontier models such as Claude and GPT are API-only.
-- Breakeven sends no data anywhere and has no accounts.
+- Breakeven has no accounts and stores nothing. The calculations run in the browser; the only data sent anywhere is a question typed into the "Questions?" panel, which goes with a summary of the scenario on screen to Claude (Anthropic) to answer.

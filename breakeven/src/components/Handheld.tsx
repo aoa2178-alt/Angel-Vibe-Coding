@@ -201,12 +201,12 @@ export function CalcPad({
     const r = dial.current!.getBoundingClientRect();
     return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2));
   };
-  const key = "rounded-[10px] px-1 py-2.5 font-mono text-[12px] font-semibold leading-tight shadow-[0_3px_0_#121b26] transition active:translate-y-px";
+  const key = "rounded-[10px] px-1 py-2.5 font-mono text-[12px] font-semibold leading-tight shadow-[0_3px_0_#121b26] transition active:translate-y-px dark:shadow-[0_3px_0_#b9c3c9]";
   const on = (m: number) => Math.abs(Math.log(m / tokensM)) < 0.01;
-  const tone = (m: number) => (on(m) ? "bg-[#2f7366] text-white" : "bg-[#2c3d52] text-[#e7eef2] hover:bg-[#34485f]");
+  const tone = (m: number) => (on(m) ? "bg-[#2f7366] text-white" : "bg-[#2c3d52] text-[#e7eef2] hover:bg-[#34485f] dark:bg-white dark:text-[#1d2a3a] dark:hover:bg-[#f1f4f6]");
 
   return (
-    <div className="rounded-[22px] bg-[#1d2a3a] p-4 shadow-[0_18px_40px_rgb(23_32_39/0.22),inset_0_2px_0_#2c3d52]">
+    <div className="rounded-[22px] bg-[#1d2a3a] p-4 shadow-[0_18px_40px_rgb(23_32_39/0.22),inset_0_2px_0_#2c3d52] dark:bg-[linear-gradient(160deg,#f4f6f7,#dfe4e7)] dark:shadow-[0_18px_40px_rgb(0_0_0/0.45),inset_0_2px_0_#fff]">
       <div className="rounded-lg bg-[#c9d7cf] px-3 py-2.5 font-mono text-[#1d2a26] shadow-[inset_0_2px_6px_rgb(0_0_0/0.25)]" aria-live="polite">
         <div className="flex justify-between text-[10px] tracking-[0.06em]">
           <span>TOKENS / MONTH</span>
@@ -241,7 +241,7 @@ export function CalcPad({
         ))}
       </div>
       <div className="mt-3.5 flex items-center justify-center gap-4">
-        <button type="button" onClick={() => step(-1)} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white" aria-label="Lower volume">
+        <button type="button" onClick={() => step(-1)} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white dark:text-[#4b5a66] dark:hover:text-[#1d2a3a]" aria-label="Lower volume">
           −
         </button>
         <div
@@ -273,11 +273,11 @@ export function CalcPad({
           }}
           onPointerUp={() => (last.current = null)}
           onPointerCancel={() => (last.current = null)}
-          className="relative size-[64px] cursor-grab touch-none rounded-[999px] bg-[radial-gradient(circle_at_40%_35%,#46586e,#22303f)] shadow-[0_4px_0_#121b26] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#79aa9f] active:cursor-grabbing"
+          className="relative size-[64px] cursor-grab touch-none rounded-[999px] bg-[radial-gradient(circle_at_40%_35%,#46586e,#22303f)] shadow-[0_4px_0_#121b26] dark:bg-[radial-gradient(circle_at_40%_35%,#ffffff,#d5dce1)] dark:shadow-[0_4px_0_#b9c3c9] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#79aa9f] active:cursor-grabbing"
         >
           <i className="absolute left-1/2 top-1.5 block h-3.5 w-[3px] rounded-sm bg-[#79aa9f]" style={{ transformOrigin: "50% 26px", transform: `translateX(-50%) rotate(${(i / (STEPS.length - 1)) * 300 - 150}deg)` }} />
         </div>
-        <button type="button" onClick={() => step(1)} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white" aria-label="Higher volume">
+        <button type="button" onClick={() => step(1)} className="px-2 font-mono text-sm text-[#a9b6bf] hover:text-white dark:text-[#4b5a66] dark:hover:text-[#1d2a3a]" aria-label="Higher volume">
           +
         </button>
       </div>

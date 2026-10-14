@@ -1,10 +1,9 @@
 import { ArrowRight } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { CostPod, PAGES } from "@/components/Handheld";
 import { PillBar, SiteFooter } from "@/components/Site";
 import { HelpDesk } from "@/components/HelpDesk";
-import type { OptionId } from "@/lib/tco";
 
 const NAV = [
   { href: "#how", label: "Approach" },
@@ -26,15 +25,6 @@ const Kbd = ({ children }: { children: ReactNode }) => (
 );
 
 export function Landing() {
-  // The underline follows the gadget: whichever way of running AI is cheapest at its volume.
-  const [winner, setWinner] = useState<OptionId>("rent");
-  const mark = (id: OptionId, text: string) => (
-    <span
-      className={`underline decoration-4 underline-offset-[7px] transition-[text-decoration-color] duration-500 ${winner === id ? "decoration-[#79aa9f]" : "decoration-transparent"}`}
-    >
-      {text}
-    </span>
-  );
   return (
     <div className="min-h-dvh bg-bg">
       <PillBar
@@ -56,7 +46,7 @@ export function Landing() {
           <div>
             <p className="kicker">Compute economics, made explicit.</p>
             <h1 className="mt-4 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-[5.4rem]">
-              Run your AI on {mark("api", "an API")}, {mark("rent", "cloud GPUs")}, or {mark("own", "your own hardware")}?
+              Run your AI on an API, cloud GPUs, or your own hardware?
             </h1>
             <p className="mt-6 max-w-[620px] text-lg leading-7 text-muted">See what each option costs at your volume, and the point where the answer changes.</p>
             <div className="mt-7 flex flex-wrap items-center gap-6">
@@ -74,7 +64,7 @@ export function Landing() {
               <span>Default assumptions · no sign-up required</span>
             </p>
           </div>
-          <CostPod onWinner={setWinner} />
+          <CostPod />
         </section>
 
         {/* Approach: three analyses and the recommendation. */}

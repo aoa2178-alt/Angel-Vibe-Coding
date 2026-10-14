@@ -447,7 +447,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 Ten working products across AI infrastructure, strategy and
                 operations, plus a leadership simulator and a city-learning app.
                 Breakeven, the AI economics tool, won the Biggest Swing Award at
-                CBS Demo Day.
+                CBS Vibe Coding Demo Day.
               </p>
               <a href="#ai-builds-grid">Explore all ten below ↓</a>
             </div>
@@ -466,7 +466,7 @@ function SitePage({ view, slug }: { view: "home" | "blog" | "essay"; slug?: stri
                 <span className="live-status">Live</span>
               </div>
               <p className="ai-build-card__award">
-                <span aria-hidden="true">🏆</span> Biggest Swing Award · CBS Demo Day
+                <span aria-hidden="true">🏆</span> Biggest Swing Award · CBS Vibe Coding Demo Day
                 <span className="ai-build-card__award-note">1 of 6 awards, 74 students</span>
               </p>
               <h3>

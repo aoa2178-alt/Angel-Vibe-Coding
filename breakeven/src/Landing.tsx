@@ -70,7 +70,7 @@ export function Landing() {
 
         {/* The narrated explainer video. Loads only when played. */}
         <section id="overview" className="scroll-mt-20 border-t border-line">
-          <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-4 py-20 sm:px-8 sm:py-24 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="mx-auto grid max-w-[1320px] items-center gap-10 px-4 py-20 sm:px-8 sm:py-24 lg:grid-cols-[1fr_auto]">
             <div>
               <p className="kicker">Overview</p>
               <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Breakeven in 95 seconds.</h2>
@@ -79,7 +79,7 @@ export function Landing() {
               </p>
             </div>
             <video
-              className="aspect-video w-full rounded-[10px] border border-line bg-surface"
+              className="aspect-video w-full rounded-[10px] border border-line bg-surface max-w-[560px] lg:w-[560px]"
               src="/video/explainer.webm"
               poster="/video/explainer-poster.jpg"
               controls

@@ -96,11 +96,12 @@ const screen = "rounded-xl bg-[#182536] px-3.5 pb-3 pt-3.5 text-[13px] text-[#e9
  * shows the three monthly costs at the default assumptions, with the cheapest lit; the centre button opens the cost
  * comparison at that volume.
  */
-export function CostPod() {
+export function CostPod({ onWinner }: { onWinner?: (id: OptionId) => void }) {
   const [i, setI] = useState(nearest(DEFAULT_WORKLOAD.tokensM));
   const tokensM = STEPS[i]!;
   const costs = compare({ ...DEFAULT_WORKLOAD, tokensM }, DEFAULT_ASSUMPTIONS);
   const win = cheapest(costs);
+  useEffect(() => onWinner?.(win), [win, onWinner]);
   const max = Math.max(...IDS.map((id) => costs[id].monthly));
   const cross = crossovers(DEFAULT_WORKLOAD, DEFAULT_ASSUMPTIONS);
   const next =

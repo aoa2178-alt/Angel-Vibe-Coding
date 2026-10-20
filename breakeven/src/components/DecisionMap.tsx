@@ -29,9 +29,9 @@ const range = (from: number, to: number, n: number) => Array.from({ length: n + 
 function drivers(i: RoiInputs): Driver[] {
   const setupMax = Math.max(1_000_000, i.setupCost * 4);
   return [
-    { id: "resolution", label: "AI resolution rate", values: range(0, 1, 100), now: (x) => x.aiSuccess, apply: (x, a, v) => [{ ...x, aiSuccess: v }, a], format: pct },
-    { id: "review", label: "Review time", values: range(0, 10, 80), now: (x) => x.reviewMinutes, apply: (x, a, v) => [{ ...x, reviewMinutes: v }, a], format: (v) => `${Math.round(v * 4) / 4} min` },
-    { id: "setup", label: "Implementation cost", values: range(0, setupMax, 80), now: (x) => x.setupCost, apply: (x, a, v) => [{ ...x, setupCost: v }, a], format: formatMoney },
+    { id: "resolution", label: "Share AI handles", values: range(0, 1, 100), now: (x) => x.aiSuccess, apply: (x, a, v) => [{ ...x, aiSuccess: v }, a], format: pct },
+    { id: "review", label: "Review minutes", values: range(0, 10, 80), now: (x) => x.reviewMinutes, apply: (x, a, v) => [{ ...x, reviewMinutes: v }, a], format: (v) => `${Math.round(v * 4) / 4} min` },
+    { id: "setup", label: "Setup cost", values: range(0, setupMax, 80), now: (x) => x.setupCost, apply: (x, a, v) => [{ ...x, setupCost: v }, a], format: formatMoney },
     { id: "rules", label: "Rules coverage", values: range(0, 1, 100), now: (_, a) => a.rulesCoverage, apply: (x, a, v) => [x, { ...a, rulesCoverage: v }], format: pct },
   ];
 }

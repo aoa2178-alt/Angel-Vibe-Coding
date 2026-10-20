@@ -184,8 +184,8 @@ export function necessity(inputs: RoiInputs, alt: Alternatives, a: Assumptions, 
   const t = templateById(templateId ?? "support").inputs;
   const altBase = altDefaults(templateId);
   const missing: { label: string; how: string }[] = [];
-  if (inputs.aiSuccess === t.aiSuccess) missing.push({ label: "AI resolution rate", how: "measure in a pilot" });
-  if (inputs.reviewMinutes === t.reviewMinutes) missing.push({ label: "Review time", how: "time reviewers in the pilot" });
+  if (inputs.aiSuccess === t.aiSuccess) missing.push({ label: "Share AI handles on its own", how: "measure in a pilot" });
+  if (inputs.reviewMinutes === t.reviewMinutes) missing.push({ label: "Review minutes per AI task", how: "time reviewers in the pilot" });
   if (alt.rulesCoverage === altBase.rulesCoverage && alt.rulesCoverage > 0) missing.push({ label: "Rules coverage", how: "test on last month's tasks" });
   if (alt.cashShare === altBase.cashShare) missing.push({ label: "Cash share", how: "agree with finance" });
 

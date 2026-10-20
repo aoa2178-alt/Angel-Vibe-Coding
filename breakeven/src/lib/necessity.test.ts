@@ -70,8 +70,8 @@ describe("necessity test", () => {
 
   it("lists only the evidence still at template defaults", () => {
     const labels = (r: ReturnType<typeof run>) => r.missing.map((m) => m.label);
-    expect(labels(run())).toContain("AI resolution rate");
-    expect(labels(run({ ...support, aiSuccess: 0.7 }))).not.toContain("AI resolution rate");
+    expect(labels(run())).toContain("Share AI handles on its own");
+    expect(labels(run({ ...support, aiSuccess: 0.7 }))).not.toContain("Share AI handles on its own");
     expect(labels(run(support, { ...altDefaults("support"), cashShare: 0.3 }))).not.toContain("Cash share");
   });
 

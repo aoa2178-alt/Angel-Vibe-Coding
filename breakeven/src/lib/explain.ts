@@ -1,6 +1,6 @@
 // Plain-English explanations for the cost comparison: what a volume means, why the cheapest option wins, and the volume
 // ranges where each option is cheapest. Pure functions, so the wording always matches the model's numbers.
-import { HOURS_PER_MONTH, VOLUME_MAX_M, VOLUME_MIN_M, cheapest, compare, formatTokensM, formatUsd, type Assumptions, type OptionCost, type OptionId, type Workload } from "./tco";
+import { HOURS_PER_MONTH, VOLUME_MAX_M, VOLUME_MIN_M, cheapest, compare, formatTokensM, formatUsd, ownCostParts, type Assumptions, type OptionCost, type OptionId, type Workload } from "./tco";
 
 const NAMES: Record<OptionId, string> = { api: "the API", rent: "renting", own: "owning" };
 
@@ -46,6 +46,35 @@ export function whyShort(workload: Workload, costs: Record<OptionId, OptionCost>
   if (win === "rent")
     return `${rentGpus === 1 ? "One rented GPU covers" : `${rentGpus} rented GPUs cover`} ${v} tokens a month: ${rent}, versus ${api} on the API and ${own} to own.`;
   return `${v} tokens a month keeps ${ownGpus} GPUs busy, so owning them costs ${own}, versus ${rent} to rent and ${api} on the API.`;
+}
+
+/** How each option's monthly cost is built, as short lines for the cost bars' hover card. */
+export function costLines(workload: Workload, assumptions: Assumptions, costs: Record<OptionId, OptionCost>): Record<OptionId, string[]> {
+  const a = assumptions;
+  const out = workload.outputShare;
+  const blended = (1 - out) * a.apiInputPerM + out * a.apiOutputPerM;
+  const hours = HOURS_PER_MONTH;
+  const rentGpus = costs.rent.gpus ?? 0;
+  const ownGpus = costs.own.gpus ?? 0;
+  const overflow = costs.own.overflowGpus ?? 0;
+  const p = ownCostParts(a);
+  const perGpu = p.hardware + p.support + p.electricity + p.colocation;
+  const own = [
+    `${gpuWord(ownGpus)} (whole ${Math.round(a.gpusPerServer)}-GPU servers) × ${formatUsd(perGpu)} a month = ${formatUsd(ownGpus * perGpu)}`,
+    `Per GPU: hardware ${formatUsd(p.hardware)} + support ${formatUsd(p.support)} + power ${formatUsd(p.electricity)} + space ${formatUsd(p.colocation)}`,
+  ];
+  if (overflow > 0) own.push(`Plus ${gpuWord(overflow)} rented past the power budget: ${formatUsd(overflow * hours * a.rentPerGpuHour)}`);
+  return {
+    api: [
+      `${Math.round(workload.tokensM).toLocaleString("en-US")}M tokens × ${formatUsd(blended, 2)} per M = ${formatUsd(costs.api.monthly)}`,
+      `${formatUsd(blended, 2)} per M: ${Math.round((1 - out) * 100)}% read at ${formatUsd(a.apiInputPerM, 2)}, ${Math.round(out * 100)}% written at ${formatUsd(a.apiOutputPerM, 2)}`,
+    ],
+    rent: [
+      `${gpuWord(rentGpus)} × ${hours} hours × ${formatUsd(a.rentPerGpuHour, 2)} an hour = ${formatUsd(costs.rent.monthly)}`,
+      `Enough GPUs to serve the load at ${Math.round(workload.utilization * 100)}% busy`,
+    ],
+    own,
+  };
 }
 
 export interface FlipSegment {

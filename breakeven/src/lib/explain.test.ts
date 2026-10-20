@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { flipSegments, volumeInWords, volumePosition, whyShort, whyThisWins } from "./explain";
+import { costLines, flipSegments, volumeInWords, volumePosition, whyShort, whyThisWins } from "./explain";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, compare, crossovers } from "./tco";
 
 const at = (tokensM: number) => ({ ...DEFAULT_WORKLOAD, tokensM });
@@ -50,5 +50,15 @@ describe("whyShort", () => {
     expect(whyShort(at(2_000), compare(at(2_000), DEFAULT_ASSUMPTIONS))).toBe("One rented GPU covers 2B tokens a month: $1,825, versus $8,000 on the API and $11,182 to own.");
     expect(whyShort(at(200), compare(at(200), DEFAULT_ASSUMPTIONS))).toMatch(/^200M tokens a month won't keep a GPU busy: the API costs \$800/);
     expect(whyShort(at(30_000), compare(at(30_000), DEFAULT_ASSUMPTIONS))).toMatch(/so owning them costs/);
+  });
+});
+
+describe("costLines", () => {
+  it("shows the arithmetic behind each bar, matching the model", () => {
+    const w = { ...DEFAULT_WORKLOAD, tokensM: 2_000 };
+    const l = costLines(w, DEFAULT_ASSUMPTIONS, compare(w, DEFAULT_ASSUMPTIONS));
+    expect(l.api[0]).toBe("2,000M tokens × $4.00 per M = $8,000");
+    expect(l.rent[0]).toBe("1 GPU × 730 hours × $2.50 an hour = $1,825");
+    expect(l.own[0]).toBe("8 GPUs (whole 8-GPU servers) × $1,398 a month = $11,182");
   });
 });

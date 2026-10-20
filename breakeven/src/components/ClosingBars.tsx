@@ -20,10 +20,13 @@ export function ClosingBars({
   costs,
   winner,
   meta,
+  lines,
 }: {
   costs: Record<OptionId, OptionCost>;
   winner: OptionId;
   meta: Record<OptionId, OptionMeta>;
+  /** Optional: how each cost is built, shown when a bar is hovered or tapped */
+  lines?: Record<OptionId, string[]>;
 }) {
   const [hover, setHover] = useState<OptionId | null>(null);
   const max = Math.max(...ORDER.map((id) => costs[id].monthly)) || 1;
@@ -34,7 +37,7 @@ export function ClosingBars({
     <figure className="win-tint rounded-2xl border p-5 sm:p-6">
       <figcaption className="flex items-baseline justify-between gap-3">
         <span className="text-sm font-semibold">Monthly cost by option</span>
-        <span className="kicker">Gap to lowest cost</span>
+        <span className="kicker">{lines ? "Hover or tap a bar for the math" : "Gap to lowest cost"}</span>
       </figcaption>
 
       <div className="mt-5 space-y-4">
@@ -120,9 +123,19 @@ export function ClosingBars({
               </div>
 
               {hover === id && (
-                <div role="tooltip" className="absolute -top-2 right-0 z-10 max-w-72 -translate-y-full rounded-lg bg-panel px-3 py-2 text-xs text-panel-ink">
+                <div role="tooltip" className={`absolute -top-2 right-0 z-10 -translate-y-full rounded-lg bg-panel px-3 py-2 text-xs text-panel-ink ${lines ? "w-[min(340px,100%)]" : "max-w-72"}`}>
                   <span className="font-semibold">{meta[id].name}</span>
-                  {meta[id].note && <span className="block text-panel-muted">{meta[id].note}</span>}
+                  {lines ? (
+                    <span className="mt-1 block space-y-0.5 font-mono text-[11px] leading-4">
+                      {lines[id].map((l) => (
+                        <span key={l} className="block">
+                          {l}
+                        </span>
+                      ))}
+                    </span>
+                  ) : (
+                    meta[id].note && <span className="block text-panel-muted">{meta[id].note}</span>
+                  )}
                 </div>
               )}
             </div>

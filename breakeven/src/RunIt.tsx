@@ -14,7 +14,7 @@ import { Ownership } from "@/components/Ownership";
 import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
 import { Scorecard } from "@/components/Scorecard";
 import { Sensitivity } from "@/components/Sensitivity";
-import { volumeInWords, whyShort, whyThisWins } from "@/lib/explain";
+import { costLines, volumeInWords, whyShort, whyThisWins } from "@/lib/explain";
 import type { TermId } from "@/lib/glossary";
 import { planQuery, stepHref } from "@/lib/plan";
 import { isStale, latest, withLatest } from "@/lib/prices";
@@ -292,7 +292,7 @@ export function RunIt() {
               <p className="mt-1 text-ink">{whyShort(workload, costs)}</p>
             </div>
 
-            <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
+            <ClosingBars costs={costs} winner={winner} meta={OPTIONS} lines={costLines(workload, assumptions, costs)} />
 
             <FlipStrip workload={workload} assumptions={assumptions} sentence={`${describeCrossovers(cross)} ${describePower(workload, assumptions)}`.trim()} />
 

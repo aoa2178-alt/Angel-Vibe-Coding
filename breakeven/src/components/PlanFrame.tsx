@@ -44,7 +44,7 @@ function StepMenu({ route, plan }: { route: PageRoute; plan: Plan }) {
     { href: `/faq${planQuery(plan)}`, label: "FAQ", short: "FAQ", current: route === "faq" },
   ];
   return (
-    <div ref={box} className="relative lg:hidden">
+    <div ref={box} className="relative xl:hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -81,7 +81,7 @@ function StepTracker({ route, plan, compact = false }: { route: PageRoute; plan:
   const sources = `/sources${planQuery(plan)}`;
   const faq = `/faq${planQuery(plan)}`;
   return (
-    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-5 self-stretch lg:flex xl:gap-7"}>
+    <nav aria-label="Steps" className={compact ? "flex items-center gap-1 overflow-x-auto" : "hidden items-center gap-5 self-stretch xl:flex"}>
       {STEPS.map((s, i) => {
         const href = stepHref(s.route, plan);
         const current = s.route === route;

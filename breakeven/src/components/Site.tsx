@@ -61,7 +61,14 @@ export function PillBar({
           </nav>
         )}
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <SoundToggle className="max-sm:hidden" />
+          {/* Step pages have a long menu, so the sound switch shows there only on wide screens. */}
+          {center ? (
+            <span className="hidden min-[1400px]:block">
+              <SoundToggle />
+            </span>
+          ) : (
+            <SoundToggle className="max-sm:hidden" />
+          )}
           <ThemeToggle />
           {actions ?? (
             <a

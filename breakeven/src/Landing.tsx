@@ -51,10 +51,10 @@ export function Landing() {
             <p className="mt-6 max-w-[620px] text-lg leading-7 text-muted">See what each option costs at your volume, and the point where the answer changes.</p>
             <div className="mt-7 flex flex-wrap items-center gap-6">
               <CtaLink to="/worth-it">
-                Start with the business case <ArrowRight className="size-4" aria-hidden />
+                Start <ArrowRight className="size-4" aria-hidden />
               </CtaLink>
               <a href="/run-it" onClick={linkClick("/run-it")} className="text-[15px] font-semibold text-ink underline-offset-4 hover:underline">
-                Go to the cost comparison <ArrowRight className="inline size-4" aria-hidden />
+                Skip to cost comparison <ArrowRight className="inline size-4" aria-hidden />
               </a>
             </div>
             <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted max-lg:hidden">

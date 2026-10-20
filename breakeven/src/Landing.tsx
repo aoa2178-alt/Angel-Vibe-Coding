@@ -73,10 +73,10 @@ export function Landing() {
             <p className="kicker">Approach</p>
             <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Three analyses and a recommendation.</h2>
             <ol className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {PAGES.map((p) => (
+              {PAGES.map((p, i) => (
                 <li key={p.href} className="border-t border-white/20 pt-5">
                   <a href={p.href} onClick={linkClick(p.href)} className="font-semibold text-white hover:underline">
-                    {p.label}
+                    {i + 1} · {p.label}
                   </a>
                   <p className="mt-1.5 text-[15px] leading-6 text-white/75">{p.body}</p>
                 </li>

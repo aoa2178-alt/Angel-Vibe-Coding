@@ -191,10 +191,10 @@ export function CostPod() {
 
 /** Breakeven's four pages, for the Approach list. */
 export const PAGES = [
-  { href: "/worth-it", label: "Evaluate AI ROI", body: "Savings, payback and 12-month ROI, and whether AI beats rules or a process fix." },
-  { href: "/run-it", label: "Compare compute costs", body: "API, rented or owned GPUs on total cost, and the volumes where the answer changes." },
-  { href: "/power-it", label: "Power planning", body: "How much power owning needs, and the cheapest way to bridge a late grid connection." },
-  { href: "/result", label: "Recommendation", body: "One page: the call, what would change it, and how to land it. Printable." },
+  { href: "/worth-it", label: "Evaluate AI ROI", body: "Does AI save money for this work?" },
+  { href: "/run-it", label: "Compare compute costs", body: "API, rent or own: which is cheapest at your volume?" },
+  { href: "/power-it", label: "Power planning", body: "Only if you own: how much power you need." },
+  { href: "/result", label: "Recommendation", body: "The answer on one printable page." },
 ];
 
 const SHORT: Record<OptionId, string> = { api: "API", rent: "Rent", own: "Own" };

@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { Plus, Zap } from "lucide-react";
 import { useMemo, type ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { Fold } from "@/components/Fold";
@@ -16,7 +16,6 @@ import {
   bestStrategy,
   facilityKw,
   formatMoney,
-  paysOffFrom,
   rentPremium,
   strategies,
   totalOver,
@@ -115,8 +114,41 @@ export function PowerIt() {
               />
             </div>
 
-            <p className="kicker mt-7">02 · Grid connection delay</p>
-            <p className="mt-2 text-sm font-medium">Cluster size</p>
+            <p className="kicker mt-7">02 · Grid connection</p>
+            <div className="mt-3">
+              <div className="flex items-end justify-between gap-3">
+                <label htmlFor="delay" className="text-sm font-medium">
+                  Wait for the grid
+                </label>
+                <span className="font-mono text-sm text-brand-ink">{delay === 0 ? "On time" : `${delay} months`}</span>
+              </div>
+              <input
+                id="delay"
+                type="range"
+                min={0}
+                max={MAX_DELAY_MONTHS}
+                value={delay}
+                onChange={(e) => setB({ delayMonths: Number(e.target.value) })}
+                aria-valuetext={`${delay} months`}
+                className="mt-3 w-full"
+              />
+              <div className="mt-1 flex justify-between font-mono text-[11px] text-muted">
+                <span>0</span>
+                <span>2 yrs</span>
+                <span>4 yrs</span>
+                <span>6 yrs</span>
+              </div>
+              <p className="mt-1 text-xs text-muted">The US average is about 4 years; Northern Virginia about 7 for 100 MW.</p>
+            </div>
+
+            <details className="group/fine mt-6 border-t border-line pt-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                <span>
+                  <span className="text-sm font-semibold text-ink">Fine-tune</span> <span className="text-xs text-muted">cluster size, scale, site options</span>
+                </span>
+                <Plus className="size-5 shrink-0 text-ink transition-transform group-open/fine:rotate-45" aria-hidden />
+              </summary>
+            <p className="mt-4 text-sm font-medium">Cluster size</p>
             <button
               type="button"
               aria-pressed={plan.clusterGpus === null}
@@ -165,32 +197,6 @@ export function PowerIt() {
             </div>
             <p className="mt-1 text-xs text-muted">Facility power = GPUs × {assumptions.kwPerGpu} kW × PUE {assumptions.pue}.</p>
 
-            <div className="mt-6">
-              <div className="flex items-end justify-between gap-3">
-                <label htmlFor="delay" className="text-sm font-medium">
-                  Expected grid delay
-                </label>
-                <span className="font-mono text-sm text-brand-ink">{delay === 0 ? "On time" : `${delay} months`}</span>
-              </div>
-              <input
-                id="delay"
-                type="range"
-                min={0}
-                max={MAX_DELAY_MONTHS}
-                value={delay}
-                onChange={(e) => setB({ delayMonths: Number(e.target.value) })}
-                aria-valuetext={`${delay} months`}
-                className="mt-3 w-full"
-              />
-              <div className="mt-1 flex justify-between font-mono text-[11px] text-muted">
-                <span>0</span>
-                <span>2 yrs</span>
-                <span>4 yrs</span>
-                <span>6 yrs</span>
-              </div>
-              <p className="mt-1 text-xs text-muted">The US average is about 4 years; Northern Virginia about 7 for 100 MW.</p>
-            </div>
-
             <fieldset className="mt-6 space-y-2.5">
               <legend className="text-sm font-medium">Options available at this site</legend>
               <Toggle checked={bridge.serviceOffered > 0} onChange={(on) => setB({ serviceOffered: on ? 1 : 0 })}>
@@ -200,6 +206,8 @@ export function PowerIt() {
                 The utility offers a flexible (curtailable) connection
               </Toggle>
             </fieldset>
+
+            </details>
 
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
@@ -257,12 +265,6 @@ export function PowerIt() {
           </section>
 
           <section aria-label="Results" aria-live="polite" className={`bridge-${winner} grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4`}>
-            {kw < 1000 && (
-              <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
-                <span className="font-semibold">At {formatKw(kw)}, power is unlikely to be a constraint.</span> Grid delays matter at multi-megawatt
-                scale; try a <span className="font-semibold">scale scenario</span>.
-              </p>
-            )}
             {premium <= 0 && (
               <p className="rounded-2xl border border-line bg-brand-soft p-4 text-sm leading-6">
                 At these prices renting costs no more than owning, so a late grid costs you nothing: just rent.{" "}
@@ -273,7 +275,13 @@ export function PowerIt() {
               </p>
             )}
 
-            <div className="win-panel rounded-2xl p-5 text-white sm:p-7">
+            <div className="win-panel overflow-hidden rounded-2xl p-5 text-white sm:p-7">
+              {kw < 1000 && (
+                <p className="-mx-5 -mt-5 mb-5 border-b border-white/15 bg-white/10 px-5 py-2.5 text-sm leading-6 sm:-mx-7 sm:-mt-7 sm:px-7">
+                  <span className="font-semibold">At {formatKw(kw)}, power is unlikely to be a constraint.</span> Grid delays matter at multi-megawatt
+                  scale; try a bigger scale under Fine-tune.
+                </p>
+              )}
               <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/75">
                 {delay === 0 ? "Grid on time" : `Cheapest way to bridge a ${delay}-month wait`}
               </p>
@@ -282,13 +290,13 @@ export function PowerIt() {
                 {delay === 0 ? "Nothing to bridge" : STRATEGY_META[winner].name}
               </p>
               <div className="mt-5 grid grid-cols-3 gap-3 border-t border-white/20 pt-4">
-                <PanelStat label="Incremental cost">
+                <PanelStat label="Extra cost">
                   <Odometer text={formatMoney(winnerTotal)} />
                 </PanelStat>
                 <PanelStat label="Savings vs renting">
                   <Odometer text={formatMoney(savedVsRent)} />
                 </PanelStat>
-                <PanelStat label="Operational from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
+                <PanelStat label="Running from">{delay === 0 ? "Day one" : all[winner].readyAfter === 0 ? "Now" : `Month ${all[winner].readyAfter}`}</PanelStat>
               </div>
             </div>
 
@@ -301,10 +309,8 @@ export function PowerIt() {
                 </span>
                 <div>
                   <p className="kicker">Time to power drives the decision</p>
-                  <p className="mt-1 text-sm leading-6 text-ink">
-                    Renting this cluster costs {formatMoney(premium)} a month more than owning it on a working grid, so the fastest bridge usually
-                    wins, even with pricier power. {describeStretches(stretches)} {describePayoff(all, stretches)}
-                  </p>
+                  <p className="mt-1 text-[15px] leading-6 text-ink">{decisionLine(all, winner, delay, savedVsRent)}</p>
+                  {stretches.length > 1 && <p className="mt-2 text-xs leading-5 text-muted">{switchPoints(stretches)}</p>}
                 </div>
               </div>
             </div>
@@ -328,21 +334,21 @@ export function PowerIt() {
   );
 }
 
-function describeStretches(stretches: { fromMonth: number; id: StrategyId }[]) {
-  const [first, ...rest] = stretches;
-  if (!first) return "";
-  if (rest.length === 0) return `${STRATEGY_META[first.id].name} is cheapest at every delay.`;
-  const opening = first.id === "wait" ? `Up to ${rest[0]!.fromMonth - 1} months, just rent.` : `${STRATEGY_META[first.id].name} is cheapest up to ${rest[0]!.fromMonth - 1} months.`;
-  return [opening, ...rest.map((s) => `From ${s.fromMonth} months: ${STRATEGY_META[s.id].name}.`)].join(" ");
+/** The decision in one sentence. */
+function decisionLine(all: ReturnType<typeof strategies>, winner: StrategyId, delay: number, saved: number) {
+  if (delay === 0) return "The grid connects on time, so there is nothing to bridge.";
+  if (winner === "wait") return `For a ${delay}-month wait, renting cloud GPUs while you wait is cheapest: nothing else is ready soon enough to pay off.`;
+  const ready = all[winner].readyAfter;
+  return `For a ${delay}-month wait, ${STRATEGY_META[winner].name.toLowerCase()} wins: running ${ready === 0 ? "now" : `from month ${ready}`}, ${formatMoney(saved)} cheaper than renting the whole time.`;
 }
 
-function describePayoff(all: ReturnType<typeof strategies>, stretches: { fromMonth: number; id: StrategyId }[]) {
-  const m = paysOffFrom(all, "engines");
-  if (!all.engines.available || m === null) return "";
-  const fasterWins = stretches.some((s) => s.id === "service" || s.id === "flex");
-  return fasterWins
-    ? `Owning gas beats renting from ${m} months, but its ${all.engines.readyAfter}-month lead time is why faster options win first.`
-    : `Owning gas beats renting from ${m} months; until it arrives (${all.engines.readyAfter} months), you rent.`;
+/** "Up to 6 months: just rent · from 7 months: bridge power service · …" */
+function switchPoints(stretches: { fromMonth: number; id: StrategyId }[]) {
+  const [first, ...rest] = stretches;
+  if (!first) return "";
+  const until = rest[0]!.fromMonth - 1;
+  const opening = first.id === "wait" ? `Up to ${until} months: just rent` : `Up to ${until} months: ${STRATEGY_META[first.id].name.toLowerCase()}`;
+  return [opening, ...rest.map((x) => `from ${x.fromMonth} months: ${STRATEGY_META[x.id].name.toLowerCase()}`)].join(" · ");
 }
 
 const HATCH = "repeating-linear-gradient(135deg, #c9d2d8 0 5px, #e4e9ec 5px 10px)";

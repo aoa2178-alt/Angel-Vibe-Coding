@@ -193,7 +193,7 @@ export function CostPod() {
 export const PAGES = [
   { href: "/worth-it", label: "Evaluate AI ROI", body: "Does AI save money for this work?" },
   { href: "/run-it", label: "Compare compute costs", body: "API, rent or own: which is cheapest at your volume?" },
-  { href: "/power-it", label: "Power planning", body: "Only if you own: how much power you need." },
+  { href: "/power-it", label: "Power planning", body: "How much power you need.", note: "Only if you own" },
   { href: "/result", label: "Recommendation", body: "The answer on one printable page." },
 ];
 

@@ -72,13 +72,19 @@ export function Landing() {
           <div className="mx-auto max-w-[1320px] px-4 py-20 sm:px-8 sm:py-24">
             <p className="kicker">Approach</p>
             <h2 className="mt-3 text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Three analyses and a recommendation.</h2>
-            <ol className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            {/* The four steps as a path: numbered circles joined by a line (the line shows on wide screens). */}
+            <ol className="relative mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              <span aria-hidden className="absolute left-[22px] right-[22px] top-[21px] hidden h-0.5 bg-[#79aa9f]/50 lg:block" />
               {PAGES.map((p, i) => (
-                <li key={p.href} className="border-t border-white/20 pt-5">
-                  <a href={p.href} onClick={linkClick(p.href)} className="font-semibold text-white hover:underline">
-                    {i + 1} · {p.label}
+                <li key={p.href} className="relative">
+                  <a href={p.href} onClick={linkClick(p.href)} className="group block">
+                    <span className="grid size-11 place-items-center rounded-full border-2 border-[#79aa9f] bg-bg font-mono text-[15px] font-semibold text-white transition group-hover:border-[#2f7366] group-hover:bg-[#2f7366]">
+                      {i + 1}
+                    </span>
+                    <span className="mt-[18px] block text-[17px] font-semibold text-white group-hover:underline">{p.label}</span>
+                    <span className="mt-1 block text-[15px] leading-6 text-white/75">{p.body}</span>
+                    {p.note && <span className="mt-2 inline-block text-xs text-[#8fd3bd]">{p.note}</span>}
                   </a>
-                  <p className="mt-1.5 text-[15px] leading-6 text-white/75">{p.body}</p>
                 </li>
               ))}
             </ol>

@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import { linkClick } from "./Brand";
 import { DecisionMap } from "./DecisionMap";
@@ -39,9 +40,25 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
           </div>
           <span className="rounded-[5px] bg-brand px-3 py-1.5 text-sm font-semibold text-white">{VERDICT_LABELS[r.verdict]}</span>
         </div>
-        <p className="mt-3 max-w-3xl text-[15px] leading-7 text-ink-2">{r.reason}</p>
+        <p className="mt-4 rounded-[7px] bg-brand-soft px-4 py-3 text-[15px] leading-7 text-ink-2">
+          <span className="font-semibold text-brand-ink">{VERDICT_LABELS[r.verdict]}:</span> {r.reason}{" "}
+          {HORIZON_MONTHS / 12}-year value:{" "}
+          {r.options
+            .filter((o) => o.available && o.id !== "none")
+            .map((o) => `${o.label} ${formatMoney(o.cases.base.npv)}`)
+            .join(" · ")}
+          .
+        </p>
 
-        <div className="mt-5 overflow-x-auto">
+        <details className="group mt-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 border-y border-line py-3 [&::-webkit-details-marker]:hidden">
+            <span>
+              <span className="font-semibold text-ink">See the comparison</span>{" "}
+              <span className="text-xs text-muted">all options, three scenarios</span>
+            </span>
+            <Plus className="size-5 shrink-0 text-ink transition-transform group-open:rotate-45" aria-hidden />
+          </summary>
+        <div className="mt-3 overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-line text-xs text-muted">
@@ -85,6 +102,7 @@ export function Necessity({ plan, setPlan }: { plan: Plan; setPlan: Dispatch<Set
             </tbody>
           </table>
         </div>
+        </details>
 
         <DecisionMap plan={plan} />
 

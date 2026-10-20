@@ -1,4 +1,4 @@
-import { TriangleAlert } from "lucide-react";
+import { Plus, TriangleAlert } from "lucide-react";
 import { linkClick } from "@/components/Brand";
 import { Fold } from "@/components/Fold";
 import { Necessity } from "@/components/Necessity";
@@ -68,15 +68,17 @@ export function WorthIt() {
 }
 
 const FIELDS: { key: keyof RoiInputs; label: string; unit: string; step: number; percent?: boolean }[] = [
-  { key: "tasksPerMonth", label: "Monthly task volume", unit: "tasks", step: 1000 },
-  { key: "humanMinutes", label: "Handling time per task", unit: "minutes per task, manual", step: 1 },
-  { key: "hourlyCost", label: "Fully loaded hourly cost", unit: "$ per hour, incl. benefits and overhead", step: 5 },
-  { key: "aiSuccess", label: "AI resolution rate", unit: "% of tasks resolved without rework", step: 5, percent: true },
-  { key: "reviewMinutes", label: "Review time per resolved task", unit: "minutes of human QA per task", step: 0.5 },
+  { key: "tasksPerMonth", label: "Tasks per month", unit: "tasks", step: 1000 },
+  { key: "humanMinutes", label: "Minutes per task", unit: "by a person, today", step: 1 },
+  { key: "hourlyCost", label: "Cost per staff hour", unit: "$ per hour, incl. benefits and overhead", step: 5 },
+  { key: "aiSuccess", label: "Share AI handles on its own", unit: "% of tasks done without rework", step: 5, percent: true },
+  { key: "reviewMinutes", label: "Review minutes per AI task", unit: "minutes a person spends checking", step: 0.5 },
   { key: "tokensPerTask", label: "Tokens per task", unit: "input + output tokens", step: 1000 },
-  { key: "outputShare", label: "Output token share", unit: "% of tokens", step: 5, percent: true },
-  { key: "setupCost", label: "One-time implementation cost", unit: "$ one-time, build and launch", step: 5000 },
+  { key: "outputShare", label: "Share of tokens the AI writes", unit: "% of tokens", step: 5, percent: true },
+  { key: "setupCost", label: "One-time setup cost", unit: "$ one-time, build and launch", step: 5000 },
 ];
+/** Shown up front; the rest sit under "More assumptions", filled in by the template. */
+const MAIN_FIELDS = 3;
 
 function RoiStep({
   templateId,
@@ -94,6 +96,17 @@ function RoiStep({
   const template = templateById(templateId);
   const edited = FIELDS.some((f) => inputs[f.key] !== template.inputs[f.key]);
   const pays = r.savings > 0;
+  const field = (f: (typeof FIELDS)[number]) => (
+    <NumberField
+      key={f.key}
+      label={f.label}
+      unit={f.unit}
+      step={f.step}
+      value={f.percent ? Math.round(inputs[f.key] * 1000) / 10 : inputs[f.key]}
+      max={f.percent ? 100 : undefined}
+      onChange={(v) => onInput({ [f.key]: f.percent ? Math.min(100, v) / 100 : v })}
+    />
+  );
 
   return (
     <div className="grid gap-6">
@@ -128,22 +141,20 @@ function RoiStep({
               <span className="text-xs text-muted">Illustrative template values; replace with company data.</span>
             )}
           </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            {FIELDS.map((f) => (
-              <NumberField
-                key={f.key}
-                label={f.label}
-                unit={f.unit}
-                step={f.step}
-                value={f.percent ? Math.round(inputs[f.key] * 1000) / 10 : inputs[f.key]}
-                max={f.percent ? 100 : undefined}
-                onChange={(v) => onInput({ [f.key]: f.percent ? Math.min(100, v) / 100 : v })}
-              />
-            ))}
-          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">{FIELDS.slice(0, MAIN_FIELDS).map(field)}</div>
+          <details className="group mt-5 border-t border-line pt-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <span>
+                <span className="font-semibold text-ink">More assumptions</span>{" "}
+                <span className="text-xs text-muted">{FIELDS.length - MAIN_FIELDS} · filled in by the template</span>
+              </span>
+              <Plus className="size-5 shrink-0 text-ink transition-transform group-open:rotate-45" aria-hidden />
+            </summary>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">{FIELDS.slice(MAIN_FIELDS).map(field)}</div>
+          </details>
         </section>
 
-        <section aria-label="Return on investment" aria-live="polite" className="grid gap-4">
+        <section aria-label="Return on investment" aria-live="polite" className="order-first grid gap-4 lg:order-none">
           <div className={`rounded-2xl p-5 sm:p-7 ${pays ? "bg-[#182536] text-white" : "border border-line bg-surface"}`}>
             {pays ? (
               <>

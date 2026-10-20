@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { linkClick } from "@/components/Brand";
 import { CostPod, PAGES } from "@/components/Handheld";
@@ -91,10 +91,26 @@ export function Landing() {
           </div>
         </section>
 
-        {/* Closing call to action. */}
+        {/* Closing call to action, with why the numbers can be trusted. */}
         <section className="dark-scope border-t border-white/10">
           <div className="mx-auto flex max-w-[1320px] flex-col items-start gap-6 px-4 py-16 sm:px-8 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Model your own scenario.</h2>
+            <div>
+              <h2 className="text-3xl font-medium tracking-[-0.03em] sm:text-4xl">Model your own scenario.</h2>
+              <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/75">
+                {[
+                  ["Real prices", "checked weekly"],
+                  ["Every number", "sourced"],
+                  ["117", "automated tests"],
+                ].map(([strong, rest]) => (
+                  <li key={strong} className="flex items-center gap-2">
+                    <Check className="size-4 text-[#8fd3bd]" aria-hidden />
+                    <span>
+                      <span className="font-semibold text-white">{strong}</span> {rest}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <CtaLink to="/worth-it" variant="light">
               Start <ArrowRight className="size-4" aria-hidden />
             </CtaLink>

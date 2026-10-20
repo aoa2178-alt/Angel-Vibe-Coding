@@ -1,5 +1,5 @@
 import { Check, Copy, Sparkles } from "lucide-react";
-import { useState, type RefObject } from "react";
+import { useState, type RefObject, type ReactNode } from "react";
 
 /** "GPU throughput" stays as is; "Phones cost more" becomes "phones cost more". */
 const lowerFirst = (t: string) => (/^[A-Z]{2}/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
@@ -78,7 +78,7 @@ function callText(root: HTMLElement | null) {
 }
 
 /** Copy the call as text, or hand it to an AI assistant to argue with. */
-export function CallShare({ root }: { root: RefObject<HTMLElement | null> }) {
+export function CallShare({ root, extra }: { root: RefObject<HTMLElement | null>; extra?: ReactNode }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
     const { body } = callText(root.current);
@@ -102,6 +102,7 @@ export function CallShare({ root }: { root: RefObject<HTMLElement | null> }) {
         {copied ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
         {copied ? "Copied" : "Copy as text"}
       </button>
+      {extra}
       <span className="ml-1 text-xs text-muted">
         <Sparkles className="mr-1 inline size-3.5 align-[-2px]" aria-hidden />
         Ask AI to challenge it:

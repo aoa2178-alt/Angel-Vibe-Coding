@@ -51,26 +51,7 @@ export function Result() {
     <PlanFrame
       route="result"
       plan={plan}
-      actions={
-        <>
-          <span className="hidden sm:inline-flex">
-            <ReadAloud
-              label="Read it to me"
-              text={`The recommendation for ${title.toLowerCase()}: ${OPTIONS[recommended].name.replace(" (API)", "")}, at ${formatUsd(costs[recommended].monthly)} a month.${r && r.savings > 0 ? ` AI saves ${formatUsd(r.savings)} a month against people alone.` : ""} ${describeWhatChanges(call)}`}
-            />
-          </span>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2.5 text-xs font-semibold text-ink-2 transition hover:border-brand hover:text-ink"
-            aria-label="Print or save as PDF"
-          >
-            <Printer className="size-3.5" aria-hidden />
-            <span className="hidden xl:inline">Print or PDF</span>
-          </button>
-          <CopyLinkButton />
-        </>
-      }
+      actions={<CopyLinkButton />}
     >
       <article ref={root} className="mx-auto max-w-4xl rounded-3xl border border-line bg-surface p-6 sm:p-10 print:max-w-none print:rounded-none print:border-0 print:p-0">
         <header className="border-b border-line pb-6">
@@ -96,9 +77,29 @@ export function Result() {
         </dl>
 
         <CallRecommendation call={call} plan={plan} setPlan={setPlan} />
-        <CallShare root={root} />
+        <CallShare
+          root={root}
+          extra={
+            <>
+              <ReadAloud
+                label="Read it to me"
+                text={`The recommendation for ${title.toLowerCase()}: ${OPTIONS[recommended].name.replace(" (API)", "")}, at ${formatUsd(costs[recommended].monthly)} a month.${r && r.savings > 0 ? ` AI saves ${formatUsd(r.savings)} a month against people alone.` : ""} ${describeWhatChanges(call)}`}
+              />
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-2 text-xs font-semibold text-ink transition hover:border-brand"
+              >
+                <Printer className="size-3.5" aria-hidden />
+                Print or PDF
+              </button>
+            </>
+          }
+        />
 
-        <div className="mt-6 grid gap-3">
+        <div className="mt-6">
+          <Fold id="full-details" title="Full details" sub="Evidence, what would change it, the 30/60/90 plan, success measures and key judgments">
+          <div className="grid gap-3">
           <Fold id="evidence" title="Evidence" sub="Business case, make-or-buy and power readiness">
 
         <Section n="a" title="Business case">
@@ -216,6 +217,8 @@ export function Result() {
           </Fold>
           <Fold id="judgments" title="Key judgments" sub="Like for like, prices that move, a conservative queueing model, and what's left out">
             <CallJudgment />
+          </Fold>
+          </div>
           </Fold>
         </div>
 

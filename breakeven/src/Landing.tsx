@@ -49,7 +49,7 @@ export function Landing() {
               Run your AI on an API, cloud GPUs, or your own hardware?
             </h1>
             <p className="mt-6 max-w-[620px] text-lg leading-7 text-muted">See what each option costs at your volume, and the point where the answer changes.</p>
-            <div className="mt-7 flex flex-wrap items-center gap-6">
+            <div className="mt-7 grid justify-items-start gap-3">
               <CtaLink to="/worth-it">
                 Start <ArrowRight className="size-4" aria-hidden />
               </CtaLink>

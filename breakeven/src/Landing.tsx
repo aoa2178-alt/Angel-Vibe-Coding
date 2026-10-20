@@ -100,7 +100,7 @@ export function Landing() {
                 {[
                   ["Real prices", "checked weekly"],
                   ["Every number", "sourced"],
-                  ["117", "automated tests"],
+                  ["100+", "automated tests"],
                 ].map(([strong, rest]) => (
                   <li key={strong} className="flex items-center gap-2">
                     <Check className="size-4 text-[#8fd3bd]" aria-hidden />

@@ -33,6 +33,21 @@ export function whyThisWins(workload: Workload, costs: Record<OptionId, OptionCo
   return `At ${v} tokens a month you keep ${gpuWord(ownGpus)} busy around the clock. Spread over the hardware's life, owning them (${own} a month) costs less than renting (${rent}) or paying per token (${api}).`;
 }
 
+/** The same reason in one sentence, for the "Why this wins" box. */
+export function whyShort(workload: Workload, costs: Record<OptionId, OptionCost>) {
+  const win = cheapest(costs);
+  const v = formatTokensM(workload.tokensM);
+  const rentGpus = costs.rent.gpus ?? 1;
+  const ownGpus = costs.own.gpus ?? 0;
+  const api = formatUsd(costs.api.monthly);
+  const rent = formatUsd(costs.rent.monthly);
+  const own = formatUsd(costs.own.monthly);
+  if (win === "api") return `${v} tokens a month won't keep a GPU busy: the API costs ${api}, versus ${rent} to rent and ${own} to own.`;
+  if (win === "rent")
+    return `${rentGpus === 1 ? "One rented GPU covers" : `${rentGpus} rented GPUs cover`} ${v} tokens a month: ${rent}, versus ${api} on the API and ${own} to own.`;
+  return `${v} tokens a month keeps ${ownGpus} GPUs busy, so owning them costs ${own}, versus ${rent} to rent and ${api} on the API.`;
+}
+
 export interface FlipSegment {
   id: OptionId;
   fromM: number;

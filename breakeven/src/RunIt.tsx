@@ -1,4 +1,4 @@
-import { Download, Zap } from "lucide-react";
+import { Download, Plus, Zap } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { linkClick } from "@/components/Brand";
 import { ClosingBars } from "@/components/ClosingBars";
@@ -14,7 +14,7 @@ import { Ownership } from "@/components/Ownership";
 import { CopyLinkButton, PlanFrame, StepHeading, formatKw, usePlan } from "@/components/PlanFrame";
 import { Scorecard } from "@/components/Scorecard";
 import { Sensitivity } from "@/components/Sensitivity";
-import { volumeInWords, whyThisWins } from "@/lib/explain";
+import { volumeInWords, whyShort, whyThisWins } from "@/lib/explain";
 import type { TermId } from "@/lib/glossary";
 import { planQuery, stepHref } from "@/lib/plan";
 import { isStale, latest, withLatest } from "@/lib/prices";
@@ -135,6 +135,13 @@ export function RunIt() {
               )}
             </p>
 
+            <details className="group mt-5 border-t border-line pt-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                <span>
+                  <span className="text-sm font-semibold text-ink">Fine-tune</span> <span className="text-xs text-muted">3 settings</span>
+                </span>
+                <Plus className="size-5 shrink-0 text-ink transition-transform group-open:rotate-45" aria-hidden />
+              </summary>
             <div className="mt-4 flex items-center justify-between gap-3">
               <label htmlFor="volume-exact" className="text-sm font-medium">
                 Exact tokens per month
@@ -176,7 +183,10 @@ export function RunIt() {
               min={0.2}
               max={0.9}
             />
+            </details>
 
+            {/* Power only matters when owning is the answer (or a power budget is set). */}
+            {(winner === "own" || assumptions.powerLimitKw > 0) && (
             <a
               href={powerLink}
               onClick={linkClick(powerLink)}
@@ -192,6 +202,7 @@ export function RunIt() {
                 </span>
               </span>
             </a>
+            )}
 
             <details className="group mt-6 rounded-xl border border-line bg-bg">
               <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3">
@@ -278,16 +289,22 @@ export function RunIt() {
 
             <div className="why-box rounded-xl border-l-4 p-4 text-sm leading-6">
               <p className="text-[11px] font-bold uppercase tracking-[0.08em]">Why this wins</p>
-              <p className="mt-1 text-ink">{whyThisWins(workload, costs)}</p>
+              <p className="mt-1 text-ink">{whyShort(workload, costs)}</p>
             </div>
 
             <ClosingBars costs={costs} winner={winner} meta={OPTIONS} />
 
             <FlipStrip workload={workload} assumptions={assumptions} sentence={`${describeCrossovers(cross)} ${describePower(workload, assumptions)}`.trim()} />
 
-            <Fold id="projection" title="Cost curves by volume" sub="Monthly cost of each option across volumes, with the crossover points">
-              <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
-            </Fold>
+            <section id="projection" aria-label="Cost curves by volume" className="scroll-mt-24 rounded-[7px] border border-line bg-surface p-4 sm:p-5">
+              <h3 className="text-lg font-semibold tracking-tight">Cost curves by volume</h3>
+              <p className="mt-1 text-xs text-muted">Monthly cost of each option across volumes, with the crossover points. Hover to read any volume.</p>
+              <div className="mt-4">
+                <CostChart workload={workload} assumptions={assumptions} cross={cross} meta={OPTIONS} />
+              </div>
+            </section>
+            <Fold id="more-analysis" title="More analysis" sub="Sensitivity, scorecard, operating strategies and calculation detail">
+            <div className="grid gap-3">
             <Fold id="sensitivity" title="Sensitivity analysis" sub="±25% on each cost driver: which ones change the recommendation">
               <Sensitivity workload={workload} assumptions={assumptions} meta={OPTIONS} />
             </Fold>
@@ -311,6 +328,8 @@ export function RunIt() {
                 <Calculations workload={workload} assumptions={assumptions} costs={costs} />
                 <Ownership workload={workload} assumptions={assumptions} meta={OPTIONS} />
               </div>
+            </Fold>
+            </div>
             </Fold>
 
             <p className="text-xs leading-5 text-muted">

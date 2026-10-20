@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { flipSegments, volumeInWords, volumePosition, whyThisWins } from "./explain";
+import { flipSegments, volumeInWords, volumePosition, whyShort, whyThisWins } from "./explain";
 import { DEFAULT_ASSUMPTIONS, DEFAULT_WORKLOAD, compare, crossovers } from "./tco";
 
 const at = (tokensM: number) => ({ ...DEFAULT_WORKLOAD, tokensM });
@@ -41,5 +41,14 @@ describe("Read-aloud wording", () => {
     expect(forSpeech("At 2B tokens, 1 GPU costs $11K and the API $8,000; 460M is the flip.")).toBe(
       "At 2 billion tokens, 1 G P U costs $11 thousand and the A P I $8,000; 460 million is the flip.",
     );
+  });
+});
+
+describe("whyShort", () => {
+  const at = (tokensM: number) => ({ ...DEFAULT_WORKLOAD, tokensM });
+  it("gives the reason in one sentence with all three costs", () => {
+    expect(whyShort(at(2_000), compare(at(2_000), DEFAULT_ASSUMPTIONS))).toBe("One rented GPU covers 2B tokens a month: $1,825, versus $8,000 on the API and $11,182 to own.");
+    expect(whyShort(at(200), compare(at(200), DEFAULT_ASSUMPTIONS))).toMatch(/^200M tokens a month won't keep a GPU busy: the API costs \$800/);
+    expect(whyShort(at(30_000), compare(at(30_000), DEFAULT_ASSUMPTIONS))).toMatch(/so owning them costs/);
   });
 });

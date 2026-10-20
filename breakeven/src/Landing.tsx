@@ -44,7 +44,7 @@ export function Landing() {
         {/* The question, with the handheld: turn the wheel and watch the cheapest way to run AI change with volume. */}
         <section className="mx-auto grid max-w-[1320px] items-center gap-12 px-4 pb-20 pt-14 sm:px-8 sm:pb-28 sm:pt-20 lg:grid-cols-[1.1fr_1fr]">
           <div>
-            <p className="kicker">Compute economics, made explicit.</p>
+            <p className="kicker">AI compute economics, made simple.</p>
             <h1 className="mt-4 text-[3.2rem] font-semibold leading-[0.96] tracking-[-0.065em] sm:text-7xl lg:text-[5.4rem]">
               Run your AI on an API, cloud GPUs, or your own hardware?
             </h1>
